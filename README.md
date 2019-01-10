@@ -10,4 +10,4 @@
 
 
 The spear used with shield to help our users via the codex project.
-aka. the api layer to get the data from the database
+aka. The api layer to get the data from the database.
