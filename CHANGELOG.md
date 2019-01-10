@@ -7,4 +7,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 - Initial creation
 
-[Unreleased]: https://github.com/Comcast/codex-gungnir/compare/0.1.1...HEAD
+[Unreleased]: https://github.com/Comcast/codex-gungnir/compare/0.0.0...HEAD
