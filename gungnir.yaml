@@ -1,0 +1,17 @@
+---
+primary:
+  address: ":8080"
+
+log:
+  file: "stdout"
+  level: "INFO"
+  json: true
+
+authHeader: ["YXV0aEhlYWRlcg=="]
+
+db:
+  server: "localhost:11210"
+  bucket: "devices"
+  username: "Administrator"
+  password: "somepassword"
+  numRetries: 4

@@ -1,0 +1,25 @@
+FROM golang:alpine as builder
+MAINTAINER Jack Murdock <jack_murdock@comcast.com>
+
+WORKDIR /go/src/github.com/comcast/codex-gungnir
+
+RUN apk add --update git curl
+RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+
+COPY . .
+RUN dep ensure
+COPY . .
+
+RUN go build -o gungnir_linux_amd64 github.com/comcast/codex-gungnir
+
+FROM alpine
+
+RUN apk --no-cache add ca-certificates
+RUN mkdir -p /etc/gungnir
+VOLUME /etc/gungnir
+
+EXPOSE 8080
+
+COPY --from=builder /go/src/github.com/comcast/codex-gungnir/gungnir_linux_amd64 /
+COPY gungnir.yaml /
+ENTRYPOINT ["/gungnir_linux_amd64"]
