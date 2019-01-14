@@ -1,0 +1,28 @@
+language: go
+
+go:
+  - 1.11.x
+  - tip
+
+os:
+  - linux
+  - osx
+
+
+matrix:
+  allow_failures:
+    - go: tip
+  fast_finish: true
+
+install:
+  - go get -u github.com/golang/dep/...
+  - dep ensure
+
+script:
+  - if [ -n "$(gofmt -s -l . | grep -v "vendor")" ]; then diff -u <(echo -n) <(gofmt -d $(gofmt -s -l . | grep -v "vendor")); fi
+  - go test -v -race $(go list ./... | grep -v "/vendor/")
+  - go get github.com/haya14busa/goverage
+  - goverage -coverprofile=coverage.txt ./...
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
