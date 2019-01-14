@@ -1,0 +1,15 @@
+[[constraint]]
+  name = "github.com/Comcast/codex"
+  version= "0.1.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/Comcast/webpa-common"
+
+[[override]]
+  name = "github.com/prometheus/client_golang"
+  revision = "967789050ba94deca04a5e84cce8ad472ce313c1"
+
+[prune]
+  go-tests = true
+  unused-packages = true
