@@ -32,7 +32,7 @@ import (
 //go:generate swagger generate spec -m -o swagger.spec
 
 type App struct {
-	db     db.DbConnection
+	db     db.Connection
 	logger log.Logger
 }
 
@@ -63,7 +63,7 @@ type ErrResponse struct {
 func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request) (interface{}, bool) {
 	vars := mux.Vars(request)
 	id := vars["deviceID"]
-	d, err := app.db.GetHistory(id)
+	history, err := app.db.GetHistory(id)
 	if err != nil {
 
 		// if there is no history, get the tombstone
@@ -81,12 +81,12 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
 
 		xhttp.WriteError(writer, 404, err)
 		return nil, false
-	} else if len(d) == 0 {
+	} else if len(history.Events) == 0 {
 		xhttp.WriteError(writer, 500, fmt.Errorf("recieved an empty object"))
 		return nil, false
 	}
 	writer.Header().Set("X-Codex-Device-Id", id)
-	return d, true
+	return history, true
 }
 
 func (app *App) getTombstone(writer http.ResponseWriter, id string) (interface{}, bool) {

@@ -62,7 +62,7 @@ func gungnir(arguments []string) int {
 		return 1
 	}
 
-	database := db.DbConnection{}
+	database := db.Connection{}
 
 	v.UnmarshalKey("db", &database)
 
