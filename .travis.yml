@@ -16,37 +16,12 @@ matrix:
     - go: tip
   fast_finish: true
 
-install:
-  - go get -u github.com/golang/dep/...
-  - dep ensure
-
 script:
-  - if [ -n "$(gofmt -s -l . | grep -v "vendor")" ]; then diff -u <(echo -n) <(gofmt -d $(gofmt -s -l . | grep -v "vendor")); fi
-  - go test -v -race $(go list ./... | grep -v "/vendor/")
-  - go get github.com/haya14busa/goverage
-  - goverage -coverprofile=coverage.txt ./...
-  - bash <(curl -s https://codecov.io/bash)
+  - make style codecov
 
 jobs:
   include:
     - stage: integration
       name: "Integration Tests"
       script:
-        - docker build -t gungnir:local .
-        - docker --version
-        - cd ..
-        - git clone https://github.com/Comcast/codex-svalinn.git
-        - cd codex-svalinn
-        # build svalinn
-        - docker build -t svalinn:local .
-        - docker-compose --version
-        - docker swarm init
-        - cd ..
-        - git clone https://github.com/Comcast/codex.git
-        - pushd codex/deploy/docker-compose
-        - docker stack deploy codex --compose-file docker-compose.yml
-        - popd
-        # get test dependencies
-        - go get github.com/gorilla/mux
-        - go get github.com/DATA-DOG/godog
-        - go run github.com/Comcast/codex/tests/runners/travis -feature=codex/tests/features
+        - make it
