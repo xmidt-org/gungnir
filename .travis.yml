@@ -25,7 +25,7 @@ script:
   - go test -v -race $(go list ./... | grep -v "/vendor/")
   - go get github.com/haya14busa/goverage
   - goverage -coverprofile=coverage.txt ./...
-  - bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash) -t 4756eaa4-4777-4f79-89ea-7cf9039a8fda
 
 jobs:
   include:
