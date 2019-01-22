@@ -10,7 +10,7 @@ function check() {
 }
 
 function gungnir-docker {
-    GUNGNIR_VERSION=$(make version)
+    GUNGNIR_VERSION="$(make version -s)"
     make docker
     check $?
 }
@@ -19,7 +19,7 @@ function svalinn-docker {
     echo "Building Gungnir Image"
     git clone https://github.com/Comcast/codex-svalinn.git 2> /dev/null || true
     cd codex-svalinn
-    SVALINN_VERSION=$(make version)
+    SVALINN_VERSION="$(make version -s)"
     make docker
     check $?
     cd ..
