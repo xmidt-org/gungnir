@@ -6,6 +6,7 @@
 *.dylib
 codex-gungnir
 gungnir
+OPATH/
 
 # Test binary, build with `go test -c`
 *.test
