@@ -1,0 +1,43 @@
+---
+server: locahost
+
+primary:
+  address: ":7100"
+health:
+  address: ":7101"
+pprof:
+  address: ":7102"
+metric:
+  address: ":7103"
+
+log:
+  file: "/var/log/gungnir/gungnir.log"
+  level: "DEBUG"
+  maxSize: 50
+  maxBackup: 3
+  json: true
+
+
+config:
+  endpoint: "/device-status"
+  queueSize: 3000
+  stateLimitPerDevice: 3
+  db:
+    server: "127.0.0.1:11210"
+    username: "Administrator"
+    password: "somepassword"
+    bucket: "devices"
+    numRetries: 4
+    timeout: 10m
+  tombstoneKeys:
+    online: ".*/online$"
+    offline: ".*/offline$"
+
+authHeader: ["YXV0aEhlYWRlcg=="]
+
+webhook:
+  secret: "Basic YXV0aEhlYWRlcg=="
+  registrationInterval: "4m"
+  url: "http://host.docker.internal:8181/api/v1/device-status"
+  timeout: "1m"
+  registrationURL: "http://127.0.0.1:6000/hook"

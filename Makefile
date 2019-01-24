@@ -20,6 +20,16 @@ deps: $(DEP)
 build: deps
 	$(GO) build
 
+rpm:
+	mkdir -p ./OPATH/SOURCES
+	tar -czvf ./OPATH/SOURCES/gungnir-$(PROGVER).tar.gz . --exclude ./.git --exclude ./OPATH --exclude ./conf --exclude ./deploy --exclude ./vendor
+	cp conf/gungnir.service ./OPATH/SOURCES/
+	cp conf/gungnir.yaml  ./OPATH/SOURCES/
+	rpmbuild --define "_topdir $(CURDIR)/OPATH" \
+    		--define "_version $(PROGVER)" \
+    		--define "_release 1" \
+    		-ba deploy/packaging/gungnir.spec
+
 .PHONY: version
 version:
 	@echo $(PROGVER)
