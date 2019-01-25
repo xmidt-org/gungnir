@@ -19,11 +19,16 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+
+	"os"
+	"os/signal"
+	"time"
 
 	"github.com/Comcast/codex/db"
 	"github.com/Comcast/webpa-common/bookkeeping"
@@ -31,9 +36,6 @@ import (
 	"github.com/Comcast/webpa-common/logging"
 	"github.com/Comcast/webpa-common/secure/handler"
 	"github.com/Comcast/webpa-common/server"
-	"os"
-	"os/signal"
-	"time"
 )
 
 const (
@@ -74,9 +76,12 @@ func gungnir(arguments []string) int {
 		return 1
 	}
 
-	database := db.Connection{}
+	configHolder := new(struct {
+		Db db.Connection
+	})
 
-	v.UnmarshalKey("db", &database)
+	v.Unmarshal(configHolder)
+	database := configHolder.Db
 
 	//vaultClient, err := xvault.Initialize(v)
 	//if err != nil {

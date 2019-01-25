@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:801cac57465af543591dbbbc2015c96acbc4c3e86c453d11b20450d72bfc2031"
+  digest = "1:b68a9564777a9b98d079c006684367aed267b698377f5ec006bc264578c513ef"
   name = "github.com/Comcast/webpa-common"
   packages = [
     "bookkeeping",
@@ -30,7 +30,7 @@
     "xmetrics",
   ]
   pruneopts = "UT"
-  revision = "690ceee87713a8a572d554e8bc5c12d73c1144ea"
+  revision = "6eb38a3310b54fde67ccafabe656fb5abc267f9c"
 
 [[projects]]
   digest = "1:a69ab3f1445ffd4815add4bd31ba05b65b3b9fec1ade5057d5d717f30e6efd6d"
@@ -317,7 +317,6 @@
   revision = "56726106282f1985ea77d5305743db7231b0c0a8"
 
 [[projects]]
-  branch = "master"
   digest = "1:ce62b400185bf6b16ef6088011b719e449f5c15c4adb6821589679f752c2788e"
   name = "github.com/prometheus/common"
   packages = [
@@ -327,6 +326,7 @@
   ]
   pruneopts = "UT"
   revision = "2998b132700a7d019ff618c06a234b47c1f3f681"
+  version = "v0.1.0"
 
 [[projects]]
   branch = "master"
@@ -405,7 +405,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ca38c104c734524967fbd5142db26f55febff8fb6fbe92ff4c0f95dae6bcc265"
+  digest = "1:9edb1388850880d4d9ce2296fe215740fb1ed0f799990d60cef1daa0dbfafd75"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -415,15 +415,15 @@
     "idna",
   ]
   pruneopts = "UT"
-  revision = "915654e7eabcea33ae277abbecf52f0d8b7a9fdc"
+  revision = "d26f9f9a57f3fab6a695bec0d84433c2c50f8bbf"
 
 [[projects]]
   branch = "master"
-  digest = "1:f6f6d9d6f80c9e32acc0f4f3b904e0b9f5b18a7757c2ef941121bd79a10e7bdf"
+  digest = "1:db12953ac7a80656b159265fe13146959beaada45938a532f484a3aeb289462e"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "11f53e03133963fb11ae0588e08b5e0b85be8be5"
+  revision = "b90733256f2e882e81d52f9126de08df5615afd9"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
