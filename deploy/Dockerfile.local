@@ -7,8 +7,6 @@ RUN apk add --update git curl
 RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 COPY . .
-RUN dep ensure
-COPY . .
 
 RUN go build -o gungnir_linux_amd64 github.com/comcast/codex-gungnir
 
