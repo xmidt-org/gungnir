@@ -77,11 +77,11 @@ func gungnir(arguments []string) int {
 	}
 
 	configHolder := new(struct {
-		Db db.Connection
+		Db db.Config
 	})
 
 	v.Unmarshal(configHolder)
-	database := configHolder.Db
+	dbConfig := configHolder.Db
 
 	//vaultClient, err := xvault.Initialize(v)
 	//if err != nil {
@@ -96,7 +96,7 @@ func gungnir(arguments []string) int {
 	//database.Username = usr
 	//database.Password = pwd
 
-	err = database.Initialize()
+	database, err := db.CreateDbConnection(dbConfig)
 	if err != nil {
 		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to initialize database connection",
 			logging.ErrorKey(), err.Error())

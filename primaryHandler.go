@@ -20,19 +20,20 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/Comcast/codex/db"
 	"github.com/Comcast/webpa-common/xhttp"
 	"github.com/go-kit/kit/log"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
 	"gopkg.in/couchbase/gocb.v1"
-	"net/http"
 )
 
 //go:generate swagger generate spec -m -o swagger.spec
 
 type App struct {
-	db     db.Connection
+	db     *db.Connection
 	logger log.Logger
 }
 
@@ -45,9 +46,14 @@ type DeviceIdParam struct {
 	DeviceID string `json:"deviceID"`
 }
 
+// TombstoneOrHistory is what is returned on a successful response
+//
+// swagger:response TombstoneOrHistory
+type TombstoneOrHistory interface{}
+
 // ErrResponse is the information passed to the client on an error
 //
-// swagger:model ErrResponse
+// swagger:response ErrResponse
 type ErrResponse struct {
 	// The http code of the response
 	//
@@ -57,7 +63,7 @@ type ErrResponse struct {
 	// the error message
 	//
 	//required: true
-	Message interface{} `json:"message"`
+	Message error `json:"message"`
 }
 
 func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request) (interface{}, bool) {
@@ -115,7 +121,7 @@ func (app *App) getTombstone(writer http.ResponseWriter, id string) (interface{}
  * Schemes: http
  *
  * Responses:
- *    200: Device
+ *    200: TombstoneOrHistory
  *    404: ErrResponse
  *    500: ErrResponse
  *
@@ -138,44 +144,3 @@ func (app *App) handleGetAll(writer http.ResponseWriter, request *http.Request) 
 	writer.WriteHeader(200)
 	writer.Write(data)
 }
-
-/*
- * swagger:route GET /device/{deviceID}/last device getLastState
- *
- * Gets information on the last state for a particular device
- *
- * Parameters: deviceID
- *
- * Produces:
- *    - application/json
- *
- * Schemes: http
- *
- * Responses:
- *    200: State
- *    404: ErrResponse
- *    500: ErrResponse
- */
-// func (app *App) handleGetLastState(writer http.ResponseWriter, request *http.Request) {
-// 	var (
-// 		d  db.Device
-// 		ok bool
-// 	)
-// 	if d, ok = app.getDevice(writer, request); !ok {
-// 		return
-// 	}
-
-// 	if len(d.States) > 0 {
-// 		lastState := d.States[0]
-// 		data, err := json.Marshal(&lastState)
-// 		if err != nil {
-// 			xhttp.WriteError(writer, 500, err)
-// 			return
-// 		}
-// 		writer.Header().Set("Content-Type", "application/json")
-// 		writer.WriteHeader(200)
-// 		writer.Write(data)
-// 	} else {
-// 		xhttp.WriteError(writer, 500, fmt.Errorf("no states found"))
-// 	}
-// }

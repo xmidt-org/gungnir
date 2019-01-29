@@ -18,8 +18,7 @@
 // Package gungnir, device info API.
 //
 // the purpose of this application is to provide an API
-// that returns information about a device, its state, and
-// its hardware.
+// that returns event information for a device.
 //
 //     Schemes: http, https
 //     Host: localhost

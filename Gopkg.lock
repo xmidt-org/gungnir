@@ -2,12 +2,11 @@
 
 
 [[projects]]
-  digest = "1:7c45704d088a559ddb46cb716ce1149b28584cb11ca23706371884816c9a8d9f"
+  digest = "1:767253b4bb1863f4aa0e377b6aaea83eff9f2e6c1a9cabcf4c933a438cbfe5ea"
   name = "github.com/Comcast/codex"
   packages = ["db"]
   pruneopts = "UT"
-  revision = "1e8ff548fa1c0ae94bb79c6bc33968ba4fc2f735"
-  version = "v0.1.1"
+  revision = "0.1.2"
 
 [[projects]]
   branch = "master"
@@ -160,20 +159,12 @@
   version = "v0.16.0"
 
 [[projects]]
-  digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
-  name = "github.com/gorilla/context"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
-  version = "v1.1.1"
-
-[[projects]]
-  digest = "1:e73f5b0152105f18bc131fba127d9949305c8693f8a762588a82a48f61756f5f"
+  digest = "1:ca59b1175189b3f0e9f1793d2c350114be36eaabbe5b9f554b35edee1de50aea"
   name = "github.com/gorilla/mux"
   packages = ["."]
   pruneopts = "UT"
-  revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
-  version = "v1.6.2"
+  revision = "a7962380ca08b5a188038c69871b8d3fbdf31e89"
+  version = "v1.7.0"
 
 [[projects]]
   digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
@@ -317,7 +308,7 @@
   revision = "56726106282f1985ea77d5305743db7231b0c0a8"
 
 [[projects]]
-  digest = "1:ce62b400185bf6b16ef6088011b719e449f5c15c4adb6821589679f752c2788e"
+  digest = "1:35cf6bdf68db765988baa9c4f10cc5d7dda1126a54bd62e252dbcd0b1fc8da90"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -325,8 +316,8 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "2998b132700a7d019ff618c06a234b47c1f3f681"
-  version = "v0.1.0"
+  revision = "cfeb6f9992ffa54aaa4f2170ade4067ee478b250"
+  version = "v0.2.0"
 
 [[projects]]
   branch = "master"
