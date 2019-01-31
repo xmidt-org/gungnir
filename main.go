@@ -44,6 +44,12 @@ const (
 	applicationVersion       = "0.0.0"
 )
 
+type Config struct {
+	Db            db.Config
+	GetRetries    int
+	RetryInterval time.Duration
+}
+
 func gungnir(arguments []string) int {
 	start := time.Now()
 
@@ -76,12 +82,10 @@ func gungnir(arguments []string) int {
 		return 1
 	}
 
-	configHolder := new(struct {
-		Db db.Config
-	})
+	config := new(Config)
 
-	v.Unmarshal(configHolder)
-	dbConfig := configHolder.Db
+	v.Unmarshal(config)
+	dbConfig := config.Db
 
 	//vaultClient, err := xvault.Initialize(v)
 	//if err != nil {
@@ -103,6 +107,8 @@ func gungnir(arguments []string) int {
 		fmt.Fprintf(os.Stderr, "Database Initialize Failed: %#v\n", err)
 		return 2
 	}
+	hg := db.CreateRetryHGService(database, config.GetRetries, config.RetryInterval)
+	tg := db.CreateRetryTGService(database, config.GetRetries, config.RetryInterval)
 
 	authHandler := handler.AuthorizationHandler{
 		HeaderName:          "Authorization",
@@ -117,8 +123,9 @@ func gungnir(arguments []string) int {
 	router := mux.NewRouter()
 	// MARK: Actual server logic
 	app := &App{
-		db:     database,
-		logger: logger,
+		historyGetter:   hg,
+		tombstoneGetter: tg,
+		logger:          logger,
 	}
 
 	router.Handle(apiBase+"/device/{deviceID}", gungnirHandler.ThenFunc(app.handleGetAll))

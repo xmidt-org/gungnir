@@ -21,20 +21,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
 
 	"github.com/Comcast/codex/db"
 	"github.com/Comcast/webpa-common/xhttp"
 	"github.com/go-kit/kit/log"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
-	"gopkg.in/couchbase/gocb.v1"
 )
 
 //go:generate swagger generate spec -m -o swagger.spec
 
 type App struct {
-	db     *db.Connection
-	logger log.Logger
+	tombstoneGetter db.TombstoneGetter
+	historyGetter   db.HistoryGetter
+	logger          log.Logger
 }
 
 // swagger:parameters getAll getLastState getHardware
@@ -46,10 +47,10 @@ type DeviceIdParam struct {
 	DeviceID string `json:"deviceID"`
 }
 
-// TombstoneOrHistory is what is returned on a successful response
+// EventResponse is what is returned on a successful response
 //
-// swagger:response TombstoneOrHistory
-type TombstoneOrHistory interface{}
+// swagger:response EventResponse
+type EventResponse []db.Event
 
 // ErrResponse is the information passed to the client on an error
 //
@@ -59,53 +60,61 @@ type ErrResponse struct {
 	//
 	// required: true
 	Code int `json:"code"`
-
-	// the error message
-	//
-	//required: true
-	Message error `json:"message"`
 }
 
-func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request) (interface{}, bool) {
+func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request) ([]db.Event, bool) {
 	vars := mux.Vars(request)
 	id := vars["deviceID"]
-	history, err := app.db.GetHistory(id)
-	if err != nil {
+	history, hErr := app.historyGetter.GetHistory(id)
+	tombstone, tErr := app.tombstoneGetter.GetTombstone(id)
 
-		// if there is no history, get the tombstone
-		keyNotFound := false
-		emperror.ForEachCause(err, func(errPart error) bool {
-			if errPart == gocb.ErrKeyNotFound {
-				keyNotFound = true
-				return false
-			}
-			return true
-		})
-		if keyNotFound {
-			return app.getTombstone(writer, id)
-		}
-
-		xhttp.WriteError(writer, 404, err)
-		return nil, false
-	} else if len(history.Events) == 0 {
-		xhttp.WriteError(writer, 500, fmt.Errorf("recieved an empty object"))
-		return nil, false
+	// if both have errors or are empty, return an error
+	if hErr != nil && tErr != nil {
+		xhttp.WriteError(writer, 404, hErr)
+		return []db.Event{}, false
 	}
+	if len(history.Events) == 0 && len(tombstone) == 0 {
+		xhttp.WriteError(writer, 500, fmt.Errorf("recieved an empty object"))
+		return []db.Event{}, false
+	}
+
+	// if all is good, combine tombstone into history, sort the list, and remove any duplicates.
+	sortedHistory := combineIntoSortedList(history, tombstone)
+
 	writer.Header().Set("X-Codex-Device-Id", id)
-	return history, true
+	return sortedHistory, true
 }
 
-func (app *App) getTombstone(writer http.ResponseWriter, id string) (interface{}, bool) {
-	d, err := app.db.GetTombstone(id)
-	if err != nil {
-		xhttp.WriteError(writer, 404, err)
-		return nil, false
-	} else if len(d) == 0 {
-		xhttp.WriteError(writer, 500, fmt.Errorf("recieved an empty object"))
-		return nil, false
+func combineIntoSortedList(history db.History, tombstone db.Tombstone) []db.Event {
+	if len(tombstone) == 0 {
+		return removeDuplicates(sortEvents(history.Events))
 	}
-	writer.Header().Set("X-Codex-Device-Id", id)
-	return d, true
+	eventList := history.Events
+	for _, val := range tombstone {
+		eventList = append(eventList, val)
+	}
+	return removeDuplicates(sortEvents(eventList))
+}
+
+func sortEvents(events []db.Event) []db.Event {
+	sortedEvents := events
+	sort.Slice(sortedEvents, func(i, j int) bool {
+		return sortedEvents[i].Time < sortedEvents[j].Time
+	})
+	return sortedEvents
+}
+
+func removeDuplicates(events []db.Event) []db.Event {
+	if len(events) == 0 {
+		return events
+	}
+	uniqueEvents := events[:1]
+	for i := 1; i < len(events); i++ {
+		if events[i].ID != events[i-1].ID {
+			uniqueEvents = append(uniqueEvents, events[i])
+		}
+	}
+	return uniqueEvents
 }
 
 /*
@@ -121,14 +130,14 @@ func (app *App) getTombstone(writer http.ResponseWriter, id string) (interface{}
  * Schemes: http
  *
  * Responses:
- *    200: TombstoneOrHistory
+ *    200: EventResponse
  *    404: ErrResponse
  *    500: ErrResponse
  *
  */
 func (app *App) handleGetAll(writer http.ResponseWriter, request *http.Request) {
 	var (
-		d  interface{}
+		d  []db.Event
 		ok bool
 	)
 	if d, ok = app.getDeviceInfo(writer, request); !ok {
