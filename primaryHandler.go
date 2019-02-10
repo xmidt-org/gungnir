@@ -19,14 +19,12 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"sort"
 
 	"github.com/Comcast/codex/db"
 	"github.com/Comcast/webpa-common/xhttp"
 	"github.com/go-kit/kit/log"
-	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
 )
 
@@ -70,11 +68,11 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
 
 	// if both have errors or are empty, return an error
 	if hErr != nil && tErr != nil {
-		xhttp.WriteError(writer, 404, hErr)
+		xhttp.WriteError(writer, 404, nil)
 		return []db.Event{}, false
 	}
 	if len(history.Events) == 0 && len(tombstone) == 0 {
-		xhttp.WriteError(writer, 500, fmt.Errorf("recieved an empty object"))
+		xhttp.WriteError(writer, 500, nil)
 		return []db.Event{}, false
 	}
 
@@ -146,7 +144,7 @@ func (app *App) handleGetAll(writer http.ResponseWriter, request *http.Request) 
 
 	data, err := json.Marshal(&d)
 	if err != nil {
-		xhttp.WriteError(writer, 500, emperror.WrapWith(err, "failed to marshal db.Device"))
+		xhttp.WriteError(writer, 500, nil)
 		return
 	}
 	writer.Header().Set("Content-Type", "application/json")
