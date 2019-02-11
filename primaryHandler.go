@@ -20,7 +20,9 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"sort"
+
+	"github.com/Comcast/webpa-common/logging"
+	"github.com/goph/emperror"
 
 	"github.com/Comcast/codex/db"
 	"github.com/Comcast/webpa-common/xhttp"
@@ -31,9 +33,8 @@ import (
 //go:generate swagger generate spec -m -o swagger.spec
 
 type App struct {
-	tombstoneGetter db.TombstoneGetter
-	historyGetter   db.HistoryGetter
-	logger          log.Logger
+	eventGetter db.EventGetter
+	logger      log.Logger
 }
 
 // swagger:parameters getAll getLastState getHardware
@@ -63,56 +64,38 @@ type ErrResponse struct {
 func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request) ([]db.Event, bool) {
 	vars := mux.Vars(request)
 	id := vars["deviceID"]
-	history, hErr := app.historyGetter.GetHistory(id)
-	tombstone, tErr := app.tombstoneGetter.GetTombstone(id)
+	records, hErr := app.eventGetter.GetEvents(id)
 
 	// if both have errors or are empty, return an error
-	if hErr != nil && tErr != nil {
+	if hErr != nil {
+		logging.Error(app.logger, emperror.Context(hErr)...).Log(logging.MessageKey(), "Failed to get events",
+			logging.ErrorKey(), hErr.Error(), "device id", id)
 		xhttp.WriteError(writer, 404, nil)
 		return []db.Event{}, false
 	}
-	if len(history.Events) == 0 && len(tombstone) == 0 {
+
+	// if all is good, unmarshal everything
+	events := []db.Event{}
+	for _, record := range records {
+		var event db.Event
+		err := json.Unmarshal(record.Data, &event)
+		if err != nil {
+			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal event", logging.ErrorKey(), err.Error())
+		} else {
+			event.ID = record.ID
+			events = append(events, event)
+		}
+	}
+
+	if len(events) == 0 {
+		logging.Error(app.logger).Log(logging.MessageKey(), "No events founds for device id",
+			"device id", id)
 		xhttp.WriteError(writer, 500, nil)
 		return []db.Event{}, false
 	}
 
-	// if all is good, combine tombstone into history, sort the list, and remove any duplicates.
-	sortedHistory := combineIntoSortedList(history, tombstone)
-
 	writer.Header().Set("X-Codex-Device-Id", id)
-	return sortedHistory, true
-}
-
-func combineIntoSortedList(history db.History, tombstone db.Tombstone) []db.Event {
-	if len(tombstone) == 0 {
-		return removeDuplicates(sortEvents(history.Events))
-	}
-	eventList := history.Events
-	for _, val := range tombstone {
-		eventList = append(eventList, val)
-	}
-	return removeDuplicates(sortEvents(eventList))
-}
-
-func sortEvents(events []db.Event) []db.Event {
-	sortedEvents := events
-	sort.Slice(sortedEvents, func(i, j int) bool {
-		return sortedEvents[i].Time < sortedEvents[j].Time
-	})
-	return sortedEvents
-}
-
-func removeDuplicates(events []db.Event) []db.Event {
-	if len(events) == 0 {
-		return events
-	}
-	uniqueEvents := events[:1]
-	for i := 1; i < len(events); i++ {
-		if events[i].ID != events[i-1].ID {
-			uniqueEvents = append(uniqueEvents, events[i])
-		}
-	}
-	return uniqueEvents
+	return events, true
 }
 
 /*

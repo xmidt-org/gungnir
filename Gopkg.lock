@@ -2,11 +2,12 @@
 
 
 [[projects]]
-  digest = "1:d9c7859c1ee4f04c0bbf4531e13d189588d67e8137d57b0ae39c0ed8937dd7fa"
+  branch = "cockroachdb"
+  digest = "1:7a09ec7a917f916b089a761dbc9eb3e7e72e1d107f5c0cb7cc21f1183eba7a51"
   name = "github.com/Comcast/codex"
   packages = ["db"]
   pruneopts = "UT"
-  revision = "0.1.3"
+  revision = "8ee2fa8a85a2a4c1e2b1a22fa19cb6025cd88744"
 
 [[projects]]
   branch = "master"
@@ -29,7 +30,7 @@
     "xmetrics",
   ]
   pruneopts = "UT"
-  revision = "6eb38a3310b54fde67ccafabe656fb5abc267f9c"
+  revision = "752bd49a9e0ed3b4e134ed36b6e97d365944a2db"
 
 [[projects]]
   digest = "1:a69ab3f1445ffd4815add4bd31ba05b65b3b9fec1ade5057d5d717f30e6efd6d"
@@ -135,22 +136,6 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:4a0c6bb4805508a6287675fac876be2ac1182539ca8a32468d8128882e9d5009"
-  name = "github.com/golang/snappy"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
-
-[[projects]]
-  digest = "1:236d7e1bdb50d8f68559af37dbcf9d142d56b431c9b2176d41e2a009b664cda8"
-  name = "github.com/google/uuid"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "9b3b1e0f5f99ae461456d768e7d301a7acdaa2d8"
-  version = "v1.1.0"
-
-[[projects]]
   digest = "1:205c73bd5808318c9804e1dae07508064fab82c11fb4b2833f0358338b7b4fab"
   name = "github.com/goph/emperror"
   packages = ["."]
@@ -231,6 +216,17 @@
   revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
 
 [[projects]]
+  digest = "1:8ef506fc2bb9ced9b151dafa592d4046063d744c646c1bbe801982ce87e4bc24"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "oid",
+  ]
+  pruneopts = "UT"
+  revision = "4ded0e9383f75c197b3a2aaa6d590ac52df6fd79"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
   name = "github.com/magiconair/properties"
   packages = ["."]
@@ -253,17 +249,6 @@
   pruneopts = "UT"
   revision = "3536a929edddb9a5b34bd6861dc4a9647cb459fe"
   version = "v1.1.2"
-
-[[projects]]
-  digest = "1:9d7b1f07e44cada28e6160cb0a808ad2f71f32bd7114793fb0baa302db0e6229"
-  name = "github.com/opentracing/opentracing-go"
-  packages = [
-    ".",
-    "log",
-  ]
-  pruneopts = "UT"
-  revision = "1949ddbfd147afd4d964a9f00b24eb291e0e7c38"
-  version = "v1.0.2"
 
 [[projects]]
   digest = "1:95741de3af260a92cc5c7f3f3061e85273f5a81b5db20d4bd68da74bd521675e"
@@ -321,7 +306,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5833c61ebbd625a6bad8e5a1ada2b3e13710cf3272046953a2c8915340fe60a3"
+  digest = "1:f0bb332b39488b057a8671557f307997426e5c650ee738a634a0697a41e207c5"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -330,7 +315,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "316cf8ccfec56d206735d46333ca162eb374da8b"
+  revision = "f8d8b3f739bd91a7c0462cb55235ef63c79c9abc"
 
 [[projects]]
   digest = "1:3e39bafd6c2f4bf3c76c3bfd16a2e09e016510ad5db90dc02b88e2f565d6d595"
@@ -396,80 +381,26 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9edb1388850880d4d9ce2296fe215740fb1ed0f799990d60cef1daa0dbfafd75"
-  name = "golang.org/x/net"
-  packages = [
-    "context",
-    "http/httpguts",
-    "http2",
-    "http2/hpack",
-    "idna",
-  ]
-  pruneopts = "UT"
-  revision = "d26f9f9a57f3fab6a695bec0d84433c2c50f8bbf"
-
-[[projects]]
-  branch = "master"
-  digest = "1:aba2486bbebaadd1f62bde3c363ddbd984efade895833d86ed069f586fd9e899"
+  digest = "1:8b466798e96432c23185ca32826702885299f94eb644c9a8dedb79771dff383a"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "aca44879d5644da7c5b8ec6a1115e9b6ea6c40d9"
+  revision = "3b5209105503162ded1863c307ac66fec31120dd"
 
 [[projects]]
-  digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
+  digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
   name = "golang.org/x/text"
   packages = [
-    "collate",
-    "collate/build",
-    "internal/colltab",
     "internal/gen",
-    "internal/tag",
     "internal/triegen",
     "internal/ucd",
-    "language",
-    "secure/bidirule",
     "transform",
-    "unicode/bidi",
     "unicode/cldr",
     "unicode/norm",
-    "unicode/rangetable",
   ]
   pruneopts = "UT"
   revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
   version = "v0.3.0"
-
-[[projects]]
-  digest = "1:ba933372a945e683c5aa55138d64cea1e13a9f7f587b5f2a52cac39b5138fc97"
-  name = "gopkg.in/couchbase/gocb.v1"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "6b2b62622f1879b04fcbcff8863eda2da50b55e6"
-  version = "v1.5.2"
-
-[[projects]]
-  digest = "1:95fc600062cee3516d382b9c4d6ef4b039b4a796110c9adaafc2566815e10ed6"
-  name = "gopkg.in/couchbase/gocbcore.v7"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "d6f6cc0c51cba2983dbff50e106394b755f847c4"
-  version = "v7.1.11"
-
-[[projects]]
-  digest = "1:002e24bae6c5c2d00148cf04983fc5add942f5a929d38721d2f377dd7b5b6da9"
-  name = "gopkg.in/couchbaselabs/gocbconnstr.v1"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "896fab9ddffac355b8b5be5763ffcd15a78c475d"
-  version = "v1.0.2"
-
-[[projects]]
-  digest = "1:ba6eeb69e706c4fa641a267d608c6daf84cca8dcdf077c71f1c6719eee4e1512"
-  name = "gopkg.in/couchbaselabs/jsonx.v1"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "5b7baa20429a46a5543ee259664cc86502738cad"
-  version = "v1.0.0"
 
 [[projects]]
   digest = "1:c805e517269b0ba4c21ded5836019ed7d16953d4026cb7d00041d039c7906be9"
