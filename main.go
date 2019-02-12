@@ -107,8 +107,7 @@ func gungnir(arguments []string) int {
 		fmt.Fprintf(os.Stderr, "Database Initialize Failed: %#v\n", err)
 		return 2
 	}
-	hg := db.CreateRetryHGService(database, config.GetRetries, config.RetryInterval)
-	tg := db.CreateRetryTGService(database, config.GetRetries, config.RetryInterval)
+	retryService := db.CreateRetryEGService(database, config.GetRetries, config.RetryInterval)
 
 	authHandler := handler.AuthorizationHandler{
 		HeaderName:          "Authorization",
@@ -123,9 +122,8 @@ func gungnir(arguments []string) int {
 	router := mux.NewRouter()
 	// MARK: Actual server logic
 	app := &App{
-		historyGetter:   hg,
-		tombstoneGetter: tg,
-		logger:          logger,
+		eventGetter: retryService,
+		logger:      logger,
 	}
 
 	router.Handle(apiBase+"/device/{deviceID}", gungnirHandler.ThenFunc(app.handleGetAll))

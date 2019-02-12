@@ -1,6 +1,6 @@
 [[constraint]]
   name = "github.com/Comcast/codex"
-  revision = "0.1.3"
+  revision = "0.1.4"
 
 [[constraint]]
   branch = "master"
