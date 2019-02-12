@@ -2,12 +2,11 @@
 
 
 [[projects]]
-  branch = "cockroachdb"
-  digest = "1:7a09ec7a917f916b089a761dbc9eb3e7e72e1d107f5c0cb7cc21f1183eba7a51"
+  digest = "1:68441e7f467b9c4e7d83d5877a7a29a01400437e2314d49faaf70104c14ab6c8"
   name = "github.com/Comcast/codex"
   packages = ["db"]
   pruneopts = "UT"
-  revision = "8ee2fa8a85a2a4c1e2b1a22fa19cb6025cd88744"
+  revision = "0.1.4"
 
 [[projects]]
   branch = "master"
@@ -193,6 +192,25 @@
   revision = "0f79e4ea3248354c789cba274542e0a8e55971db"
 
 [[projects]]
+  digest = "1:7e63b12cdd7bef2c411d736cb67e28134d39f5d236aa1bfb8f3d55e3ad709eca"
+  name = "github.com/jinzhu/gorm"
+  packages = [
+    ".",
+    "dialects/postgres",
+  ]
+  pruneopts = "UT"
+  revision = "472c70caa40267cb89fd8facb07fe6454b578626"
+  version = "v1.9.2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:fd97437fbb6b7dce04132cf06775bd258cce305c44add58eb55ca86c6c325160"
+  name = "github.com/jinzhu/inflection"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "04140366298a54a039076d798123ffa108fff46c"
+
+[[projects]]
   digest = "1:3786254a486f6d605a52cbc62aa0e71dacc76d5cd1a217c16905831b0f92f6ad"
   name = "github.com/jtacoma/uritemplates"
   packages = ["."]
@@ -216,10 +234,11 @@
   revision = "b84e30acd515aadc4b783ad4ff83aff3299bdfe0"
 
 [[projects]]
-  digest = "1:8ef506fc2bb9ced9b151dafa592d4046063d744c646c1bbe801982ce87e4bc24"
+  digest = "1:b18ffc558326ebaed3b4a175617f1e12ed4e3f53d6ebfe5ba372a3de16d22278"
   name = "github.com/lib/pq"
   packages = [
     ".",
+    "hstore",
     "oid",
   ]
   pruneopts = "UT"

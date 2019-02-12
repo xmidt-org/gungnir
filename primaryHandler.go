@@ -20,6 +20,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/Comcast/webpa-common/logging"
 	"github.com/goph/emperror"
@@ -64,19 +65,24 @@ type ErrResponse struct {
 func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request) ([]db.Event, bool) {
 	vars := mux.Vars(request)
 	id := vars["deviceID"]
-	records, hErr := app.eventGetter.GetEvents(id)
+	records, hErr := app.eventGetter.GetRecords(id)
 
 	// if both have errors or are empty, return an error
 	if hErr != nil {
 		logging.Error(app.logger, emperror.Context(hErr)...).Log(logging.MessageKey(), "Failed to get events",
 			logging.ErrorKey(), hErr.Error(), "device id", id)
-		xhttp.WriteError(writer, 404, nil)
+		xhttp.WriteError(writer, 500, nil)
 		return []db.Event{}, false
 	}
 
 	// if all is good, unmarshal everything
 	events := []db.Event{}
 	for _, record := range records {
+		// if the record is expired, don't include it
+		if record.DeathDate.After(time.Now()) {
+			continue
+		}
+
 		var event db.Event
 		err := json.Unmarshal(record.Data, &event)
 		if err != nil {
@@ -90,7 +96,7 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
 	if len(events) == 0 {
 		logging.Error(app.logger).Log(logging.MessageKey(), "No events founds for device id",
 			"device id", id)
-		xhttp.WriteError(writer, 500, nil)
+		xhttp.WriteError(writer, 404, nil)
 		return []db.Event{}, false
 	}
 
