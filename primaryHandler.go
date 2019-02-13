@@ -79,7 +79,7 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
 	events := []db.Event{}
 	for _, record := range records {
 		// if the record is expired, don't include it
-		if record.DeathDate.After(time.Now()) {
+		if record.DeathDate.Before(time.Now()) {
 			continue
 		}
 

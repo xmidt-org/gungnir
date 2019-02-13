@@ -127,6 +127,7 @@ func gungnir(arguments []string) int {
 	}
 
 	router.Handle(apiBase+"/device/{deviceID}", gungnirHandler.ThenFunc(app.handleGetAll))
+	router.Handle(apiBase+"/device/{deviceID}/status", gungnirHandler.ThenFunc(app.handleGetStatus))
 	// router.Handle(apiBase+"/device/{deviceID}/last", gungnirHandler.ThenFunc(app.handleGetLastState))
 
 	// MARK: Starting the server
