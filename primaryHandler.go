@@ -26,7 +26,6 @@ import (
 	"github.com/goph/emperror"
 
 	"github.com/Comcast/codex/db"
-	"github.com/Comcast/webpa-common/xhttp"
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
 )
@@ -71,7 +70,7 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
 	if hErr != nil {
 		logging.Error(app.logger, emperror.Context(hErr)...).Log(logging.MessageKey(), "Failed to get events",
 			logging.ErrorKey(), hErr.Error(), "device id", id)
-		xhttp.WriteError(writer, 500, nil)
+		writer.WriteHeader(500)
 		return []db.Event{}, false
 	}
 
@@ -96,7 +95,7 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
 	if len(events) == 0 {
 		logging.Error(app.logger).Log(logging.MessageKey(), "No events founds for device id",
 			"device id", id)
-		xhttp.WriteError(writer, 404, nil)
+		writer.WriteHeader(404)
 		return []db.Event{}, false
 	}
 
@@ -133,7 +132,7 @@ func (app *App) handleGetAll(writer http.ResponseWriter, request *http.Request) 
 
 	data, err := json.Marshal(&d)
 	if err != nil {
-		xhttp.WriteError(writer, 500, nil)
+		writer.WriteHeader(500)
 		return
 	}
 	writer.Header().Set("Content-Type", "application/json")

@@ -25,7 +25,6 @@ import (
 
 	"github.com/Comcast/codex/db"
 	"github.com/Comcast/webpa-common/logging"
-	"github.com/Comcast/webpa-common/xhttp"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
 )
@@ -51,7 +50,7 @@ func (app *App) handleGetStatus(writer http.ResponseWriter, request *http.Reques
 
 	data, err := json.Marshal(&s)
 	if err != nil {
-		xhttp.WriteError(writer, 500, nil)
+		writer.WriteHeader(500)
 		return
 	}
 	writer.Header().Set("Content-Type", "application/json")
@@ -71,7 +70,7 @@ func (app *App) getStatusInfo(writer http.ResponseWriter, request *http.Request)
 	if hErr != nil {
 		logging.Error(app.logger, emperror.Context(hErr)...).Log(logging.MessageKey(), "Failed to get state records",
 			logging.ErrorKey(), hErr.Error(), "device id", id)
-		xhttp.WriteError(writer, 500, nil)
+		writer.WriteHeader(500)
 		return s, false
 	}
 
@@ -115,7 +114,7 @@ func (app *App) getStatusInfo(writer http.ResponseWriter, request *http.Request)
 	if s.State == "" {
 		logging.Error(app.logger).Log(logging.MessageKey(), "No events founds for device id",
 			"device id", id)
-		xhttp.WriteError(writer, 404, nil)
+		writer.WriteHeader(404)
 		return Status{}, false
 	}
 
