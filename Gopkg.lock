@@ -447,7 +447,6 @@
     "github.com/Comcast/webpa-common/logging",
     "github.com/Comcast/webpa-common/secure/handler",
     "github.com/Comcast/webpa-common/server",
-    "github.com/Comcast/webpa-common/xhttp",
     "github.com/go-kit/kit/log",
     "github.com/goph/emperror",
     "github.com/gorilla/mux",
