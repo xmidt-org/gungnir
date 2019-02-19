@@ -18,14 +18,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
-
+	"github.com/go-kit/kit/log"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
+	"net/http"
 	"os"
 	"os/signal"
 	"time"
@@ -41,13 +42,23 @@ import (
 const (
 	applicationName, apiBase = "gungnir", "/api/v1"
 	DEFAULT_KEY_ID           = "current"
-	applicationVersion       = "0.0.0"
+	applicationVersion       = "0.1.1"
 )
 
 type Config struct {
 	Db            db.Config
 	GetRetries    int
 	RetryInterval time.Duration
+}
+
+func SetLogger(logger log.Logger) func(delegate http.Handler) http.Handler {
+	return func(delegate http.Handler) http.Handler {
+		return http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				r.WithContext(logging.WithLogger(r.Context(), logger))
+				delegate.ServeHTTP(w, r.WithContext(logging.WithLogger(r.Context(), logger)))
+			})
+	}
 }
 
 func gungnir(arguments []string) int {
@@ -118,20 +129,23 @@ func gungnir(arguments []string) int {
 	// TODO: fix bookkeeping, add a decorator to add the bookkeeping requests and logger
 	bookkeeper := bookkeeping.New(bookkeeping.WithResponses(bookkeeping.Code))
 
-	gungnirHandler := alice.New(authHandler.Decorate, bookkeeper)
+	gungnirHandler := alice.New(SetLogger(logger), authHandler.Decorate, bookkeeper)
 	router := mux.NewRouter()
 	// MARK: Actual server logic
 	app := &App{
 		eventGetter: retryService,
 		logger:      logger,
 	}
+	logging.GetLogger(context.Background())
 
 	router.Handle(apiBase+"/device/{deviceID}", gungnirHandler.ThenFunc(app.handleGetAll))
 	router.Handle(apiBase+"/device/{deviceID}/status", gungnirHandler.ThenFunc(app.handleGetStatus))
 	// router.Handle(apiBase+"/device/{deviceID}/last", gungnirHandler.ThenFunc(app.handleGetLastState))
 
+	serverHealth := codex.Health.NewHealth(logger)
+
 	// MARK: Starting the server
-	_, runnable, done := codex.Prepare(logger, nil, metricsRegistry, router)
+	_, runnable, done := codex.Prepare(logger, serverHealth, metricsRegistry, router)
 
 	waitGroup, shutdown, err := concurrent.Execute(runnable)
 	if err != nil {
