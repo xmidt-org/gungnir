@@ -67,7 +67,7 @@ type Status struct {
 	// the last reason the device went offline.
 	//
 	// required: true
-	LastOfflineReason string `json:"last_offline_reason,omitempty"`
+	LastOfflineReason string `json:"last_offline_reason"`
 }
 
 /*
