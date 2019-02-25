@@ -109,7 +109,7 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
 /*
  * swagger:route GET /device/{deviceID} device getAll
  *
- * Gets all of the information related to a specific device id.
+ * Get all of the information related to a specific device id.
  *
  * Parameters: deviceID
  *
