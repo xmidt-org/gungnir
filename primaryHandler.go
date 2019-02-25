@@ -37,7 +37,7 @@ type App struct {
 	logger      log.Logger
 }
 
-// swagger:parameters getAll getStatus
+// swagger:parameters getEvents getStatus
 type DeviceIdParam struct {
 	// device id passed by caller
 	//
@@ -107,9 +107,9 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
 }
 
 /*
- * swagger:route GET /device/{deviceID} device getAll
+ * swagger:route GET /device/{deviceID}/events device getEvents
  *
- * Get all of the information related to a specific device id.
+ * Get all of the events related to a specific device id.
  *
  * Parameters: deviceID
  *
@@ -124,7 +124,7 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
  *    500: ErrResponse
  *
  */
-func (app *App) handleGetAll(writer http.ResponseWriter, request *http.Request) {
+func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Request) {
 	var (
 		d  []db.Event
 		ok bool
