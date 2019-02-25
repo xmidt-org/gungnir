@@ -37,7 +37,7 @@ type App struct {
 	logger      log.Logger
 }
 
-// swagger:parameters getAll getLastState getHardware
+// swagger:parameters getAll getStatus
 type DeviceIdParam struct {
 	// device id passed by caller
 	//
@@ -49,7 +49,10 @@ type DeviceIdParam struct {
 // EventResponse is what is returned on a successful response
 //
 // swagger:response EventResponse
-type EventResponse []db.Event
+type EventResponse struct {
+	// in:body
+	Body []db.Event
+}
 
 // ErrResponse is the information passed to the client on an error
 //

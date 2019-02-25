@@ -31,14 +31,63 @@ import (
 
 // note: below may be separated later into a separate service
 
-type Status struct {
-	DeviceId          string    `json:"deviceid"`
-	State             string    `json:"state"`
-	Since             time.Time `json:"since"`
-	Now               time.Time `json:"now"`
-	LastOfflineReason string    `json:"last_offline_reason,omitempty"`
+// StatusResponse is what is returned for a successful getStatus call.
+//
+// swagger:response StatusResponse
+type StatusResponse struct {
+	// in:body
+	Body Status
 }
 
+// Status contains information on the current state of the device, how long it
+// has been like that, and the last reason for going offline
+//
+// swagger:model Status
+type Status struct {
+	// the device id
+	//
+	// required: true
+	DeviceId string `json:"deviceid"`
+
+	// State of the device. Ex: online, offline
+	//
+	// required: true
+	State string `json:"state"`
+
+	// The time the device state event was created by talaria
+	//
+	// required: true
+	Since time.Time `json:"since"`
+
+	// the current time
+	//
+	// required: true
+	Now time.Time `json:"now"`
+
+	// the last reason the device went offline.
+	//
+	// required: true
+	LastOfflineReason string `json:"last_offline_reason,omitempty"`
+}
+
+/*
+ * swagger:route GET /device/{deviceID}/status device getStatus
+ *
+ * Gets status information for a specified device.
+ *
+ * Parameters: deviceID
+ *
+ * Produces:
+ *    - application/json
+ *
+ * Schemes: http
+ *
+ * Responses:
+ *    200: StatusResponse
+ *    404: ErrResponse
+ *    500: ErrResponse
+ *
+ */
 func (app *App) handleGetStatus(writer http.ResponseWriter, request *http.Request) {
 	var (
 		s  Status
