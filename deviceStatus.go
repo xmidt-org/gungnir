@@ -73,7 +73,7 @@ type Status struct {
 /*
  * swagger:route GET /device/{deviceID}/status device getStatus
  *
- * Gets status information for a specified device.
+ * Get the status information for a specified device.
  *
  * Parameters: deviceID
  *

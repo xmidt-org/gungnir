@@ -15,15 +15,15 @@
  *
  */
 
-// Package gungnir, device info API.
+// Package gungnir, Codex API
 //
-// the purpose of this application is to provide an API
+// The purpose of this application is to provide an API
 // that returns event information for a device.
 //
-//     Schemes: http, https
+//     Schemes: https
 //     Host: localhost
 //     BasePath: /api/v1
-//     Version: 0.0.1
+//     Version: 0.1.1
 //
 //     Produces:
 //     - application/json
