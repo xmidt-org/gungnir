@@ -20,6 +20,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/Comcast/webpa-common/secure"
 	"net/http"
 	"os"
 	"os/signal"
@@ -67,7 +68,7 @@ func gungnir(arguments []string) int {
 
 	var (
 		f, v                                = pflag.NewFlagSet(applicationName, pflag.ContinueOnError), viper.New()
-		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v)
+		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v, secure.Metrics, db.Metrics)
 	)
 
 	printVer := f.BoolP("version", "v", false, "displays the version number")
@@ -112,14 +113,14 @@ func gungnir(arguments []string) int {
 	//database.Username = usr
 	//database.Password = pwd
 
-	database, err := db.CreateDbConnection(dbConfig)
+	database, err := db.CreateDbConnection(dbConfig, metricsRegistry)
 	if err != nil {
 		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to initialize database connection",
 			logging.ErrorKey(), err.Error())
 		fmt.Fprintf(os.Stderr, "Database Initialize Failed: %#v\n", err)
 		return 2
 	}
-	retryService := db.CreateRetryEGService(database, config.GetRetries, config.RetryInterval)
+	retryService := db.CreateRetryRGService(database, config.GetRetries, config.RetryInterval)
 
 	authHandler := handler.AuthorizationHandler{
 		HeaderName:          "Authorization",

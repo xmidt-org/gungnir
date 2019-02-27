@@ -2,15 +2,15 @@
 
 
 [[projects]]
-  digest = "1:f741e70a3ff9815c11882cbae3129a3d1c0fcc49e5503e524025a3d744c6065a"
+  digest = "1:9c1a8714b106ce080066040bbf5e598cd5439e99d346cd55f8726eee46abe440"
   name = "github.com/Comcast/codex"
   packages = ["db"]
   pruneopts = "UT"
-  revision = "0.1.5"
+  revision = "v0.2.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:b68a9564777a9b98d079c006684367aed267b698377f5ec006bc264578c513ef"
+  digest = "1:411b1a63e18dc7a15030a8112648c5b8da43c371f07c86b4c807309c857a1954"
   name = "github.com/Comcast/webpa-common"
   packages = [
     "bookkeeping",
@@ -21,6 +21,7 @@
     "secure",
     "secure/handler",
     "secure/key",
+    "semaphore",
     "server",
     "types",
     "xhttp",
@@ -29,7 +30,7 @@
     "xmetrics",
   ]
   pruneopts = "UT"
-  revision = "752bd49a9e0ed3b4e134ed36b6e97d365944a2db"
+  revision = "68d49a3c87b48d7acc7fa0c2db097fc71d647f04"
 
 [[projects]]
   digest = "1:a69ab3f1445ffd4815add4bd31ba05b65b3b9fec1ade5057d5d717f30e6efd6d"
@@ -62,11 +63,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:080689a7cb710dc8f694005f8e5b3aab861d01e885eaf53fae54431c4635bfe6"
+  digest = "1:7057ef47edbd707faa2b02a105944649d720b79a7f99d64ddcd9e4c6fda00a04"
   name = "github.com/c9s/goprocinfo"
   packages = ["linux"]
   pruneopts = "UT"
-  revision = "0010a05ce49fde7f50669bc7ecda7d41dd6ab824"
+  revision = "2b0825337245cf3d2948c34eee4d3aff47b2a044"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -127,12 +128,12 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
+  digest = "1:318f1c959a8a740366fce4b1e1eb2fd914036b4af58fbd0a003349b305f118ad"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
-  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
-  version = "v1.2.0"
+  revision = "c823c79ea1570fb5ff454033735a8e68575d1d0f"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:205c73bd5808318c9804e1dae07508064fab82c11fb4b2833f0358338b7b4fab"
@@ -170,7 +171,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:718c57979a9197414a044fff2028e57cb9fe145069e4f507059755bfe87f1bfe"
+  digest = "1:fceb575e3343d80da4807c9bd73e76494931643fa4851e27239812155cf0a341"
   name = "github.com/influxdata/influxdb"
   packages = [
     "client/v2",
@@ -178,8 +179,8 @@
     "pkg/escape",
   ]
   pruneopts = "UT"
-  revision = "698dbc789aff13c2678357a6b93ff73dd7136571"
-  version = "v1.7.3"
+  revision = "ef77e72f435b71b1ad6da7d6a6a4c4a262439379"
+  version = "v1.7.4"
 
 [[projects]]
   digest = "1:937258f1293bc9295b4789b0abea5b4ec030e3caecb65a4e1dc0b6999957a5ed"
@@ -294,14 +295,15 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:c968b29db5d68ec97de404b6d058d5937fa015a141b3b4f7a0d87d5f8226f04c"
+  digest = "1:93a746f1060a8acbcf69344862b2ceced80f854170e1caae089b2834c5fbf7f4"
   name = "github.com/prometheus/client_golang"
   packages = [
     "prometheus",
+    "prometheus/internal",
     "prometheus/promhttp",
   ]
   pruneopts = "UT"
-  revision = "967789050ba94deca04a5e84cce8ad472ce313c1"
+  revision = "v0.9.2"
 
 [[projects]]
   branch = "master"
@@ -325,16 +327,17 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f0bb332b39488b057a8671557f307997426e5c650ee738a634a0697a41e207c5"
+  digest = "1:ca30ee2c96d195cef49b546d10825d3e13b50c63da4df23c80e77c51e07bad0d"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
     "internal/util",
+    "iostats",
     "nfs",
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "f8d8b3f739bd91a7c0462cb55235ef63c79c9abc"
+  revision = "6ed1f7e1041181781dd2826d3001075d011a80cc"
 
 [[projects]]
   digest = "1:3e39bafd6c2f4bf3c76c3bfd16a2e09e016510ad5db90dc02b88e2f565d6d595"
@@ -400,11 +403,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8b466798e96432c23185ca32826702885299f94eb644c9a8dedb79771dff383a"
+  digest = "1:d0e9a312c4610a508569ab25e54d34600b1a96d19b1866ece104ffdf1c1b9d2c"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "3b5209105503162ded1863c307ac66fec31120dd"
+  revision = "775f8194d0f9e65c46913c7be783d3d95a29333c"
 
 [[projects]]
   digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"

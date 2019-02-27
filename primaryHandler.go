@@ -33,7 +33,7 @@ import (
 //go:generate swagger generate spec -m -o swagger.spec
 
 type App struct {
-	eventGetter db.EventGetter
+	eventGetter db.RecordGetter
 	logger      log.Logger
 }
 

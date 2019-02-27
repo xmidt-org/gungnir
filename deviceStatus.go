@@ -47,26 +47,31 @@ type Status struct {
 	// the device id
 	//
 	// required: true
+	// example: 5
 	DeviceId string `json:"deviceid"`
 
 	// State of the device. Ex: online, offline
 	//
 	// required: true
+	// example: online
 	State string `json:"state"`
 
 	// The time the device state event was created by talaria
 	//
 	// required: true
+	// example: 2019-02-26T20:18:15.188881748Z
 	Since time.Time `json:"since"`
 
 	// the current time
 	//
 	// required: true
+	// example: 2019-02-26T20:18:15.188881748Z
 	Now time.Time `json:"now"`
 
 	// the last reason the device went offline.
 	//
 	// required: true
+	// example: ping miss
 	LastOfflineReason string `json:"last_offline_reason"`
 }
 
@@ -80,7 +85,10 @@ type Status struct {
  * Produces:
  *    - application/json
  *
- * Schemes: http
+ * Schemes: https
+ *
+ * Security:
+ *    bearer_token:
  *
  * Responses:
  *    200: StatusResponse
