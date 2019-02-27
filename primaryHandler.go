@@ -33,7 +33,7 @@ import (
 //go:generate swagger generate spec -m -o swagger.spec
 
 type App struct {
-	eventGetter db.EventGetter
+	eventGetter db.RecordGetter
 	logger      log.Logger
 }
 
@@ -116,7 +116,10 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
  * Produces:
  *    - application/json
  *
- * Schemes: http
+ * Schemes: https
+ *
+ * Security:
+ *    bearer_token:
  *
  * Responses:
  *    200: EventResponse

@@ -28,5 +28,11 @@
 //     Produces:
 //     - application/json
 //
+//     SecurityDefinitions:
+//     bearer_token:
+//         type: http
+//         scheme: bearer
+//         bearerFormat: JWT
+//
 // swagger:meta
 package main
