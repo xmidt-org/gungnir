@@ -6,13 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - updated swagger comments
+- Centralized where http status responses come from
 
 ## [v0.1.1]
 - added health endpoint
 - updated bookkeeping logger
 - working on automation
-
-
 
 ## [v0.1.0]
 - Initial creation
