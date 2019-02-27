@@ -30,7 +30,7 @@
 //
 //     SecurityDefinitions:
 //     bearer_token:
-//	       type: http
+//         type: http
 //         scheme: bearer
 //         bearerFormat: JWT
 //
