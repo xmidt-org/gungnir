@@ -19,6 +19,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
@@ -27,6 +28,7 @@ import (
 
 	"github.com/Comcast/codex/db"
 	"github.com/go-kit/kit/log"
+	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 )
 
@@ -64,21 +66,17 @@ type ErrResponse struct {
 	Code int `json:"code"`
 }
 
-func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request) ([]db.Event, bool) {
-	vars := mux.Vars(request)
-	id := vars["deviceID"]
-	records, hErr := app.eventGetter.GetRecords(id)
+func (app *App) getDeviceInfo(deviceID string) ([]db.Event, error) {
+	records, hErr := app.eventGetter.GetRecords(deviceID)
+	events := []db.Event{}
 
 	// if both have errors or are empty, return an error
 	if hErr != nil {
-		logging.Error(app.logger, emperror.Context(hErr)...).Log(logging.MessageKey(), "Failed to get events",
-			logging.ErrorKey(), hErr.Error(), "device id", id)
-		writer.WriteHeader(500)
-		return []db.Event{}, false
+		return events, serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID),
+			http.StatusInternalServerError}
 	}
 
 	// if all is good, unmarshal everything
-	events := []db.Event{}
 	for _, record := range records {
 		// if the record is expired, don't include it
 		if record.DeathDate.Before(time.Now()) {
@@ -96,14 +94,10 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
 	}
 
 	if len(events) == 0 {
-		logging.Error(app.logger).Log(logging.MessageKey(), "No events founds for device id",
-			"device id", id)
-		writer.WriteHeader(404)
-		return []db.Event{}, false
+		return events, serverErr{emperror.With(errors.New("No events found for device id"), "device id", deviceID),
+			http.StatusNotFound}
 	}
-
-	writer.Header().Set("X-Codex-Device-Id", id)
-	return events, true
+	return events, nil
 }
 
 /*
@@ -129,19 +123,27 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
  */
 func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Request) {
 	var (
-		d  []db.Event
-		ok bool
+		d   []db.Event
+		err error
 	)
-	if d, ok = app.getDeviceInfo(writer, request); !ok {
-		return
+	vars := mux.Vars(request)
+	id := vars["deviceID"]
+	if d, err = app.getDeviceInfo(id); err != nil {
+		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(),
+			"Failed to get status info", logging.ErrorKey(), err.Error())
+		if val, ok := err.(kithttp.StatusCoder); ok {
+			writer.WriteHeader(val.StatusCode())
+			return
+		}
+		writer.WriteHeader(http.StatusInternalServerError)
 	}
 
 	data, err := json.Marshal(&d)
 	if err != nil {
-		writer.WriteHeader(500)
+		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(200)
+	writer.WriteHeader(http.StatusOK)
 	writer.Write(data)
 }

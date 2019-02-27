@@ -19,12 +19,14 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"path"
 	"time"
 
 	"github.com/Comcast/codex/db"
 	"github.com/Comcast/webpa-common/logging"
+	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
 )
@@ -48,7 +50,7 @@ type Status struct {
 	//
 	// required: true
 	// example: 5
-	DeviceId string `json:"deviceid"`
+	DeviceID string `json:"deviceid"`
 
 	// State of the device. Ex: online, offline
 	//
@@ -98,37 +100,40 @@ type Status struct {
  */
 func (app *App) handleGetStatus(writer http.ResponseWriter, request *http.Request) {
 	var (
-		s  Status
-		ok bool
+		s   Status
+		err error
 	)
-	if s, ok = app.getStatusInfo(writer, request); !ok {
-		return
+	vars := mux.Vars(request)
+	id := vars["deviceID"]
+	if s, err = app.getStatusInfo(id); err != nil {
+		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(),
+			"Failed to get status info", logging.ErrorKey(), err.Error())
+		if val, ok := err.(kithttp.StatusCoder); ok {
+			writer.WriteHeader(val.StatusCode())
+			return
+		}
+		writer.WriteHeader(http.StatusInternalServerError)
 	}
 
 	data, err := json.Marshal(&s)
 	if err != nil {
-		writer.WriteHeader(500)
+		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(200)
+	writer.WriteHeader(http.StatusOK)
 	writer.Write(data)
 }
 
-func (app *App) getStatusInfo(writer http.ResponseWriter, request *http.Request) (Status, bool) {
+func (app *App) getStatusInfo(deviceID string) (Status, error) {
 	var (
 		s Status
 	)
 
-	vars := mux.Vars(request)
-	id := vars["deviceID"]
-	stateInfo, hErr := app.eventGetter.GetRecordsOfType(id, db.EventState)
+	stateInfo, hErr := app.eventGetter.GetRecordsOfType(deviceID, db.EventState)
 
 	if hErr != nil {
-		logging.Error(app.logger, emperror.Context(hErr)...).Log(logging.MessageKey(), "Failed to get state records",
-			logging.ErrorKey(), hErr.Error(), "device id", id)
-		writer.WriteHeader(500)
-		return s, false
+		return s, serverErr{emperror.WrapWith(hErr, "Failed to get state records", "device id", deviceID), http.StatusInternalServerError}
 	}
 
 	// if all is good, create our Status record
@@ -161,7 +166,7 @@ func (app *App) getStatusInfo(writer http.ResponseWriter, request *http.Request)
 		}
 
 		if s.State == "" {
-			s.DeviceId = id
+			s.DeviceID = deviceID
 			s.State = path.Base(event.Destination)
 			s.Since = record.BirthDate
 			s.Now = time.Now()
@@ -169,12 +174,8 @@ func (app *App) getStatusInfo(writer http.ResponseWriter, request *http.Request)
 	}
 
 	if s.State == "" {
-		logging.Error(app.logger).Log(logging.MessageKey(), "No events founds for device id",
-			"device id", id)
-		writer.WriteHeader(404)
-		return Status{}, false
+		return Status{}, serverErr{emperror.With(errors.New("No events found for device id"), "device id", deviceID), http.StatusNotFound}
 	}
 
-	writer.Header().Set("X-Codex-Device-Id", id)
-	return s, true
+	return s, nil
 }
