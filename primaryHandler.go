@@ -116,7 +116,10 @@ func (app *App) getDeviceInfo(writer http.ResponseWriter, request *http.Request)
  * Produces:
  *    - application/json
  *
- * Schemes: http
+ * Schemes: https
+ *
+ * Security:
+ *    bearer_token:
  *
  * Responses:
  *    200: EventResponse

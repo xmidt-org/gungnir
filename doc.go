@@ -29,9 +29,10 @@
 //     - application/json
 //
 //     SecurityDefinitions:
-//     basicAuth:
-//         type: http
-//         scheme: basic
+//     bearer_token:
+//	       type: http
+//         scheme: bearer
+//         bearerFormat: JWT
 //
 // swagger:meta
 package main
