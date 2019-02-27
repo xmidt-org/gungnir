@@ -1,4 +1,4 @@
 - modified events endpoing
 - updated swagger docs
 - bumped codex common version to v0.2.0
-- added db metrics
+- added metrics
