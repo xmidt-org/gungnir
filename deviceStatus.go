@@ -113,6 +113,7 @@ func (app *App) handleGetStatus(writer http.ResponseWriter, request *http.Reques
 			return
 		}
 		writer.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	data, err := json.Marshal(&s)
@@ -131,9 +132,9 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 	)
 
 	stateInfo, hErr := app.eventGetter.GetRecordsOfType(deviceID, db.EventState)
-
 	if hErr != nil {
-		return s, serverErr{emperror.WrapWith(hErr, "Failed to get state records", "device id", deviceID), http.StatusInternalServerError}
+		return s, serverErr{emperror.WrapWith(hErr, "Failed to get state records", "device id", deviceID),
+			http.StatusInternalServerError}
 	}
 
 	// if all is good, create our Status record
@@ -151,14 +152,14 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 		err := json.Unmarshal(record.Data, &event)
 		if err != nil {
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal event", logging.ErrorKey(), err.Error())
-			break
+			continue
 		}
 		var payload map[string]interface{}
 		err = json.Unmarshal(event.Payload, &payload)
 		if err != nil {
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal payload",
-				logging.ErrorKey(), hErr.Error())
-			break
+				logging.ErrorKey(), err.Error())
+			continue
 		}
 
 		if value, ok := payload["reason-for-close"]; ok && s.LastOfflineReason == "" {
@@ -174,7 +175,8 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 	}
 
 	if s.State == "" {
-		return Status{}, serverErr{emperror.With(errors.New("No events found for device id"), "device id", deviceID), http.StatusNotFound}
+		return Status{}, serverErr{emperror.With(errors.New("No events found for device id"), "device id", deviceID),
+			http.StatusNotFound}
 	}
 
 	return s, nil

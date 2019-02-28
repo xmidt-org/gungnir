@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 - updated swagger comments
 - Centralized where http status responses come from
+- Added unit tests
 
 ## [v0.1.1]
 - added health endpoint
