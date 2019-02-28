@@ -20,11 +20,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/Comcast/webpa-common/secure"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/Comcast/webpa-common/secure"
 
 	"github.com/go-kit/kit/log"
 	"github.com/goph/emperror"
@@ -173,6 +174,11 @@ func gungnir(arguments []string) int {
 		}
 	}
 
+	err = database.Close()
+	if err != nil {
+		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "closing database threads failed",
+			logging.ErrorKey(), err.Error())
+	}
 	close(shutdown)
 	waitGroup.Wait()
 	return 0
