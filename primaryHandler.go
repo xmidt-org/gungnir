@@ -136,6 +136,7 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 			return
 		}
 		writer.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	data, err := json.Marshal(&d)

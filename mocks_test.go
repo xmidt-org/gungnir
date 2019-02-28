@@ -17,11 +17,21 @@
 
 package main
 
-type serverErr struct {
-	error
-	statusCode int
+import (
+	"github.com/Comcast/codex/db"
+	"github.com/stretchr/testify/mock"
+)
+
+type mockRecordGetter struct {
+	mock.Mock
 }
 
-func (s serverErr) StatusCode() int {
-	return s.statusCode
+func (rg *mockRecordGetter) GetRecords(deviceID string) ([]db.Record, error) {
+	args := rg.Called(deviceID)
+	return args.Get(0).([]db.Record), args.Error(1)
+}
+
+func (rg *mockRecordGetter) GetRecordsOfType(deviceID string, eventType int) ([]db.Record, error) {
+	args := rg.Called(deviceID, eventType)
+	return args.Get(0).([]db.Record), args.Error(1)
 }
