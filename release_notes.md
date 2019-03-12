@@ -1,1 +1,3 @@
-
+- enabled pprof
+- increased file limit
+- bumped codex version
