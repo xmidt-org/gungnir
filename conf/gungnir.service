@@ -12,6 +12,7 @@ ExecStart=/usr/bin/gungnir \
           $GUNGNIR_OPTS
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
+LimitNOFILE=infinity
 
 [Install]
 WantedBy=multi-user.target
