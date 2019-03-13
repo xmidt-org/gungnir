@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/Comcast/webpa-common/logging"
+	"github.com/Comcast/webpa-common/xmetrics/xmetricstest"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/stretchr/testify/assert"
 
@@ -67,12 +68,13 @@ func TestGetDeviceInfo(t *testing.T) {
 	testassert.Nil(err)
 
 	tests := []struct {
-		description     string
-		recordsToReturn []db.Record
-		getRecordsErr   error
-		expectedEvents  []db.Event
-		expectedErr     error
-		expectedStatus  int
+		description           string
+		recordsToReturn       []db.Record
+		getRecordsErr         error
+		expectedFailureMetric float64
+		expectedEvents        []db.Event
+		expectedErr           error
+		expectedStatus        int
 	}{
 		{
 			description:    "Get Records Error",
@@ -106,9 +108,10 @@ func TestGetDeviceInfo(t *testing.T) {
 					Data:      badData,
 				},
 			},
-			expectedEvents: []db.Event{},
-			expectedErr:    errors.New("No events found"),
-			expectedStatus: http.StatusNotFound,
+			expectedFailureMetric: 1.0,
+			expectedEvents:        []db.Event{},
+			expectedErr:           errors.New("No events found"),
+			expectedStatus:        http.StatusNotFound,
 		},
 		{
 			description: "Success",
@@ -130,11 +133,16 @@ func TestGetDeviceInfo(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecords", "test").Return(tc.recordsToReturn, tc.getRecordsErr).Once()
+			p := xmetricstest.NewProvider(nil, Metrics)
+			m := NewMeasures(p)
 			app := App{
 				eventGetter: mockGetter,
 				logger:      logging.DefaultLogger(),
+				measures:    m,
 			}
+			p.Assert(t, UnmarshalFailureCounter)(xmetricstest.Value(0.0))
 			events, err := app.getDeviceInfo("test")
+			p.Assert(t, UnmarshalFailureCounter)(xmetricstest.Value(tc.expectedFailureMetric))
 			assert.Equal(tc.expectedEvents, events)
 
 			if tc.expectedErr == nil || err == nil {

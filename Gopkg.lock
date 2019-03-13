@@ -10,7 +10,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:411b1a63e18dc7a15030a8112648c5b8da43c371f07c86b4c807309c857a1954"
+  digest = "1:50439305d2c0249ca95286d02f1f3e1be9bf4fe3be85f086d8312b2ec3b5f9bc"
   name = "github.com/Comcast/webpa-common"
   packages = [
     "bookkeeping",
@@ -28,9 +28,10 @@
     "xhttp/xcontext",
     "xlistener",
     "xmetrics",
+    "xmetrics/xmetricstest",
   ]
   pruneopts = "UT"
-  revision = "28116f818770fd13e0f2cafb3ace9f06a73947a0"
+  revision = "400bb4f8fc509ead8a6180a357d448bc593ea000"
 
 [[projects]]
   digest = "1:a69ab3f1445ffd4815add4bd31ba05b65b3b9fec1ade5057d5d717f30e6efd6d"
@@ -375,12 +376,12 @@
   version = "v1.0.3"
 
 [[projects]]
-  digest = "1:de37e343c64582d7026bf8ab6ac5b22a72eac54f3a57020db31524affed9f423"
+  digest = "1:1b773526998f3dbde3a51a4a5881680c4d237d3600f570d900f97ac93c7ba0a8"
   name = "github.com/spf13/viper"
   packages = ["."]
   pruneopts = "UT"
-  revision = "6d33b5a963d922d182c91e8a1c88d81fd150cfd4"
-  version = "v1.3.1"
+  revision = "9e56dacc08fbbf8c9ee2dbc717553c758ce42bc9"
+  version = "v1.3.2"
 
 [[projects]]
   digest = "1:ac83cf90d08b63ad5f7e020ef480d319ae890c208f8524622a2f3136e2686b02"
@@ -451,7 +452,11 @@
     "github.com/Comcast/webpa-common/secure",
     "github.com/Comcast/webpa-common/secure/handler",
     "github.com/Comcast/webpa-common/server",
+    "github.com/Comcast/webpa-common/xmetrics",
+    "github.com/Comcast/webpa-common/xmetrics/xmetricstest",
     "github.com/go-kit/kit/log",
+    "github.com/go-kit/kit/metrics",
+    "github.com/go-kit/kit/metrics/provider",
     "github.com/go-kit/kit/transport/http",
     "github.com/goph/emperror",
     "github.com/gorilla/mux",
