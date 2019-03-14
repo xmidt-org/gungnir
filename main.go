@@ -135,10 +135,12 @@ func gungnir(arguments []string) int {
 
 	gungnirHandler := alice.New(SetLogger(logger), authHandler.Decorate, bookkeeper)
 	router := mux.NewRouter()
+	measures := NewMeasures(metricsRegistry)
 	// MARK: Actual server logic
 	app := &App{
 		eventGetter: retryService,
 		logger:      logger,
+		measures:    measures,
 	}
 	logging.GetLogger(context.Background())
 

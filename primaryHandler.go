@@ -37,6 +37,8 @@ import (
 type App struct {
 	eventGetter db.RecordGetter
 	logger      log.Logger
+
+	measures *Measures
 }
 
 // swagger:parameters getEvents getStatus
@@ -86,11 +88,12 @@ func (app *App) getDeviceInfo(deviceID string) ([]db.Event, error) {
 		var event db.Event
 		err := json.Unmarshal(record.Data, &event)
 		if err != nil {
+			app.measures.UnmarshalFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal event", logging.ErrorKey(), err.Error())
-		} else {
-			event.ID = record.ID
-			events = append(events, event)
+			continue
 		}
+		event.ID = record.ID
+		events = append(events, event)
 	}
 
 	if len(events) == 0 {
