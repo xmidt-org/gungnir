@@ -122,7 +122,7 @@ func gungnir(arguments []string) int {
 		fmt.Fprintf(os.Stderr, "Database Initialize Failed: %#v\n", err)
 		return 2
 	}
-	retryService := db.CreateRetryRGService(database, config.GetRetries, config.RetryInterval)
+	retryService := db.CreateRetryRGService(database, config.GetRetries, config.RetryInterval, metricsRegistry)
 
 	authHandler := handler.AuthorizationHandler{
 		HeaderName:          "Authorization",
