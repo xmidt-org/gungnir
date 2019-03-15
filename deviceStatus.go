@@ -105,6 +105,10 @@ func (app *App) handleGetStatus(writer http.ResponseWriter, request *http.Reques
 	)
 	vars := mux.Vars(request)
 	id := vars["deviceID"]
+	if id == "" {
+		writer.WriteHeader(http.StatusNotFound)
+		return
+	}
 	if s, err = app.getStatusInfo(id); err != nil {
 		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(),
 			"Failed to get status info", logging.ErrorKey(), err.Error())

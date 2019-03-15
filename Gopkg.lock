@@ -2,14 +2,13 @@
 
 
 [[projects]]
-  digest = "1:4bfa584ae88a273839f539db69028de1ec0a38de491c4507a3f4a3b79bb41a0a"
+  digest = "1:2d7a4ee94b809972b9c2e450425b59e6e6a043a199a46519e40d0b31146734d2"
   name = "github.com/Comcast/codex"
   packages = ["db"]
   pruneopts = "UT"
-  revision = "v0.2.1"
+  revision = "v0.2.2"
 
 [[projects]]
-  branch = "master"
   digest = "1:50439305d2c0249ca95286d02f1f3e1be9bf4fe3be85f086d8312b2ec3b5f9bc"
   name = "github.com/Comcast/webpa-common"
   packages = [
@@ -133,8 +132,8 @@
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
-  revision = "c823c79ea1570fb5ff454033735a8e68575d1d0f"
-  version = "v1.3.0"
+  revision = "b5d812f8a3706043e23a9cd5babf2e5423744d30"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:205c73bd5808318c9804e1dae07508064fab82c11fb4b2833f0358338b7b4fab"
@@ -328,7 +327,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:01cd0cd47758f04c5604daa3be4637e2afa1e0c15af7e08289e95360369e4f48"
+  digest = "1:0573a48c92e778ad732779bf1e5064a5085ab3fbd236ad71e53cab5753ef3e6e"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -338,7 +337,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "d0f344d83b0c80a1bc03b547a2374a9ec6711144"
+  revision = "e56f2e22fc761e82a34aca553f6725e2aff4fe6c"
 
 [[projects]]
   digest = "1:3e39bafd6c2f4bf3c76c3bfd16a2e09e016510ad5db90dc02b88e2f565d6d595"
