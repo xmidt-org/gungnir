@@ -28,6 +28,7 @@ import (
 	"github.com/Comcast/webpa-common/logging"
 	"github.com/Comcast/webpa-common/xmetrics/xmetricstest"
 	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/Comcast/codex/db"
@@ -52,6 +53,10 @@ var (
 			"reason-for-close": "ping miss"
 		}`),
 	}
+)
+
+const (
+	key = iota
 )
 
 func TestGetDeviceInfo(t *testing.T) {
@@ -167,16 +172,24 @@ func TestHandleGetEvents(t *testing.T) {
 
 	tests := []struct {
 		description        string
+		deviceID           string
 		recordsToReturn    []db.Record
 		expectedStatusCode int
 		expectedBody       []byte
 	}{
 		{
+			description:        "Empty Device ID Error",
+			deviceID:           "",
+			expectedStatusCode: http.StatusNotFound,
+		},
+		{
 			description:        "Get Device Info Error",
+			deviceID:           "1234",
 			expectedStatusCode: http.StatusNotFound,
 		},
 		{
 			description: "Success",
+			deviceID:    "1234",
 			recordsToReturn: []db.Record{
 				{
 					ID:        1234,
@@ -193,15 +206,18 @@ func TestHandleGetEvents(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecords", "").Return(tc.recordsToReturn, nil).Once()
+			mockGetter.On("GetRecords", tc.deviceID).Return(tc.recordsToReturn, nil).Once()
 			app := App{
 				eventGetter: mockGetter,
 				logger:      logging.DefaultLogger(),
 			}
 			rr := httptest.NewRecorder()
-			request, err := http.NewRequest(http.MethodGet, "/1234/status", nil)
-			assert.Nil(err)
+			request := mux.SetURLVars(
+				httptest.NewRequest("GET", "/1234/status", nil),
+				map[string]string{"deviceID": tc.deviceID},
+			)
 			app.handleGetEvents(rr, request)
+			assert.Equal(tc.expectedStatusCode, rr.Code)
 		})
 	}
 }
