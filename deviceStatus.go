@@ -148,7 +148,7 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 			break
 		}
 		// if the record is expired, don't include it
-		if record.DeathDate.Before(time.Now()) {
+		if time.Unix(record.DeathDate, 0).Before(time.Now()) {
 			continue
 		}
 
@@ -173,7 +173,7 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 		if s.State == "" {
 			s.DeviceID = deviceID
 			s.State = path.Base(event.Destination)
-			s.Since = record.BirthDate
+			s.Since = time.Unix(record.BirthDate, 0)
 			s.Now = time.Now()
 		}
 	}

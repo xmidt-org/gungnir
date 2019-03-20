@@ -63,9 +63,10 @@ func TestGetDeviceInfo(t *testing.T) {
 	getRecordsErr := errors.New("get records test error")
 
 	testassert := assert.New(t)
-	futureTime := time.Now().Add(time.Duration(50000) * time.Minute)
-	previousTime, err := time.Parse(time.RFC3339Nano, "2019-02-13T21:19:02.614191735Z")
+	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).Unix()
+	prevTime, err := time.Parse(time.RFC3339Nano, "2019-02-13T21:19:02.614191735Z")
 	testassert.Nil(err)
+	previousTime := prevTime.Unix()
 
 	goodData, err := json.Marshal(&goodEvent)
 	testassert.Nil(err)
@@ -166,7 +167,7 @@ func TestGetDeviceInfo(t *testing.T) {
 
 func TestHandleGetEvents(t *testing.T) {
 	testassert := assert.New(t)
-	futureTime := time.Now().Add(time.Duration(50000) * time.Minute)
+	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).Unix()
 	goodData, err := json.Marshal(&goodEvent)
 	testassert.Nil(err)
 

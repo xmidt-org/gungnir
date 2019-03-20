@@ -81,7 +81,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]db.Event, error) {
 	// if all is good, unmarshal everything
 	for _, record := range records {
 		// if the record is expired, don't include it
-		if record.DeathDate.Before(time.Now()) {
+		if time.Unix(record.DeathDate, 0).Before(time.Now()) {
 			continue
 		}
 

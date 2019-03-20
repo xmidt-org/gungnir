@@ -1,6 +1,6 @@
 # gungnir (pronounced “GUNG-neer”)
 
-[![Build Status](https://travis-ci.org/Comcast/codex-gungnir.svg?branch=master)](https://travis-ci.org/Comcast/codex-gungnir)
+[![Build Status](https://travis-ci.com/Comcast/codex-gungnir.svg?branch=master)](https://travis-ci.com/Comcast/codex-gungnir)
 [![codecov.io](http://codecov.io/github/Comcast/codex-gungnir/coverage.svg?branch=master)](http://codecov.io/github/Comcast/codex-gungnir?branch=master)
 [![Code Climate](https://codeclimate.com/github/Comcast/codex-gungnir/badges/gpa.svg)](https://codeclimate.com/github/Comcast/codex-gungnir)
 [![Issue Count](https://codeclimate.com/github/Comcast/codex-gungnir/badges/issue_count.svg)](https://codeclimate.com/github/Comcast/codex-gungnir)
