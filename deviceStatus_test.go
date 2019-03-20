@@ -115,6 +115,7 @@ func TestGetStatusInfo(t *testing.T) {
 				{
 					ID:        1234,
 					Type:      db.EventState,
+					BirthDate: futureTime - 500,
 					DeathDate: futureTime,
 					Data:      goodData,
 				},
@@ -128,7 +129,7 @@ func TestGetStatusInfo(t *testing.T) {
 			expectedStatus: Status{
 				DeviceID:          "test",
 				State:             "online",
-				Since:             time.Time{},
+				Since:             time.Unix(futureTime-500, 0),
 				Now:               time.Now(),
 				LastOfflineReason: "ping miss",
 			},
