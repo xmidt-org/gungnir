@@ -37,9 +37,10 @@ func TestGetStatusInfo(t *testing.T) {
 	getRecordsErr := errors.New("get records of type test error")
 
 	testassert := assert.New(t)
-	futureTime := time.Now().Add(time.Duration(50000) * time.Minute)
-	previousTime, err := time.Parse(time.RFC3339Nano, "2019-02-13T21:19:02.614191735Z")
+	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).Unix()
+	prevTime, err := time.Parse(time.RFC3339Nano, "2019-02-13T21:19:02.614191735Z")
 	testassert.Nil(err)
+	previousTime := prevTime.Unix()
 
 	goodData, err := json.Marshal(&goodEvent)
 	testassert.Nil(err)
@@ -114,6 +115,7 @@ func TestGetStatusInfo(t *testing.T) {
 				{
 					ID:        1234,
 					Type:      db.EventState,
+					BirthDate: futureTime - 500,
 					DeathDate: futureTime,
 					Data:      goodData,
 				},
@@ -127,7 +129,7 @@ func TestGetStatusInfo(t *testing.T) {
 			expectedStatus: Status{
 				DeviceID:          "test",
 				State:             "online",
-				Since:             time.Time{},
+				Since:             time.Unix(futureTime-500, 0),
 				Now:               time.Now(),
 				LastOfflineReason: "ping miss",
 			},
@@ -167,7 +169,7 @@ func TestGetStatusInfo(t *testing.T) {
 
 func TestHandleGetStatus(t *testing.T) {
 	testassert := assert.New(t)
-	futureTime := time.Now().Add(time.Duration(50000) * time.Minute)
+	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).Unix()
 	goodData, err := json.Marshal(&goodEvent)
 	testassert.Nil(err)
 
