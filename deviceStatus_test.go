@@ -140,9 +140,10 @@ func TestGetStatusInfo(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecordsOfType", "test", db.EventState).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
+			mockGetter.On("GetRecordsOfType", "test", 5, db.EventState).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
 			app := App{
 				eventGetter: mockGetter,
+				getLimit:    5,
 				logger:      logging.DefaultLogger(),
 			}
 			status, err := app.getStatusInfo("test")
@@ -209,9 +210,10 @@ func TestHandleGetStatus(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecordsOfType", tc.deviceID, 1).Return(tc.recordsToReturn, nil).Once()
+			mockGetter.On("GetRecordsOfType", tc.deviceID, 5, 1).Return(tc.recordsToReturn, nil).Once()
 			app := App{
 				eventGetter: mockGetter,
+				getLimit:    5,
 				logger:      logging.DefaultLogger(),
 			}
 			rr := httptest.NewRecorder()

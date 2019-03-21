@@ -51,6 +51,7 @@ const (
 
 type Config struct {
 	Db            db.Config
+	GetLimit      int
 	GetRetries    int
 	RetryInterval time.Duration
 }
@@ -140,8 +141,10 @@ func gungnir(arguments []string) int {
 	app := &App{
 		eventGetter: retryService,
 		logger:      logger,
+		getLimit:    config.GetLimit,
 		measures:    measures,
 	}
+
 	logging.GetLogger(context.Background())
 
 	router.Handle(apiBase+"/device/{deviceID}/events", gungnirHandler.ThenFunc(app.handleGetEvents))

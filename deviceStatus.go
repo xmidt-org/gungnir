@@ -135,7 +135,7 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 		s Status
 	)
 
-	stateInfo, hErr := app.eventGetter.GetRecordsOfType(deviceID, db.EventState)
+	stateInfo, hErr := app.eventGetter.GetRecordsOfType(deviceID, app.getLimit, db.EventState)
 	if hErr != nil {
 		return s, serverErr{emperror.WrapWith(hErr, "Failed to get state records", "device id", deviceID),
 			http.StatusInternalServerError}

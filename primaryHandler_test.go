@@ -138,13 +138,14 @@ func TestGetDeviceInfo(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecords", "test").Return(tc.recordsToReturn, tc.getRecordsErr).Once()
+			mockGetter.On("GetRecords", "test", 5).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
 			app := App{
 				eventGetter: mockGetter,
 				logger:      logging.DefaultLogger(),
 				measures:    m,
+				getLimit:    5,
 			}
 			p.Assert(t, UnmarshalFailureCounter)(xmetricstest.Value(0.0))
 			events, err := app.getDeviceInfo("test")
@@ -207,9 +208,10 @@ func TestHandleGetEvents(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecords", tc.deviceID).Return(tc.recordsToReturn, nil).Once()
+			mockGetter.On("GetRecords", tc.deviceID, 5).Return(tc.recordsToReturn, nil).Once()
 			app := App{
 				eventGetter: mockGetter,
+				getLimit:    5,
 				logger:      logging.DefaultLogger(),
 			}
 			rr := httptest.NewRecorder()

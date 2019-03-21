@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [v0.2.5]
  - Bumped codex common
  - Converted times to Unix for the `db` package
+ - Added a configurable limit to gets
 
 
 

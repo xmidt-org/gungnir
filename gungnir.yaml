@@ -8,6 +8,7 @@ log:
   json: true
 
 authHeader: ["YXV0aEhlYWRlcg=="]
+getLimit: 50
 getRetries: 3
 retryInterval: 10s
 db:
