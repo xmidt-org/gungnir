@@ -23,9 +23,7 @@ The spear used with shield to help our users via the codex project
 aka. The api layer to get the data from the database.
 
 %build
-go get -u github.com/golang/dep/...
-dep ensure
-go build -o $RPM_SOURCE_DIR/%{name} %{_topdir}/..
+GO111MODULE=on go build -o $RPM_SOURCE_DIR/%{name} %{_topdir}/..
 
 %install
 echo rm -rf %{buildroot}
