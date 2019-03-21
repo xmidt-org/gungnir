@@ -37,6 +37,7 @@ import (
 type App struct {
 	eventGetter db.RecordGetter
 	logger      log.Logger
+	getLimit    int
 
 	measures *Measures
 }
@@ -69,7 +70,7 @@ type ErrResponse struct {
 }
 
 func (app *App) getDeviceInfo(deviceID string) ([]db.Event, error) {
-	records, hErr := app.eventGetter.GetRecords(deviceID)
+	records, hErr := app.eventGetter.GetRecords(deviceID, app.getLimit)
 	events := []db.Event{}
 
 	// if both have errors or are empty, return an error
