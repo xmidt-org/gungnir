@@ -3,11 +3,12 @@ MAINTAINER Jack Murdock <jack_murdock@comcast.com>
 
 WORKDIR /go/src/github.com/comcast/codex-gungnir
 
-RUN apk add --update git curl
-RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+RUN apk update && apk upgrade && \
+    apk add --no-cache bash git openssh
 
 COPY . .
-RUN dep ensure
+RUN go version
+RUN GO111MODULE=on go mod vendor
 COPY . .
 
 RUN go build -o gungnir_linux_amd64 github.com/comcast/codex-gungnir
