@@ -1,1 +1,2 @@
 - replace dep with Modules
+- bumped codex
