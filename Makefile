@@ -3,21 +3,16 @@ DEFAULT: build
 GO           ?= go
 GOFMT        ?= $(GO)fmt
 FIRST_GOPATH := $(firstword $(subst :, ,$(shell $(GO) env GOPATH)))
-DEP          := $(FIRST_GOPATH)/bin/dep
 GUNGNIR    := $(FIRST_GOPATH)/bin/gungnir
 
 PROGVER = $(shell grep 'applicationVersion.*= ' main.go | awk '{print $$3}' | sed -e 's/\"//g')
 
-.PHONY: $(DEP)
-$(DEP):
-	GOOS= GOARCH= $(GO) get -u github.com/golang/dep/...
-
-.PHONY: deps
-deps: $(DEP)
-	$(DEP) ensure
+.PHONY: go-mod-vendor
+go-mod-vendor:
+	GO111MODULE=on $(GO) mod vendor
 
 .PHONY: build
-build: deps
+build: go-mod-vendor
 	$(GO) build
 
 rpm:
@@ -50,7 +45,7 @@ update-version:
 
 
 .PHONY: install
-install: deps
+install: go-mod-vendor
 	echo go build -o $(GUNGNIR) $(PROGVER)
 
 .PHONY: release-artifacts
@@ -62,7 +57,7 @@ release-artifacts:
 docker:
 	docker build -f ./deploy/Dockerfile -t gungnir:$(PROGVER) .
 
-# build docker without running dep ensure
+# build docker without running modules
 .PHONY: local-docker
 local-docker:
 	docker build -f ./deploy/Dockerfile.local -t gungnir:local .
@@ -72,7 +67,7 @@ style:
 	! gofmt -d $$(find . -path ./vendor -prune -o -name '*.go' -print) | grep '^'
 
 .PHONY: test
-test: deps
+test: go-mod-vendor
 	go test -o $(GUNGNIR) -v -race  -coverprofile=cover.out $(go list ./... | grep -v "/vendor/")
 
 .PHONY: test-cover
