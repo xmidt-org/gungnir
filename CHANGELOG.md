@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.2.7]
+ - bumped codex
+
+
+
 ## [v0.2.6]
 - replace dep with Modules
 - bumped codex
@@ -60,7 +65,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/Comcast/codex-gungnir/compare/v0.2.6...HEAD
+[Unreleased]: https://github.com/Comcast/codex-gungnir/compare/v0.2.7...HEAD
+[v0.2.7]: https://github.com/Comcast/codex-gungnir/compare/v0.2.6...v0.2.7
 [v0.2.6]: https://github.com/Comcast/codex-gungnir/compare/v0.2.5...v0.2.6
 [v0.2.5]: https://github.com/Comcast/codex-gungnir/compare/v0.2.4...v0.2.5
 [v0.2.4]: https://github.com/Comcast/codex-gungnir/compare/v0.2.3...v0.2.4
