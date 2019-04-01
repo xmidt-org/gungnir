@@ -116,7 +116,6 @@ func gungnir(arguments []string) int {
 
 	v.Unmarshal(config)
 	dbConfig := config.Db
-	//dbConfig.
 
 	//vaultClient, err := xvault.Initialize(v)
 	//if err != nil {
