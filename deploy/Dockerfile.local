@@ -4,7 +4,6 @@ MAINTAINER Jack Murdock <jack_murdock@comcast.com>
 WORKDIR /go/src/github.com/comcast/codex-gungnir
 
 RUN apk add --update git curl
-RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 COPY . .
 

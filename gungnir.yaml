@@ -11,9 +11,13 @@ authHeader: ["YXV0aEhlYWRlcg=="]
 getLimit: 50
 getRetries: 3
 retryInterval: 10s
+health:
+  port: ":80"
+  endpoint: "/health"
 db:
   server: "localhost:11210"
   bucket: "devices"
   username: "Administrator"
   password: "somepassword"
   numRetries: 4
+  pingInterval: 1s
