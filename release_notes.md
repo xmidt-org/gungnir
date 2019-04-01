@@ -1,1 +1,1 @@
-
+ - modified health metric to reflect unhealthy when pinging the database fails
