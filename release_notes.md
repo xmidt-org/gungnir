@@ -1,2 +1,3 @@
  - modified health metric to reflect unhealthy when pinging the database fails
  - changed expected "reason-for-close" key in payload to "reason-for-closure" for `/status` endpoint
+ - device id will always be converted to lowercase to query the database
