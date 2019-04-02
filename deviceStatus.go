@@ -22,6 +22,7 @@ import (
 	"errors"
 	"net/http"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/Comcast/codex/db"
@@ -108,7 +109,7 @@ func (app *App) handleGetStatus(writer http.ResponseWriter, request *http.Reques
 		err error
 	)
 	vars := mux.Vars(request)
-	id := vars["deviceID"]
+	id := strings.ToLower(vars["deviceID"])
 	if id == "" {
 		writer.WriteHeader(http.StatusNotFound)
 		return

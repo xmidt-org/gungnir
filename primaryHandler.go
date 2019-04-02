@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Comcast/webpa-common/logging"
@@ -131,7 +132,7 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 		err error
 	)
 	vars := mux.Vars(request)
-	id := vars["deviceID"]
+	id := strings.ToLower(vars["deviceID"])
 	if id == "" {
 		writer.WriteHeader(http.StatusNotFound)
 		return
