@@ -31,6 +31,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	payloadKey = "reason-for-closure"
+)
+
 // note: below may be separated later into a separate service
 
 // StatusResponse is what is returned for a successful getStatus call.
@@ -166,7 +170,7 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 			continue
 		}
 
-		if value, ok := payload["reason-for-close"]; ok && s.LastOfflineReason == "" {
+		if value, ok := payload[payloadKey]; ok && s.LastOfflineReason == "" {
 			s.LastOfflineReason = value.(string)
 		}
 
