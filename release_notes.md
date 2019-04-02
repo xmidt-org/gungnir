@@ -1,1 +1,2 @@
  - modified health metric to reflect unhealthy when pinging the database fails
+ - changed expected "reason-for-close" key in payload to "reason-for-closure" for `/status` endpoint

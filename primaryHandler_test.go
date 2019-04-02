@@ -50,7 +50,7 @@ var (
 			"messages-received": 0,
 			"connected-at": "2018-11-22T21:19:02.614191735Z",
 			"up-time": "16m46.6s",
-			"reason-for-close": "ping miss"
+			"reason-for-closure": "ping miss"
 		}`),
 	}
 )
