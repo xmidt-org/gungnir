@@ -180,14 +180,6 @@ func gungnir(arguments []string) int {
 	}
 	retryService := db.CreateRetryRGService(database, config.GetRetries, config.RetryInterval, metricsRegistry)
 
-	resolver, err := config.JwtValidator.Keys.NewResolver()
-	if err != nil {
-		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to create resolver",
-			logging.ErrorKey(), err.Error())
-		fmt.Fprintf(os.Stderr, "New resolver failed: %#v\n", err)
-		return 2
-	}
-
 	basicAllowed := make(map[string]string)
 	for _, a := range config.AuthHeader {
 		decoded, err := base64.StdEncoding.DecodeString(a)
@@ -203,15 +195,29 @@ func gungnir(arguments []string) int {
 	}
 	logging.Debug(logger).Log(logging.MessageKey(), "Created list of allowed basic auths", "allowed list", basicAllowed, "config", config.AuthHeader)
 
-	authConstructor := basculehttp.NewConstructor(
-		basculehttp.WithTokenFactory("Bearer", basculehttp.BearerTokenFactory{
+	options := []basculehttp.COption{}
+	if len(basicAllowed) > 0 {
+		options = append(options, basculehttp.WithTokenFactory("Basic", basculehttp.BasicTokenFactory(basicAllowed)))
+	}
+	if config.JwtValidator.Keys.URI != "" {
+
+		resolver, err := config.JwtValidator.Keys.NewResolver()
+		if err != nil {
+			logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to create resolver",
+				logging.ErrorKey(), err.Error())
+			fmt.Fprintf(os.Stderr, "New resolver failed: %#v\n", err)
+			return 2
+		}
+
+		options = append(options, basculehttp.WithTokenFactory("Bearer", basculehttp.BearerTokenFactory{
 			DefaultKeyId:  DEFAULT_KEY_ID,
 			Resolver:      resolver,
 			Parser:        bascule.DefaultJWSParser,
 			JWTValidators: []*jwt.Validator{config.JwtValidator.Custom.New()},
-		}),
-		basculehttp.WithTokenFactory("Basic", basculehttp.BasicTokenFactory(basicAllowed)),
-	)
+		}))
+	}
+
+	authConstructor := basculehttp.NewConstructor(options...)
 
 	authEnforcer := basculehttp.NewEnforcer(
 		basculehttp.WithRules("Basic", []bascule.Validator{
