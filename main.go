@@ -18,7 +18,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
+	"errors"
 	"fmt"
 	olog "log"
 	"net/http"
@@ -26,6 +29,11 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/Comcast/comcast-bascule/bascule"
+	"github.com/Comcast/comcast-bascule/bascule/basculehttp"
+	"github.com/Comcast/comcast-bascule/bascule/key"
+	"github.com/SermoDigital/jose/jwt"
 
 	"github.com/Comcast/webpa-common/secure"
 
@@ -41,7 +49,6 @@ import (
 	"github.com/Comcast/webpa-common/bookkeeping"
 	"github.com/Comcast/webpa-common/concurrent"
 	"github.com/Comcast/webpa-common/logging"
-	"github.com/Comcast/webpa-common/secure/handler"
 	"github.com/Comcast/webpa-common/server"
 
 	"github.com/InVisionApp/go-health"
@@ -60,11 +67,22 @@ type Config struct {
 	GetRetries    int
 	RetryInterval time.Duration
 	Health        HealthConfig
+	AuthHeader    []string
+	JwtValidator  JWTValidator
 }
 
 type HealthConfig struct {
 	Port     string
 	Endpoint string
+}
+
+type JWTValidator struct {
+	// JWTKeys is used to create the key.Resolver for JWT verification keys
+	Keys key.ResolverFactory
+
+	// Custom is an optional configuration section that defines
+	// custom rules for validation over and above the standard RFC rules.
+	Custom secure.JWTValidatorFactory
 }
 
 func SetLogger(logger log.Logger) func(delegate http.Handler) http.Handler {
@@ -75,6 +93,36 @@ func SetLogger(logger log.Logger) func(delegate http.Handler) http.Handler {
 				delegate.ServeHTTP(w, r.WithContext(logging.WithLogger(r.Context(), logger)))
 			})
 	}
+}
+
+func createAllowAllCheck() bascule.ValidatorFunc {
+	return func(_ context.Context, _ bascule.Token) error {
+		return nil
+	}
+}
+
+func nonEmptyListCheck(ctx context.Context, vals []interface{}) error {
+	if len(vals) == 0 {
+		return errors.New("expected at least one value")
+	}
+	for _, val := range vals {
+		str, ok := val.(string)
+		if !ok {
+			return errors.New("expected value to be a string")
+		}
+		if len(str) == 0 {
+			return errors.New("expected string to be nonempty")
+		}
+	}
+	return nil
+}
+
+type authLogger struct {
+	l log.Logger
+}
+
+func (a authLogger) OnAuthenticated(auth bascule.Authentication) {
+	logging.Debug(a.l).Log(logging.MessageKey(), "authentication found", "auth", auth)
 }
 
 func gungnir(arguments []string) int {
@@ -101,13 +149,6 @@ func gungnir(arguments []string) int {
 		return 1
 	}
 	logging.Info(logger).Log(logging.MessageKey(), "Successfully loaded config file", "configurationFile", v.ConfigFileUsed())
-
-	// add GetValidator function (originally from caduceus)
-	//validator, err := server.GetValidator(v, DEFAULT_KEY_ID)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Validator error: %v\n", err)
-		return 1
-	}
 
 	serverHealth := health.New()
 	serverHealth.Logger = healthlogger.NewHealthLogger(logger)
@@ -139,16 +180,63 @@ func gungnir(arguments []string) int {
 	}
 	retryService := db.CreateRetryRGService(database, config.GetRetries, config.RetryInterval, metricsRegistry)
 
-	authHandler := handler.AuthorizationHandler{
-		HeaderName:          "Authorization",
-		ForbiddenStatusCode: 403,
-		//Validator:           validator,
-		Logger: logger,
+	basicAllowed := make(map[string]string)
+	for _, a := range config.AuthHeader {
+		decoded, err := base64.StdEncoding.DecodeString(a)
+		if err != nil {
+			logging.Info(logger).Log(logging.MessageKey(), "failed to decode auth header", "auth header", a, logging.ErrorKey(), err.Error())
+		}
+
+		i := bytes.IndexByte(decoded, ':')
+		logging.Debug(logger).Log(logging.MessageKey(), "decoded string", "string", decoded, "i", i)
+		if i > 0 {
+			basicAllowed[string(decoded[:i])] = string(decoded[i+1:])
+		}
 	}
+	logging.Debug(logger).Log(logging.MessageKey(), "Created list of allowed basic auths", "allowed list", basicAllowed, "config", config.AuthHeader)
+
+	options := []basculehttp.COption{}
+	if len(basicAllowed) > 0 {
+		options = append(options, basculehttp.WithTokenFactory("Basic", basculehttp.BasicTokenFactory(basicAllowed)))
+	}
+	if config.JwtValidator.Keys.URI != "" {
+
+		resolver, err := config.JwtValidator.Keys.NewResolver()
+		if err != nil {
+			logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to create resolver",
+				logging.ErrorKey(), err.Error())
+			fmt.Fprintf(os.Stderr, "New resolver failed: %#v\n", err)
+			return 2
+		}
+
+		options = append(options, basculehttp.WithTokenFactory("Bearer", basculehttp.BearerTokenFactory{
+			DefaultKeyId:  DEFAULT_KEY_ID,
+			Resolver:      resolver,
+			Parser:        bascule.DefaultJWSParser,
+			JWTValidators: []*jwt.Validator{config.JwtValidator.Custom.New()},
+		}))
+	}
+
+	authConstructor := basculehttp.NewConstructor(options...)
+
+	authEnforcer := basculehttp.NewEnforcer(
+		basculehttp.WithRules("Basic", []bascule.Validator{
+			createAllowAllCheck(),
+		}),
+		basculehttp.WithRules("Bearer", []bascule.Validator{
+			bascule.CreateNonEmptyPrincipalCheck(),
+			bascule.CreateNonEmptyTypeCheck(),
+			bascule.CreateValidTypeCheck([]string{"jwt"}),
+			bascule.CreateListAttributeCheck("capabilities", nonEmptyListCheck),
+		}),
+	)
+
+	authLogger := basculehttp.NewListenerDecorator(authLogger{l: logger})
+
 	// TODO: fix bookkeeping, add a decorator to add the bookkeeping requests and logger
 	bookkeeper := bookkeeping.New(bookkeeping.WithResponses(bookkeeping.Code))
 
-	gungnirHandler := alice.New(SetLogger(logger), authHandler.Decorate, bookkeeper)
+	gungnirHandler := alice.New(SetLogger(logger), authConstructor, authLogger, authEnforcer, bookkeeper)
 	router := mux.NewRouter()
 	measures := NewMeasures(metricsRegistry)
 	// MARK: Actual server logic
