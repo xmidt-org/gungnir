@@ -55,10 +55,6 @@ var (
 	}
 )
 
-const (
-	key = iota
-)
-
 func TestGetDeviceInfo(t *testing.T) {
 	getRecordsErr := errors.New("get records test error")
 
