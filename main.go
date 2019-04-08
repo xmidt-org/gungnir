@@ -21,7 +21,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"github.com/Comcast/codex/cipher"
 	olog "log"
@@ -94,28 +93,6 @@ func SetLogger(logger log.Logger) func(delegate http.Handler) http.Handler {
 				delegate.ServeHTTP(w, r.WithContext(logging.WithLogger(r.Context(), logger)))
 			})
 	}
-}
-
-func createAllowAllCheck() bascule.ValidatorFunc {
-	return func(_ context.Context, _ bascule.Token) error {
-		return nil
-	}
-}
-
-func nonEmptyListCheck(ctx context.Context, vals []interface{}) error {
-	if len(vals) == 0 {
-		return errors.New("expected at least one value")
-	}
-	for _, val := range vals {
-		str, ok := val.(string)
-		if !ok {
-			return errors.New("expected value to be a string")
-		}
-		if len(str) == 0 {
-			return errors.New("expected string to be nonempty")
-		}
-	}
-	return nil
 }
 
 type authLogger struct {
@@ -230,13 +207,13 @@ func gungnir(arguments []string) int {
 
 	authEnforcer := basculehttp.NewEnforcer(
 		basculehttp.WithRules("Basic", []bascule.Validator{
-			createAllowAllCheck(),
+			bascule.CreateAllowAllCheck(),
 		}),
 		basculehttp.WithRules("Bearer", []bascule.Validator{
 			bascule.CreateNonEmptyPrincipalCheck(),
 			bascule.CreateNonEmptyTypeCheck(),
 			bascule.CreateValidTypeCheck([]string{"jwt"}),
-			bascule.CreateListAttributeCheck("capabilities", nonEmptyListCheck),
+			bascule.CreateListAttributeCheck("capabilities", bascule.NonEmptyStringListCheck),
 		}),
 	)
 
