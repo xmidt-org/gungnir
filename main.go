@@ -22,14 +22,15 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"github.com/Comcast/codex/blacklist"
-	"github.com/Comcast/codex/cipher"
 	olog "log"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/Comcast/codex/blacklist"
+	"github.com/Comcast/codex/cipher"
 
 	"github.com/Comcast/comcast-bascule/bascule"
 	"github.com/Comcast/comcast-bascule/bascule/basculehttp"
@@ -95,6 +96,10 @@ func SetLogger(logger log.Logger) func(delegate http.Handler) http.Handler {
 				delegate.ServeHTTP(w, r.WithContext(logging.WithLogger(r.Context(), logger)))
 			})
 	}
+}
+
+func GetLogger(ctx context.Context) bascule.Logger {
+	return logging.GetLogger(ctx)
 }
 
 type authLogger struct {
@@ -183,12 +188,11 @@ func gungnir(arguments []string) int {
 	}
 	logging.Debug(logger).Log(logging.MessageKey(), "Created list of allowed basic auths", "allowed list", basicAllowed, "config", config.AuthHeader)
 
-	options := []basculehttp.COption{}
+	options := []basculehttp.COption{basculehttp.WithCLogger(GetLogger)}
 	if len(basicAllowed) > 0 {
 		options = append(options, basculehttp.WithTokenFactory("Basic", basculehttp.BasicTokenFactory(basicAllowed)))
 	}
 	if config.JwtValidator.Keys.URI != "" {
-
 		resolver, err := config.JwtValidator.Keys.NewResolver()
 		if err != nil {
 			logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to create resolver",
@@ -208,6 +212,7 @@ func gungnir(arguments []string) int {
 	authConstructor := basculehttp.NewConstructor(options...)
 
 	authEnforcer := basculehttp.NewEnforcer(
+		basculehttp.WithELogger(GetLogger),
 		basculehttp.WithRules("Basic", []bascule.Validator{
 			bascule.CreateAllowAllCheck(),
 		}),
