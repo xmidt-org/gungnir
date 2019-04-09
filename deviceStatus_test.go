@@ -20,6 +20,8 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"github.com/Comcast/codex/cipher"
+	"github.com/Comcast/webpa-common/xmetrics/xmetricstest"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -141,10 +143,16 @@ func TestGetStatusInfo(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecordsOfType", "test", 5, db.EventState).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
+
+			p := xmetricstest.NewProvider(nil, Metrics)
+			m := NewMeasures(p)
+
 			app := App{
 				eventGetter: mockGetter,
 				getLimit:    5,
 				logger:      logging.DefaultLogger(),
+				decrypter:   new(cipher.NOOP),
+				measures:    m,
 			}
 			status, err := app.getStatusInfo("test")
 
@@ -211,10 +219,16 @@ func TestHandleGetStatus(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecordsOfType", tc.deviceID, 5, 1).Return(tc.recordsToReturn, nil).Once()
+
+			p := xmetricstest.NewProvider(nil, Metrics)
+			m := NewMeasures(p)
+
 			app := App{
 				eventGetter: mockGetter,
 				getLimit:    5,
 				logger:      logging.DefaultLogger(),
+				decrypter:   new(cipher.NOOP),
+				measures:    m,
 			}
 			rr := httptest.NewRecorder()
 			request := mux.SetURLVars(

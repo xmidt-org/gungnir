@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/Comcast/codex/cipher"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -134,6 +135,7 @@ func TestGetDeviceInfo(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
+			require := require.New(t)
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecords", "test", 5).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
 			p := xmetricstest.NewProvider(nil, Metrics)
@@ -157,7 +159,7 @@ func TestGetDeviceInfo(t *testing.T) {
 			}
 			if tc.expectedStatus > 0 {
 				statusCodeErr, ok := err.(kithttp.StatusCoder)
-				assert.True(ok, "expected error to have a status code")
+				require.True(ok, "expected error to have a status code")
 				assert.Equal(tc.expectedStatus, statusCodeErr.StatusCode())
 			}
 		})
@@ -211,6 +213,7 @@ func TestHandleGetEvents(t *testing.T) {
 				eventGetter: mockGetter,
 				getLimit:    5,
 				logger:      logging.DefaultLogger(),
+				decrypter:   new(cipher.NOOP),
 			}
 			rr := httptest.NewRecorder()
 			request := mux.SetURLVars(

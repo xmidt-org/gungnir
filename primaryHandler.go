@@ -102,6 +102,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]db.Event, error) {
 		if err != nil {
 			app.measures.UnmarshalFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal decoded event", logging.ErrorKey(), err.Error())
+			continue
 		}
 		event.ID = record.ID
 		events = append(events, event)
