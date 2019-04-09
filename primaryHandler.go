@@ -20,6 +20,8 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/Comcast/codex/cipher"
 	"net/http"
 	"strings"
 	"time"
@@ -39,6 +41,7 @@ type App struct {
 	eventGetter db.RecordGetter
 	logger      log.Logger
 	getLimit    int
+	decrypter   cipher.Decrypt
 
 	measures *Measures
 }
@@ -88,11 +91,26 @@ func (app *App) getDeviceInfo(deviceID string) ([]db.Event, error) {
 		}
 
 		var event db.Event
-		err := json.Unmarshal(record.Data, &event)
+		data, err := app.decrypter.DecryptMessage(record.Data)
+		fmt.Printf("|%s|\n||\n", string(record.Data))
+		fmt.Printf("|%s|\n||\n", string(record.Data))
+
+		if err != nil {
+			app.measures.UnmarshalFailure.Add(1.0)
+			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decode event", logging.ErrorKey(), err.Error())
+			continue
+		}
+
+		err = json.Unmarshal(data, &event)
 		if err != nil {
 			app.measures.UnmarshalFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal event", logging.ErrorKey(), err.Error())
-			continue
+			err = json.Unmarshal(record.Data, &event)
+			if err != nil {
+				app.measures.UnmarshalFailure.Add(1.0)
+				logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal event", logging.ErrorKey(), err.Error())
+				continue
+			}
 		}
 		event.ID = record.ID
 		events = append(events, event)

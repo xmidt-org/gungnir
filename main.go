@@ -23,6 +23,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/Comcast/codex/cipher"
 	olog "log"
 	"net/http"
 	_ "net/http/pprof"
@@ -180,6 +181,25 @@ func gungnir(arguments []string) int {
 	}
 	retryService := db.CreateRetryRGService(database, config.GetRetries, config.RetryInterval, metricsRegistry)
 
+	var decypter cipher.Decrypt
+	cipherConfig, err := cipher.Load(v)
+	if err == nil {
+		decypter, err = cipher.LoadPrivateKey(cipherConfig)
+		if err != nil {
+			logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to initialize LoadPublicKey",
+				logging.ErrorKey(), err.Error())
+			fmt.Fprintf(os.Stderr, "LoadPublicKey Initialize Failed: %#v\n", err)
+			decypter = &cipher.NOOP{}
+			logging.Warn(logger).Log(logging.MessageKey(), "Using noop decryption")
+		} else {
+			logging.Error(logger).Log(logging.MessageKey(), "successfully loaded private key", "config", fmt.Sprintf("%#v", cipherConfig))
+		}
+	} else {
+		decypter = &cipher.NOOP{}
+		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to load cipher using noop decryption",
+			logging.ErrorKey(), err.Error())
+	}
+
 	basicAllowed := make(map[string]string)
 	for _, a := range config.AuthHeader {
 		decoded, err := base64.StdEncoding.DecodeString(a)
@@ -244,6 +264,7 @@ func gungnir(arguments []string) int {
 		eventGetter: retryService,
 		logger:      logger,
 		getLimit:    config.GetLimit,
+		decrypter:   decypter,
 		measures:    measures,
 	}
 
