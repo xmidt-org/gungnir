@@ -20,6 +20,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"github.com/Comcast/codex/cipher"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -140,6 +141,7 @@ func TestGetDeviceInfo(t *testing.T) {
 			app := App{
 				eventGetter: mockGetter,
 				logger:      logging.DefaultLogger(),
+				decrypter:   new(cipher.NOOP),
 				measures:    m,
 				getLimit:    5,
 			}
