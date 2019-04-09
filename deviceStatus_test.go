@@ -22,6 +22,7 @@ import (
 	"errors"
 	"github.com/Comcast/codex/cipher"
 	"github.com/Comcast/webpa-common/xmetrics/xmetricstest"
+	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -57,6 +58,7 @@ func TestGetStatusInfo(t *testing.T) {
 		description          string
 		recordsToReturn      []db.Record
 		getRecordsErr        error
+		decryptErr           error
 		expectedStatus       Status
 		expectedErr          error
 		expectedServerStatus int
@@ -112,6 +114,28 @@ func TestGetStatusInfo(t *testing.T) {
 			expectedServerStatus: http.StatusNotFound,
 		},
 		{
+			description: "Decrypt Error",
+			recordsToReturn: []db.Record{
+				{
+					ID:        1234,
+					Type:      db.EventState,
+					BirthDate: futureTime - 500,
+					DeathDate: futureTime,
+					Data:      goodData,
+				},
+				{
+					ID:        1234,
+					Type:      db.EventState,
+					DeathDate: futureTime,
+					Data:      goodData,
+				},
+			},
+			expectedStatus: Status{},
+			decryptErr:  errors.New("failed to decrypt"),
+			expectedErr: errors.New("No events found"),
+			expectedServerStatus: http.StatusNotFound,
+		},
+		{
 			description: "Success",
 			recordsToReturn: []db.Record{
 				{
@@ -144,6 +168,9 @@ func TestGetStatusInfo(t *testing.T) {
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecordsOfType", "test", 5, db.EventState).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
 
+			mockDecrypter := new(mockDecrypter)
+			mockDecrypter.On("DecryptMessage", mock.Anything).Return(tc.decryptErr)
+
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
 
@@ -151,7 +178,7 @@ func TestGetStatusInfo(t *testing.T) {
 				eventGetter: mockGetter,
 				getLimit:    5,
 				logger:      logging.DefaultLogger(),
-				decrypter:   new(cipher.NOOP),
+				decrypter:   mockDecrypter,
 				measures:    m,
 			}
 			status, err := app.getStatusInfo("test")

@@ -91,7 +91,6 @@ func (app *App) getDeviceInfo(deviceID string) ([]db.Event, error) {
 
 		var event db.Event
 		data, err := app.decrypter.DecryptMessage(record.Data)
-
 		if err != nil {
 			app.measures.DecryptFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decode event", logging.ErrorKey(), err.Error())

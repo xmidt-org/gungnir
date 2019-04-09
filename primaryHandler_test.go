@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/Comcast/codex/cipher"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
@@ -75,6 +76,7 @@ func TestGetDeviceInfo(t *testing.T) {
 		description           string
 		recordsToReturn       []db.Record
 		getRecordsErr         error
+		decryptErr            error
 		expectedFailureMetric float64
 		expectedEvents        []db.Event
 		expectedErr           error
@@ -118,6 +120,20 @@ func TestGetDeviceInfo(t *testing.T) {
 			expectedStatus:        http.StatusNotFound,
 		},
 		{
+			description: "Decrypt Error",
+			recordsToReturn: []db.Record{
+				{
+					ID:        1234,
+					DeathDate: futureTime,
+					Data:      goodData,
+				},
+			},
+			decryptErr:     errors.New("failed to decrypt"),
+			expectedEvents: []db.Event{},
+			expectedErr:    errors.New("No events found"),
+			expectedStatus: http.StatusNotFound,
+		},
+		{
 			description: "Success",
 			recordsToReturn: []db.Record{
 				{
@@ -138,12 +154,16 @@ func TestGetDeviceInfo(t *testing.T) {
 			require := require.New(t)
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecords", "test", 5).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
+
+			mockDecrypter := new(mockDecrypter)
+			mockDecrypter.On("DecryptMessage", mock.Anything).Return(tc.decryptErr)
+
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
 			app := App{
 				eventGetter: mockGetter,
 				logger:      logging.DefaultLogger(),
-				decrypter:   new(cipher.NOOP),
+				decrypter:   mockDecrypter,
 				measures:    m,
 				getLimit:    5,
 			}
