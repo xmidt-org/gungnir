@@ -130,9 +130,9 @@ func TestGetStatusInfo(t *testing.T) {
 					Data:      goodData,
 				},
 			},
-			expectedStatus: Status{},
-			decryptErr:  errors.New("failed to decrypt"),
-			expectedErr: errors.New("No events found"),
+			expectedStatus:       Status{},
+			decryptErr:           errors.New("failed to decrypt"),
+			expectedErr:          errors.New("No events found"),
 			expectedServerStatus: http.StatusNotFound,
 		},
 		{
