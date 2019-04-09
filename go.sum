@@ -11,6 +11,8 @@ github.com/Comcast/codex v0.2.10-0.20190408210653-30510ef50c0f h1:hM8NbhuDgIloLU
 github.com/Comcast/codex v0.2.10-0.20190408210653-30510ef50c0f/go.mod h1:MJZyvKXDSW9Yv8WLFX6M0sLm2OzUN/QJAxGHzr3iIVQ=
 github.com/Comcast/codex v0.2.10-0.20190408220940-3cadec9cbd83 h1:BNQhmczcD19zbT+rsAbwE8PhMLN+wzaW1P4BbiJVRUE=
 github.com/Comcast/codex v0.2.10-0.20190408220940-3cadec9cbd83/go.mod h1:MJZyvKXDSW9Yv8WLFX6M0sLm2OzUN/QJAxGHzr3iIVQ=
+github.com/Comcast/codex v0.2.10-0.20190409183349-49ba20f2a6fd h1:pEKyVytckKN3bx5HD2e3+gTVYQoZQn5Hh9XEtC4Xwk4=
+github.com/Comcast/codex v0.2.10-0.20190409183349-49ba20f2a6fd/go.mod h1:MJZyvKXDSW9Yv8WLFX6M0sLm2OzUN/QJAxGHzr3iIVQ=
 github.com/Comcast/comcast-bascule v0.1.1 h1:BEZLf/+cc43qty6Ji37Rb9ZgE/4bb3OEaG7RoBtSAA8=
 github.com/Comcast/comcast-bascule v0.1.1/go.mod h1:P+foczIWDJFqnYN16GmT0Drfm3eJFKPjfEGowefd/vw=
 github.com/Comcast/webpa-common v0.0.0-20190312224005-400bb4f8fc50 h1:GzM00ldkAr5Zp56z3E/ceRFL4O+S8cjE/ZFIhykHDI8=

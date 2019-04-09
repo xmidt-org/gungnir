@@ -181,23 +181,12 @@ func gungnir(arguments []string) int {
 	}
 	retryService := db.CreateRetryRGService(database, config.GetRetries, config.RetryInterval, metricsRegistry)
 
-	var decypter cipher.Decrypt
-	cipherConfig, err := cipher.Load(v)
-	if err == nil {
-		decypter, err = cipher.LoadPrivateKey(cipherConfig)
-		if err != nil {
-			logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to initialize LoadPublicKey",
-				logging.ErrorKey(), err.Error())
-			fmt.Fprintf(os.Stderr, "LoadPublicKey Initialize Failed: %#v\n", err)
-			decypter = &cipher.NOOP{}
-			logging.Warn(logger).Log(logging.MessageKey(), "Using noop decryption")
-		} else {
-			logging.Error(logger).Log(logging.MessageKey(), "successfully loaded private key", "config", fmt.Sprintf("%#v", cipherConfig))
-		}
-	} else {
-		decypter = &cipher.NOOP{}
-		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to load cipher using noop decryption",
+	decrypter, err := cipher.LoadPrivate(v)
+	if err != nil {
+		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to initialize cipher",
 			logging.ErrorKey(), err.Error())
+		fmt.Fprintf(os.Stderr, "Cipher Initialize Failed: %#v\n", err)
+		return 2
 	}
 
 	basicAllowed := make(map[string]string)
@@ -264,7 +253,7 @@ func gungnir(arguments []string) int {
 		eventGetter: retryService,
 		logger:      logger,
 		getLimit:    config.GetLimit,
-		decrypter:   decypter,
+		decrypter:   decrypter,
 		measures:    measures,
 	}
 
