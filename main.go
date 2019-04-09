@@ -93,7 +93,7 @@ func SetLogger(logger log.Logger) func(delegate http.Handler) http.Handler {
 		return http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
 				ctx := r.WithContext(logging.WithLogger(r.Context(),
-					log.With(logger, "request headers", r.Header, "request URL", r.URL)))
+					log.With(logger, "request headers", r.Header, "request URL", r.URL.EscapedPath(), "method", r.Method)))
 				delegate.ServeHTTP(w, ctx)
 			})
 	}
@@ -101,14 +101,6 @@ func SetLogger(logger log.Logger) func(delegate http.Handler) http.Handler {
 
 func GetLogger(ctx context.Context) bascule.Logger {
 	return log.With(logging.GetLogger(ctx), "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
-}
-
-type authLogger struct {
-	l log.Logger
-}
-
-func (a authLogger) OnAuthenticated(auth bascule.Authentication) {
-	logging.Debug(a.l).Log(logging.MessageKey(), "authentication found", "auth", auth)
 }
 
 func gungnir(arguments []string) int {
@@ -221,11 +213,9 @@ func gungnir(arguments []string) int {
 			bascule.CreateNonEmptyPrincipalCheck(),
 			bascule.CreateNonEmptyTypeCheck(),
 			bascule.CreateValidTypeCheck([]string{"jwt"}),
-			bascule.CreateListAttributeCheck("capabilities", bascule.NonEmptyStringListCheck),
+			bascule.CreateListAttributeCheck("capabilities", CreateValidCapabilityCheck("x1", "codex", "api", "all")),
 		}),
 	)
-
-	authLogger := basculehttp.NewListenerDecorator(authLogger{l: logger})
 
 	// TODO: fix bookkeeping, add a decorator to add the bookkeeping requests and logger
 	bookkeeper := bookkeeping.New(bookkeeping.WithResponses(bookkeeping.Code))
@@ -236,7 +226,7 @@ func gungnir(arguments []string) int {
 		UpdateInterval: config.BlacklistInterval,
 	}
 
-	gungnirHandler := alice.New(SetLogger(logger), authConstructor, authLogger, authEnforcer, bookkeeper)
+	gungnirHandler := alice.New(SetLogger(logger), authConstructor, authEnforcer, bookkeeper)
 	router := mux.NewRouter()
 	measures := NewMeasures(metricsRegistry)
 	// MARK: Actual server logic

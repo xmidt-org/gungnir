@@ -11,6 +11,10 @@ github.com/Comcast/comcast-bascule v0.1.1 h1:BEZLf/+cc43qty6Ji37Rb9ZgE/4bb3OEaG7
 github.com/Comcast/comcast-bascule v0.1.1/go.mod h1:P+foczIWDJFqnYN16GmT0Drfm3eJFKPjfEGowefd/vw=
 github.com/Comcast/comcast-bascule v0.2.0 h1:dmznHtCQ4ZekuT/eiKzjig6+m92Kt+YHjVL6Kt4lKOk=
 github.com/Comcast/comcast-bascule v0.2.0/go.mod h1:zE/nz6rh6Hu9zdWLIhVsdW1TLyHtqf0pKILVp/oqPvk=
+github.com/Comcast/comcast-bascule v0.2.1 h1:u1O5TTX8aSxiUT/uBF03k2fFf6jIeAp2e0sTEP352m4=
+github.com/Comcast/comcast-bascule v0.2.1/go.mod h1:zE/nz6rh6Hu9zdWLIhVsdW1TLyHtqf0pKILVp/oqPvk=
+github.com/Comcast/comcast-bascule v0.2.2-0.20190415175116-51e51e63790b h1:TNICfv4cjebbq/JX0r/JJ251zeGKG+4x1S4L9onXse8=
+github.com/Comcast/comcast-bascule v0.2.2-0.20190415175116-51e51e63790b/go.mod h1:zE/nz6rh6Hu9zdWLIhVsdW1TLyHtqf0pKILVp/oqPvk=
 github.com/Comcast/webpa-common v0.0.0-20190312224005-400bb4f8fc50 h1:GzM00ldkAr5Zp56z3E/ceRFL4O+S8cjE/ZFIhykHDI8=
 github.com/Comcast/webpa-common v0.0.0-20190312224005-400bb4f8fc50/go.mod h1:XSu1nN06grod4RD/3WRYdeMMKDXBpeosZgIoNcmYsus=
 github.com/Comcast/webpa-common v0.9.0-alpha.0.20190402211944-723a128f40c7 h1:AR83JZEQNVa3wWzodW+MhEg1ANAueXXsCT1wyKMtavY=
