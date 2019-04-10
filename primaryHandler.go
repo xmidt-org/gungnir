@@ -20,12 +20,14 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"github.com/Comcast/codex/cipher"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/Comcast/codex/cipher"
+
 	"github.com/Comcast/webpa-common/logging"
+	"github.com/Comcast/webpa-common/wrp"
 	"github.com/goph/emperror"
 
 	"github.com/Comcast/codex/db"
@@ -59,7 +61,7 @@ type DeviceIdParam struct {
 // swagger:response EventResponse
 type EventResponse struct {
 	// in:body
-	Body []db.Event
+	Body []wrp.Message
 }
 
 // ErrResponse is the information passed to the client on an error
@@ -72,9 +74,9 @@ type ErrResponse struct {
 	Code int `json:"code"`
 }
 
-func (app *App) getDeviceInfo(deviceID string) ([]db.Event, error) {
+func (app *App) getDeviceInfo(deviceID string) ([]wrp.Message, error) {
 	records, hErr := app.eventGetter.GetRecords(deviceID, app.getLimit)
-	events := []db.Event{}
+	events := []wrp.Message{}
 
 	// if both have errors or are empty, return an error
 	if hErr != nil {
@@ -89,7 +91,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]db.Event, error) {
 			continue
 		}
 
-		var event db.Event
+		var event wrp.Message
 		data, err := app.decrypter.DecryptMessage(record.Data)
 		if err != nil {
 			app.measures.DecryptFailure.Add(1.0)
@@ -103,7 +105,6 @@ func (app *App) getDeviceInfo(deviceID string) ([]db.Event, error) {
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal decoded event", logging.ErrorKey(), err.Error())
 			continue
 		}
-		event.ID = record.ID
 		events = append(events, event)
 	}
 
@@ -137,7 +138,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]db.Event, error) {
  */
 func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Request) {
 	var (
-		d   []db.Event
+		d   []wrp.Message
 		err error
 	)
 	vars := mux.Vars(request)
