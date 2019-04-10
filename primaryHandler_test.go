@@ -20,13 +20,14 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"github.com/Comcast/codex/cipher"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/Comcast/codex/cipher"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 
 	"github.com/Comcast/webpa-common/logging"
 	"github.com/Comcast/webpa-common/wrp"
@@ -130,7 +131,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			decryptErr:     errors.New("failed to decrypt"),
-			expectedEvents: []db.Event{},
+			expectedEvents: []wrp.Message{},
 			expectedErr:    errors.New("No events found"),
 			expectedStatus: http.StatusNotFound,
 		},
