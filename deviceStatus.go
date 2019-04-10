@@ -27,6 +27,7 @@ import (
 
 	"github.com/Comcast/codex/db"
 	"github.com/Comcast/webpa-common/logging"
+	"github.com/Comcast/webpa-common/wrp"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
@@ -157,7 +158,7 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 			continue
 		}
 
-		var event db.Event
+		var event wrp.Message
 		data, err := app.decrypter.DecryptMessage(record.Data)
 		if err != nil {
 			app.measures.DecryptFailure.Add(1.0)

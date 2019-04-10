@@ -20,15 +20,17 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"github.com/Comcast/codex/cipher"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/Comcast/codex/cipher"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+
 	"github.com/Comcast/webpa-common/logging"
+	"github.com/Comcast/webpa-common/wrp"
 	"github.com/Comcast/webpa-common/xmetrics/xmetricstest"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
@@ -38,9 +40,9 @@ import (
 )
 
 var (
-	goodEvent = db.Event{
-		ID:          1234,
-		Time:        567890974,
+	goodEvent = wrp.Message{
+		//ID: 1234,
+		//Time:        567890974,
 		Source:      "test source",
 		Destination: "/test/online",
 		PartnerIDs:  []string{"test1", "test2"},
@@ -78,20 +80,20 @@ func TestGetDeviceInfo(t *testing.T) {
 		getRecordsErr         error
 		decryptErr            error
 		expectedFailureMetric float64
-		expectedEvents        []db.Event
+		expectedEvents        []wrp.Message
 		expectedErr           error
 		expectedStatus        int
 	}{
 		{
 			description:    "Get Records Error",
 			getRecordsErr:  getRecordsErr,
-			expectedEvents: []db.Event{},
+			expectedEvents: []wrp.Message{},
 			expectedErr:    getRecordsErr,
 			expectedStatus: http.StatusInternalServerError,
 		},
 		{
 			description:    "Empty Records Error",
-			expectedEvents: []db.Event{},
+			expectedEvents: []wrp.Message{},
 			expectedErr:    errors.New("No events found"),
 			expectedStatus: http.StatusNotFound,
 		},
@@ -102,7 +104,7 @@ func TestGetDeviceInfo(t *testing.T) {
 					DeathDate: previousTime,
 				},
 			},
-			expectedEvents: []db.Event{},
+			expectedEvents: []wrp.Message{},
 			expectedErr:    errors.New("No events found"),
 			expectedStatus: http.StatusNotFound,
 		},
@@ -115,7 +117,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedFailureMetric: 1.0,
-			expectedEvents:        []db.Event{},
+			expectedEvents:        []wrp.Message{},
 			expectedErr:           errors.New("No events found"),
 			expectedStatus:        http.StatusNotFound,
 		},
@@ -129,7 +131,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			decryptErr:     errors.New("failed to decrypt"),
-			expectedEvents: []db.Event{},
+			expectedEvents: []wrp.Message{},
 			expectedErr:    errors.New("No events found"),
 			expectedStatus: http.StatusNotFound,
 		},
@@ -142,7 +144,7 @@ func TestGetDeviceInfo(t *testing.T) {
 					Data:      goodData,
 				},
 			},
-			expectedEvents: []db.Event{
+			expectedEvents: []wrp.Message{
 				goodEvent,
 			},
 		},
