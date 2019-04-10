@@ -23,6 +23,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/Comcast/codex/cipher"
 	olog "log"
 	"net/http"
 	_ "net/http/pprof"
@@ -180,6 +181,14 @@ func gungnir(arguments []string) int {
 	}
 	retryService := db.CreateRetryRGService(database, config.GetRetries, config.RetryInterval, metricsRegistry)
 
+	decrypter, err := cipher.LoadPrivate(v)
+	if err != nil {
+		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to initialize cipher",
+			logging.ErrorKey(), err.Error())
+		fmt.Fprintf(os.Stderr, "Cipher Initialize Failed: %#v\n", err)
+		return 2
+	}
+
 	basicAllowed := make(map[string]string)
 	for _, a := range config.AuthHeader {
 		decoded, err := base64.StdEncoding.DecodeString(a)
@@ -244,6 +253,7 @@ func gungnir(arguments []string) int {
 		eventGetter: retryService,
 		logger:      logger,
 		getLimit:    config.GetLimit,
+		decrypter:   decrypter,
 		measures:    measures,
 	}
 

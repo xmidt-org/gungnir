@@ -2,3 +2,4 @@
  - changed expected "reason-for-close" key in payload to "reason-for-closure" for `/status` endpoint
  - device id will always be converted to lowercase to query the database
  - Added sat verification for endpoints
+ - Added basic level of decryption
