@@ -1,5 +1,6 @@
- - modified health metric to reflect unhealthy when pinging the database fails
- - changed expected "reason-for-close" key in payload to "reason-for-closure" for `/status` endpoint
- - device id will always be converted to lowercase to query the database
+ - Modified health metric to reflect unhealthy when pinging the database fails
+ - Changed expected "reason-for-close" key in payload to "reason-for-closure" for `/status` endpoint
+ - Device id will always be converted to lowercase to query the database
  - Added sat verification for endpoints
  - Added basic level of decryption
+ - Expect the data of a record to be a wrp.Message
