@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.3.0]
+ - Modified health metric to reflect unhealthy when pinging the database fails
+ - Changed expected "reason-for-close" key in payload to "reason-for-closure" for `status` endpoint
+ - Device id will always be converted to lowercase to query the database
+ - Added sat verification for endpoints
+ - Added basic level of decryption
+ - Expect the data of a record to be a wrp.Message
+
+
+
 ## [v0.2.7]
  - bumped codex
 
@@ -65,7 +75,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/Comcast/codex-gungnir/compare/v0.2.7...HEAD
+[Unreleased]: https://github.com/Comcast/codex-gungnir/compare/v0.3.0...HEAD
+[v0.3.0]: https://github.com/Comcast/codex-gungnir/compare/v0.2.7...v0.3.0
 [v0.2.7]: https://github.com/Comcast/codex-gungnir/compare/v0.2.6...v0.2.7
 [v0.2.6]: https://github.com/Comcast/codex-gungnir/compare/v0.2.5...v0.2.6
 [v0.2.5]: https://github.com/Comcast/codex-gungnir/compare/v0.2.4...v0.2.5
