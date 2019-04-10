@@ -2,22 +2,30 @@
 primary:
   address: ":8080"
 
+health:
+  port: ":80"
+  endpoint: "/health"
+
 log:
   file: "stdout"
   level: "INFO"
   json: true
 
 authHeader: ["YXV0aEhlYWRlcg=="]
+
 getLimit: 50
 getRetries: 3
 retryInterval: 10s
-health:
-  port: ":80"
-  endpoint: "/health"
+
 db:
-  server: "localhost:11210"
-  bucket: "devices"
-  username: "Administrator"
-  password: "somepassword"
+  server: "db:26257"
+  username: "roachadmin"
+  database: "devices"
   numRetries: 4
+  waitTimeMult: 5
   pingInterval: 1s
+  connectTimeout: 1m
+  opTimeout: 100ms
+
+cipher:
+  hashName: "noop"
