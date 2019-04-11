@@ -3,26 +3,36 @@ server: locahost
 
 primary:
   address: ":7100"
-health:
-  address: ":7101"
 pprof:
   address: ":7102"
 metric:
   address: ":7103"
 
-log:
-  file: "/var/log/gungnir/gungnir.log"
-  level: "DEBUG"
-  maxSize: 50
-  maxBackup: 3
-  json: true
+health:
+  port: ":7101"
+  endpoint: "/health"
 
+log:
+  file: "stdout"
+  level: "INFO"
+  json: true
 
 authHeader: ["YXV0aEhlYWRlcg=="]
 
+getLimit: 50
+getRetries: 3
+retryInterval: 10s
+blacklistInterval: 1m
+
 db:
-  server: "127.0.0.1:11210"
-  bucket: "devices"
-  username: "Administrator"
-  password: "somepassword"
+  server: "db:26257"
+  username: "roachadmin"
+  database: "devices"
   numRetries: 4
+  waitTimeMult: 5
+  pingInterval: 1s
+  connectTimeout: 1m
+  opTimeout: 100ms
+
+cipher:
+  hashName: "noop"

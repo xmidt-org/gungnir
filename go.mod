@@ -17,3 +17,5 @@ require (
 	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.3.0
 )
+
+replace github.com/Comcast/codex => github.com/kcajmagic/codex v0.1.1-0.20190411215817-7b725e8a5c85

@@ -20,6 +20,8 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/Comcast/codex/blacklist"
 	"net/http"
 	"strings"
 	"time"
@@ -43,6 +45,7 @@ type App struct {
 	logger      log.Logger
 	getLimit    int
 	decrypter   cipher.Decrypt
+	blacklist   blacklist.List
 
 	measures *Measures
 }
@@ -75,6 +78,11 @@ type ErrResponse struct {
 }
 
 func (app *App) getDeviceInfo(deviceID string) ([]wrp.Message, error) {
+	if reason, ok := app.blacklist.InList(deviceID); ok {
+		return []wrp.Message{}, serverErr{errors.New(fmt.Sprintf("device in blacklist, reason: %s", reason)),
+			http.StatusBadRequest}
+	}
+
 	records, hErr := app.eventGetter.GetRecords(deviceID, app.getLimit)
 	events := []wrp.Message{}
 
@@ -150,6 +158,7 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 	if d, err = app.getDeviceInfo(id); err != nil {
 		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(),
 			"Failed to get status info", logging.ErrorKey(), err.Error())
+		writer.Header().Add("X-Codex-Error", err.Error())
 		if val, ok := err.(kithttp.StatusCoder); ok {
 			writer.WriteHeader(val.StatusCode())
 			return

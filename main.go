@@ -22,6 +22,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/Comcast/codex/blacklist"
 	"github.com/Comcast/codex/cipher"
 	olog "log"
 	"net/http"
@@ -62,13 +63,14 @@ const (
 )
 
 type Config struct {
-	Db            db.Config
-	GetLimit      int
-	GetRetries    int
-	RetryInterval time.Duration
-	Health        HealthConfig
-	AuthHeader    []string
-	JwtValidator  JWTValidator
+	Db                db.Config
+	GetLimit          int
+	GetRetries        int
+	RetryInterval     time.Duration
+	Health            HealthConfig
+	AuthHeader        []string
+	JwtValidator      JWTValidator
+	BlacklistInterval time.Duration
 }
 
 type HealthConfig struct {
@@ -222,6 +224,12 @@ func gungnir(arguments []string) int {
 	// TODO: fix bookkeeping, add a decorator to add the bookkeeping requests and logger
 	bookkeeper := bookkeeping.New(bookkeeping.WithResponses(bookkeeping.Code))
 
+	stopUpdateBlackList := make(chan struct{}, 1)
+	blacklistConfig := blacklist.RefresherConfig{
+		Logger:         logger,
+		UpdateInterval: config.BlacklistInterval,
+	}
+
 	gungnirHandler := alice.New(SetLogger(logger), authConstructor, authLogger, authEnforcer, bookkeeper)
 	router := mux.NewRouter()
 	measures := NewMeasures(metricsRegistry)
@@ -232,6 +240,7 @@ func gungnir(arguments []string) int {
 		getLimit:    config.GetLimit,
 		decrypter:   decrypter,
 		measures:    measures,
+		blacklist:   blacklist.NewListRefresher(blacklistConfig, database, stopUpdateBlackList),
 	}
 
 	logging.GetLogger(context.Background())
