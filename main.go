@@ -102,12 +102,6 @@ func GetLogger(ctx context.Context) bascule.Logger {
 	return log.With(logging.GetLogger(ctx), "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 }
 
-func CreateGetLoggerFunc(logger log.Logger) func(context.Context) bascule.Logger {
-	return func(_ context.Context) bascule.Logger {
-		return log.With(logger, "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
-	}
-}
-
 type authLogger struct {
 	l log.Logger
 }
@@ -194,7 +188,7 @@ func gungnir(arguments []string) int {
 	}
 	logging.Debug(logger).Log(logging.MessageKey(), "Created list of allowed basic auths", "allowed list", basicAllowed, "config", config.AuthHeader)
 
-	options := []basculehttp.COption{basculehttp.WithCLogger(CreateGetLoggerFunc(logger))}
+	options := []basculehttp.COption{basculehttp.WithCLogger(GetLogger)}
 	if len(basicAllowed) > 0 {
 		options = append(options, basculehttp.WithTokenFactory("Basic", basculehttp.BasicTokenFactory(basicAllowed)))
 	}
@@ -218,7 +212,7 @@ func gungnir(arguments []string) int {
 	authConstructor := basculehttp.NewConstructor(options...)
 
 	authEnforcer := basculehttp.NewEnforcer(
-		basculehttp.WithELogger(CreateGetLoggerFunc(logger)),
+		basculehttp.WithELogger(GetLogger),
 		basculehttp.WithRules("Basic", []bascule.Validator{
 			bascule.CreateAllowAllCheck(),
 		}),
