@@ -160,12 +160,16 @@ func TestGetDeviceInfo(t *testing.T) {
 			mockDecrypter := new(mockDecrypter)
 			mockDecrypter.On("DecryptMessage", mock.Anything).Return(tc.decryptErr)
 
+			mblacklist := new(mockBlacklist)
+			mblacklist.On("InList", "test").Return("", false).Once()
+
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
 			app := App{
 				eventGetter: mockGetter,
 				logger:      logging.DefaultLogger(),
 				decrypter:   mockDecrypter,
+				blacklist:   mblacklist,
 				measures:    m,
 				getLimit:    5,
 			}
@@ -231,11 +235,16 @@ func TestHandleGetEvents(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecords", tc.deviceID, 5).Return(tc.recordsToReturn, nil).Once()
+
+			mblacklist := new(mockBlacklist)
+			mblacklist.On("InList", tc.deviceID).Return("", false).Once()
+
 			app := App{
 				eventGetter: mockGetter,
 				getLimit:    5,
 				logger:      logging.DefaultLogger(),
 				decrypter:   new(cipher.NOOP),
+				blacklist:   mblacklist,
 			}
 			rr := httptest.NewRecorder()
 			request := mux.SetURLVars(
