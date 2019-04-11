@@ -99,7 +99,7 @@ func SetLogger(logger log.Logger) func(delegate http.Handler) http.Handler {
 }
 
 func GetLogger(ctx context.Context) bascule.Logger {
-	return logging.GetLogger(ctx)
+	return log.With(logging.GetLogger(ctx), "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 }
 
 type authLogger struct {
