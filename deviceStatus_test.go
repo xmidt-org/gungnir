@@ -171,6 +171,9 @@ func TestGetStatusInfo(t *testing.T) {
 			mockDecrypter := new(mockDecrypter)
 			mockDecrypter.On("DecryptMessage", mock.Anything).Return(tc.decryptErr)
 
+			mblacklist := new(mockBlacklist)
+			mblacklist.On("InList", "test").Return("", false).Once()
+
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
 
@@ -179,6 +182,7 @@ func TestGetStatusInfo(t *testing.T) {
 				getLimit:    5,
 				logger:      logging.DefaultLogger(),
 				decrypter:   mockDecrypter,
+				blacklist:   mblacklist,
 				measures:    m,
 			}
 			status, err := app.getStatusInfo("test")
@@ -247,6 +251,9 @@ func TestHandleGetStatus(t *testing.T) {
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecordsOfType", tc.deviceID, 5, 1).Return(tc.recordsToReturn, nil).Once()
 
+			mblacklist := new(mockBlacklist)
+			mblacklist.On("InList", tc.deviceID).Return("", false).Once()
+
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
 
@@ -255,6 +262,7 @@ func TestHandleGetStatus(t *testing.T) {
 				getLimit:    5,
 				logger:      logging.DefaultLogger(),
 				decrypter:   new(cipher.NOOP),
+				blacklist:   mblacklist,
 				measures:    m,
 			}
 			rr := httptest.NewRecorder()

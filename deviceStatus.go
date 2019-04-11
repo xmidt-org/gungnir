@@ -20,6 +20,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"path"
 	"strings"
@@ -118,6 +119,7 @@ func (app *App) handleGetStatus(writer http.ResponseWriter, request *http.Reques
 	if s, err = app.getStatusInfo(id); err != nil {
 		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(),
 			"Failed to get status info", logging.ErrorKey(), err.Error())
+		writer.Header().Add("X-Codex-Error", err.Error())
 		if val, ok := err.(kithttp.StatusCoder); ok {
 			writer.WriteHeader(val.StatusCode())
 			return
@@ -140,6 +142,11 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 	var (
 		s Status
 	)
+
+	if reason, ok := app.blacklist.InList(deviceID); ok {
+		return Status{}, serverErr{errors.New(fmt.Sprintf("device in blacklist, reason: %s", reason)),
+			http.StatusBadRequest}
+	}
 
 	stateInfo, hErr := app.eventGetter.GetRecordsOfType(deviceID, app.getLimit, db.EventState)
 	if hErr != nil {
