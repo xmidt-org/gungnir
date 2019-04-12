@@ -92,8 +92,9 @@ func SetLogger(logger log.Logger) func(delegate http.Handler) http.Handler {
 	return func(delegate http.Handler) http.Handler {
 		return http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
-				r.WithContext(logging.WithLogger(r.Context(), logger))
-				delegate.ServeHTTP(w, r.WithContext(logging.WithLogger(r.Context(), logger)))
+				ctx := r.WithContext(logging.WithLogger(r.Context(),
+					log.With(logger, "request headers", r.Header, "request URL", r.URL)))
+				delegate.ServeHTTP(w, ctx)
 			})
 	}
 }
