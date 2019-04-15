@@ -148,7 +148,7 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 			http.StatusBadRequest}
 	}
 
-	stateInfo, hErr := app.eventGetter.GetRecordsOfType(deviceID, app.getLimit, db.EventState)
+	stateInfo, hErr := app.eventGetter.GetRecordsOfType(deviceID, app.getLimit, db.State)
 	if hErr != nil {
 		return s, serverErr{emperror.WrapWith(hErr, "Failed to get state records", "device id", deviceID),
 			http.StatusInternalServerError}
@@ -166,7 +166,7 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 		}
 
 		var event wrp.Message
-		data, err := app.decrypter.DecryptMessage(record.Data)
+		data, err := app.decrypter.DecryptMessage(record.Data, record.Nonce)
 		if err != nil {
 			app.measures.DecryptFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decode event", logging.ErrorKey(), err.Error())
