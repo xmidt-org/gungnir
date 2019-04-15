@@ -104,7 +104,7 @@ func TestGetStatusInfo(t *testing.T) {
 			recordsToReturn: []db.Record{
 				{
 					ID:        1234,
-					Type:      db.EventState,
+					Type:      db.State,
 					DeathDate: futureTime,
 					Data:      emptyPayloadData,
 				},
@@ -118,14 +118,14 @@ func TestGetStatusInfo(t *testing.T) {
 			recordsToReturn: []db.Record{
 				{
 					ID:        1234,
-					Type:      db.EventState,
+					Type:      db.State,
 					BirthDate: futureTime - 500,
 					DeathDate: futureTime,
 					Data:      goodData,
 				},
 				{
 					ID:        1234,
-					Type:      db.EventState,
+					Type:      db.State,
 					DeathDate: futureTime,
 					Data:      goodData,
 				},
@@ -140,14 +140,14 @@ func TestGetStatusInfo(t *testing.T) {
 			recordsToReturn: []db.Record{
 				{
 					ID:        1234,
-					Type:      db.EventState,
+					Type:      db.State,
 					BirthDate: futureTime - 500,
 					DeathDate: futureTime,
 					Data:      goodData,
 				},
 				{
 					ID:        1234,
-					Type:      db.EventState,
+					Type:      db.State,
 					DeathDate: futureTime,
 					Data:      goodData,
 				},
@@ -166,10 +166,10 @@ func TestGetStatusInfo(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecordsOfType", "test", 5, db.EventState).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
+			mockGetter.On("GetRecordsOfType", "test", 5, db.State).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
 
 			mockDecrypter := new(mockDecrypter)
-			mockDecrypter.On("DecryptMessage", mock.Anything).Return(tc.decryptErr)
+			mockDecrypter.On("DecryptMessage", mock.Anything, mock.Anything).Return(tc.decryptErr)
 
 			mblacklist := new(mockBlacklist)
 			mblacklist.On("InList", "test").Return("", false).Once()
@@ -249,7 +249,7 @@ func TestHandleGetStatus(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecordsOfType", tc.deviceID, 5, 1).Return(tc.recordsToReturn, nil).Once()
+			mockGetter.On("GetRecordsOfType", tc.deviceID, 5, db.State).Return(tc.recordsToReturn, nil).Once()
 
 			mblacklist := new(mockBlacklist)
 			mblacklist.On("InList", tc.deviceID).Return("", false).Once()

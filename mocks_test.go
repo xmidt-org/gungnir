@@ -31,7 +31,7 @@ func (rg *mockRecordGetter) GetRecords(deviceID string, limit int) ([]db.Record,
 	return args.Get(0).([]db.Record), args.Error(1)
 }
 
-func (rg *mockRecordGetter) GetRecordsOfType(deviceID string, limit int, eventType int) ([]db.Record, error) {
+func (rg *mockRecordGetter) GetRecordsOfType(deviceID string, limit int, eventType db.EventType) ([]db.Record, error) {
 	args := rg.Called(deviceID, limit, eventType)
 	return args.Get(0).([]db.Record), args.Error(1)
 }
@@ -40,8 +40,8 @@ type mockDecrypter struct {
 	mock.Mock
 }
 
-func (md *mockDecrypter) DecryptMessage(cipher []byte) ([]byte, error) {
-	args := md.Called(cipher)
+func (md *mockDecrypter) DecryptMessage(cipher []byte, nonce []byte) ([]byte, error) {
+	args := md.Called(cipher, nonce)
 	return cipher, args.Error(0)
 }
 

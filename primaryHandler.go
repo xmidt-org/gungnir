@@ -100,7 +100,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]wrp.Message, error) {
 		}
 
 		var event wrp.Message
-		data, err := app.decrypter.DecryptMessage(record.Data)
+		data, err := app.decrypter.DecryptMessage(record.Data, record.Nonce)
 		if err != nil {
 			app.measures.DecryptFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decode event", logging.ErrorKey(), err.Error())

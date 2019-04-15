@@ -29,4 +29,4 @@ db:
   opTimeout: 100ms
 
 cipher:
-  hashName: "noop"
+  type: "noop"

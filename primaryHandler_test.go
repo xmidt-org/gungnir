@@ -158,7 +158,7 @@ func TestGetDeviceInfo(t *testing.T) {
 			mockGetter.On("GetRecords", "test", 5).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
 
 			mockDecrypter := new(mockDecrypter)
-			mockDecrypter.On("DecryptMessage", mock.Anything).Return(tc.decryptErr)
+			mockDecrypter.On("DecryptMessage", mock.Anything, mock.Anything).Return(tc.decryptErr)
 
 			mblacklist := new(mockBlacklist)
 			mblacklist.On("InList", "test").Return("", false).Once()
