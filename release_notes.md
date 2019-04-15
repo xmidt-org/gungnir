@@ -1,3 +1,4 @@
 - Added Blacklist
+- Added sat and basic auth verification using `bascule`
 - bumped codex to v0.3.2
 - bumped webpa-common to v1.0.0
