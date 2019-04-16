@@ -1,1 +1,2 @@
-
+- Bumped codex-common to v0.3.3
+- Bumped bascule to v0.2.3
