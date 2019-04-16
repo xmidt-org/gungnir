@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.4.1]
+- Bumped codex-common to v0.3.3
+- Bumped bascule to v0.2.3
+
+
+
 ## [v0.4.0]
 - Added Blacklist
 - Added sat and basic auth verification using `bascule`
@@ -82,7 +88,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/Comcast/codex-gungnir/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/Comcast/codex-gungnir/compare/v0.4.1...HEAD
+[v0.4.1]: https://github.com/Comcast/codex-gungnir/compare/v0.4.0...v0.4.1
 [v0.4.0]: https://github.com/Comcast/codex-gungnir/compare/v0.3.0...v0.4.0
 [v0.3.0]: https://github.com/Comcast/codex-gungnir/compare/v0.2.7...v0.3.0
 [v0.2.7]: https://github.com/Comcast/codex-gungnir/compare/v0.2.6...v0.2.7
