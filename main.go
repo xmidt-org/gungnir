@@ -60,7 +60,7 @@ import (
 const (
 	applicationName, apiBase = "gungnir", "/api/v1"
 	DEFAULT_KEY_ID           = "current"
-	applicationVersion       = "0.4.0"
+	applicationVersion       = "0.4.1"
 )
 
 type Config struct {
