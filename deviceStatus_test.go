@@ -263,6 +263,20 @@ func TestHandleGetStatus(t *testing.T) {
 			expectedStatusCode: http.StatusOK,
 			expectedBody:       goodData,
 		},
+		{
+			description: "No Decrypter",
+			deviceID:    "1234",
+			recordsToReturn: []db.Record{
+				{
+					ID:        1234,
+					DeathDate: futureTime,
+					Data:      goodData,
+					Alg:       string(cipher.Box),
+					KID:       "test",
+				},
+			},
+			expectedStatusCode: http.StatusNotFound,
+		},
 	}
 
 	for _, tc := range tests {

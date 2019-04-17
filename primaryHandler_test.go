@@ -138,6 +138,22 @@ func TestGetDeviceInfo(t *testing.T) {
 			expectedEvents: []Event{Event{wrp.Message{Type: 11}, 0}},
 		},
 		{
+			description: "No Decrypter",
+			recordsToReturn: []db.Record{
+				{
+					ID:        1234,
+					BirthDate: prevTime.Unix(),
+					DeathDate: futureTime,
+					Data:      goodData,
+					Alg:       string(cipher.Box),
+					KID:       "test",
+				},
+			},
+			expectedEvents: []Event{
+				Event{wrp.Message{Type: 11}, prevTime.Unix()},
+			},
+		},
+		{
 			description: "Success",
 			recordsToReturn: []db.Record{
 				{
