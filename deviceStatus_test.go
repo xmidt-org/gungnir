@@ -20,16 +20,15 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/Comcast/codex/cipher"
-	"github.com/Comcast/webpa-common/xmetrics/xmetricstest"
-	"github.com/stretchr/testify/mock"
-
 	"github.com/Comcast/webpa-common/logging"
+	"github.com/Comcast/webpa-common/xmetrics/xmetricstest"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
@@ -82,6 +81,8 @@ func TestGetStatusInfo(t *testing.T) {
 			recordsToReturn: []db.Record{
 				db.Record{
 					DeathDate: previousTime,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 			},
 			expectedStatus:       Status{},
@@ -94,6 +95,8 @@ func TestGetStatusInfo(t *testing.T) {
 				{
 					DeathDate: futureTime,
 					Data:      badData,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 			},
 			expectedStatus:       Status{},
@@ -108,6 +111,8 @@ func TestGetStatusInfo(t *testing.T) {
 					Type:      db.State,
 					DeathDate: futureTime,
 					Data:      emptyPayloadData,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 			},
 			expectedStatus:       Status{},
@@ -123,12 +128,16 @@ func TestGetStatusInfo(t *testing.T) {
 					BirthDate: futureTime - 500,
 					DeathDate: futureTime,
 					Data:      goodData,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 				{
 					ID:        1234,
 					Type:      db.State,
 					DeathDate: futureTime,
 					Data:      goodData,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 			},
 			expectedStatus:       Status{},
@@ -145,12 +154,16 @@ func TestGetStatusInfo(t *testing.T) {
 					BirthDate: futureTime - 500,
 					DeathDate: futureTime,
 					Data:      goodData,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 				{
 					ID:        1234,
 					Type:      db.State,
 					DeathDate: futureTime,
 					Data:      goodData,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 			},
 			expectedStatus: Status{
@@ -169,17 +182,25 @@ func TestGetStatusInfo(t *testing.T) {
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecordsOfType", "test", 5, db.State).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
 
+			p := xmetricstest.NewProvider(nil, Metrics)
+			m := NewMeasures(p)
+
 			mockDecrypter := new(mockDecrypter)
 			mockDecrypter.On("DecryptMessage", mock.Anything, mock.Anything).Return(tc.decryptErr)
 
-			p := xmetricstest.NewProvider(nil, Metrics)
-			m := NewMeasures(p)
+			ciphers := cipher.Ciphers{
+				Options: map[cipher.AlgorithmType]map[string]cipher.Decrypt{
+					cipher.None: map[string]cipher.Decrypt{
+						"none": mockDecrypter,
+					},
+				},
+			}
 
 			app := App{
 				eventGetter: mockGetter,
 				getLimit:    5,
 				logger:      logging.DefaultLogger(),
-				decrypter:   mockDecrypter,
+				decrypters:  ciphers,
 				measures:    m,
 			}
 			status, err := app.getStatusInfo("test")
@@ -235,10 +256,26 @@ func TestHandleGetStatus(t *testing.T) {
 					ID:        1234,
 					DeathDate: futureTime,
 					Data:      goodData,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 			},
 			expectedStatusCode: http.StatusOK,
 			expectedBody:       goodData,
+		},
+		{
+			description: "No Decrypter",
+			deviceID:    "1234",
+			recordsToReturn: []db.Record{
+				{
+					ID:        1234,
+					DeathDate: futureTime,
+					Data:      goodData,
+					Alg:       string(cipher.Box),
+					KID:       "test",
+				},
+			},
+			expectedStatusCode: http.StatusNotFound,
 		},
 	}
 
@@ -251,11 +288,22 @@ func TestHandleGetStatus(t *testing.T) {
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
 
+			mockDecrypter := new(mockDecrypter)
+			mockDecrypter.On("DecryptMessage", mock.Anything, mock.Anything).Return(nil)
+
+			ciphers := cipher.Ciphers{
+				Options: map[cipher.AlgorithmType]map[string]cipher.Decrypt{
+					cipher.None: map[string]cipher.Decrypt{
+						"none": mockDecrypter,
+					},
+				},
+			}
+
 			app := App{
 				eventGetter: mockGetter,
 				getLimit:    5,
 				logger:      logging.DefaultLogger(),
-				decrypter:   new(cipher.NOOP),
+				decrypters:  ciphers,
 				measures:    m,
 			}
 			rr := httptest.NewRecorder()

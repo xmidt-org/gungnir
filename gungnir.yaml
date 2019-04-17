@@ -28,5 +28,4 @@ db:
   opTimeout: 100ms
 
 cipher:
-  algorithm:
-    type: "noop"
+  - type: none

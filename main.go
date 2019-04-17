@@ -156,22 +156,14 @@ func gungnir(arguments []string) int {
 	}
 	retryService := db.CreateRetryRGService(database, config.GetRetries, config.RetryInterval, metricsRegistry)
 
-	cipherOptions, err := cipher.FromViper(cipher.Sub(v))
-	cipherOptions.Logger = logger
+	cipherOptions, err := cipher.FromViper(v)
 	if err != nil {
-		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to initialize cipher options",
+		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to initialize cipher config",
 			logging.ErrorKey(), err.Error())
-		fmt.Fprintf(os.Stderr, "Cipher Options Initialize Failed: %#v\n", err)
+		fmt.Fprintf(os.Stderr, "Cipher Initialize Failed: %#v\n", err)
 		return 2
 	}
-
-	decrypter, err := cipherOptions.LoadDecrypt()
-	if err != nil {
-		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to load cipher decrypter",
-			logging.ErrorKey(), err.Error())
-		fmt.Fprintf(os.Stderr, "Cipher decrypter Initialize Failed: %#v\n", err)
-		return 2
-	}
+	decrypters := cipher.PopulateCiphers(cipherOptions, logger)
 
 	basicAllowed := make(map[string]string)
 	for _, a := range config.AuthHeader {
@@ -235,7 +227,7 @@ func gungnir(arguments []string) int {
 		eventGetter: retryService,
 		logger:      logger,
 		getLimit:    config.GetLimit,
-		decrypter:   decrypter,
+		decrypters:  decrypters,
 		measures:    measures,
 	}
 

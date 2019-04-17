@@ -42,7 +42,7 @@ type App struct {
 	eventGetter db.RecordGetter
 	logger      log.Logger
 	getLimit    int
-	decrypter   cipher.Decrypt
+	decrypters  cipher.Ciphers
 
 	measures *Measures
 }
@@ -100,7 +100,16 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 		event := Event{
 			BirthDate: record.BirthDate,
 		}
-		data, err := app.decrypter.DecryptMessage(record.Data, record.Nonce)
+		decrypter, ok := app.decrypters.Get(cipher.ParseAlogrithmType(record.Alg), record.KID)
+		if !ok {
+			app.measures.GetDecryptFailure.Add(1.0)
+			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to get decoder", logging.ErrorKey())
+			// TODO: when we switch to wrp-go, change this to a constant
+			event.Type = 11
+			events = append(events, event)
+			continue
+		}
+		data, err := decrypter.DecryptMessage(record.Data, record.Nonce)
 		if err != nil {
 			app.measures.DecryptFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decode event", logging.ErrorKey(), err.Error())

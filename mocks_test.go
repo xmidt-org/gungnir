@@ -18,6 +18,7 @@
 package main
 
 import (
+	"github.com/Comcast/codex/cipher"
 	"github.com/Comcast/codex/db"
 	"github.com/stretchr/testify/mock"
 )
@@ -43,4 +44,12 @@ type mockDecrypter struct {
 func (md *mockDecrypter) DecryptMessage(cipher []byte, nonce []byte) ([]byte, error) {
 	args := md.Called(cipher, nonce)
 	return cipher, args.Error(0)
+}
+
+func (*mockDecrypter) GetAlgorithm() cipher.AlgorithmType {
+	return cipher.None
+}
+
+func (*mockDecrypter) GetKID() string {
+	return "none"
 }

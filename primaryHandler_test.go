@@ -102,6 +102,8 @@ func TestGetDeviceInfo(t *testing.T) {
 			recordsToReturn: []db.Record{
 				db.Record{
 					DeathDate: previousTime,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 			},
 			expectedEvents: []Event{},
@@ -114,6 +116,8 @@ func TestGetDeviceInfo(t *testing.T) {
 				{
 					DeathDate: futureTime,
 					Data:      badData,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 			},
 			expectedFailureMetric: 1.0,
@@ -126,10 +130,28 @@ func TestGetDeviceInfo(t *testing.T) {
 					ID:        1234,
 					DeathDate: futureTime,
 					Data:      goodData,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 			},
 			decryptErr:     errors.New("failed to decrypt"),
 			expectedEvents: []Event{Event{wrp.Message{Type: 11}, 0}},
+		},
+		{
+			description: "No Decrypter",
+			recordsToReturn: []db.Record{
+				{
+					ID:        1234,
+					BirthDate: prevTime.Unix(),
+					DeathDate: futureTime,
+					Data:      goodData,
+					Alg:       string(cipher.Box),
+					KID:       "test",
+				},
+			},
+			expectedEvents: []Event{
+				Event{wrp.Message{Type: 11}, prevTime.Unix()},
+			},
 		},
 		{
 			description: "Success",
@@ -139,6 +161,8 @@ func TestGetDeviceInfo(t *testing.T) {
 					BirthDate: prevTime.Unix(),
 					DeathDate: futureTime,
 					Data:      goodData,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 			},
 			expectedEvents: []Event{
@@ -157,12 +181,20 @@ func TestGetDeviceInfo(t *testing.T) {
 			mockDecrypter := new(mockDecrypter)
 			mockDecrypter.On("DecryptMessage", mock.Anything, mock.Anything).Return(tc.decryptErr)
 
+			ciphers := cipher.Ciphers{
+				Options: map[cipher.AlgorithmType]map[string]cipher.Decrypt{
+					cipher.None: map[string]cipher.Decrypt{
+						"none": mockDecrypter,
+					},
+				},
+			}
+
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
 			app := App{
 				eventGetter: mockGetter,
 				logger:      logging.DefaultLogger(),
-				decrypter:   mockDecrypter,
+				decrypters:  ciphers,
 				measures:    m,
 				getLimit:    5,
 			}
@@ -216,6 +248,8 @@ func TestHandleGetEvents(t *testing.T) {
 					ID:        1234,
 					DeathDate: futureTime,
 					Data:      goodData,
+					Alg:       string(cipher.None),
+					KID:       "none",
 				},
 			},
 			expectedStatusCode: http.StatusOK,
@@ -229,11 +263,19 @@ func TestHandleGetEvents(t *testing.T) {
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecords", tc.deviceID, 5).Return(tc.recordsToReturn, nil).Once()
 
+			ciphers := cipher.Ciphers{
+				Options: map[cipher.AlgorithmType]map[string]cipher.Decrypt{
+					cipher.None: map[string]cipher.Decrypt{
+						"none": new(cipher.NOOP),
+					},
+				},
+			}
+
 			app := App{
 				eventGetter: mockGetter,
 				getLimit:    5,
 				logger:      logging.DefaultLogger(),
-				decrypter:   new(cipher.NOOP),
+				decrypters:  ciphers,
 			}
 			rr := httptest.NewRecorder()
 			request := mux.SetURLVars(
