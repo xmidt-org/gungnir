@@ -21,10 +21,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Comcast/codex/blacklist"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/Comcast/codex/blacklist"
 
 	"github.com/Comcast/codex/cipher"
 
@@ -50,6 +51,11 @@ type App struct {
 	measures *Measures
 }
 
+type Event struct {
+	wrp.Message
+	BirthDate int64
+}
+
 // swagger:parameters getEvents getStatus
 type DeviceIdParam struct {
 	// device id passed by caller
@@ -64,7 +70,7 @@ type DeviceIdParam struct {
 // swagger:response EventResponse
 type EventResponse struct {
 	// in:body
-	Body []wrp.Message
+	Body []Event
 }
 
 // ErrResponse is the information passed to the client on an error
@@ -77,14 +83,14 @@ type ErrResponse struct {
 	Code int `json:"code"`
 }
 
-func (app *App) getDeviceInfo(deviceID string) ([]wrp.Message, error) {
+func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 	if reason, ok := app.blacklist.InList(deviceID); ok {
-		return []wrp.Message{}, serverErr{errors.New(fmt.Sprintf("device in blacklist, reason: %s", reason)),
+		return []Event{}, serverErr{errors.New(fmt.Sprintf("device in blacklist, reason: %s", reason)),
 			http.StatusBadRequest}
 	}
 
 	records, hErr := app.eventGetter.GetRecords(deviceID, app.getLimit)
-	events := []wrp.Message{}
+	events := []Event{}
 
 	// if both have errors or are empty, return an error
 	if hErr != nil {
@@ -99,11 +105,16 @@ func (app *App) getDeviceInfo(deviceID string) ([]wrp.Message, error) {
 			continue
 		}
 
-		var event wrp.Message
+		event := Event{
+			BirthDate: record.BirthDate,
+		}
 		data, err := app.decrypter.DecryptMessage(record.Data, record.Nonce)
 		if err != nil {
 			app.measures.DecryptFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decode event", logging.ErrorKey(), err.Error())
+			// TODO: when we switch to wrp-go, change this to a constant
+			event.Type = 11
+			events = append(events, event)
 			continue
 		}
 
@@ -111,6 +122,9 @@ func (app *App) getDeviceInfo(deviceID string) ([]wrp.Message, error) {
 		if err != nil {
 			app.measures.UnmarshalFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal decoded event", logging.ErrorKey(), err.Error())
+			// TODO: when we switch to wrp-go, change this to a constant
+			event.Type = 11
+			events = append(events, event)
 			continue
 		}
 		events = append(events, event)
@@ -146,7 +160,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]wrp.Message, error) {
  */
 func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Request) {
 	var (
-		d   []wrp.Message
+		d   []Event
 		err error
 	)
 	vars := mux.Vars(request)
