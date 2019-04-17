@@ -20,7 +20,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"path"
 	"strings"
@@ -142,11 +141,6 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 	var (
 		s Status
 	)
-
-	if reason, ok := app.blacklist.InList(deviceID); ok {
-		return Status{}, serverErr{errors.New(fmt.Sprintf("device in blacklist, reason: %s", reason)),
-			http.StatusBadRequest}
-	}
 
 	stateInfo, hErr := app.eventGetter.GetRecordsOfType(deviceID, app.getLimit, db.State)
 	if hErr != nil {

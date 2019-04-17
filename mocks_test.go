@@ -44,14 +44,3 @@ func (md *mockDecrypter) DecryptMessage(cipher []byte, nonce []byte) ([]byte, er
 	args := md.Called(cipher, nonce)
 	return cipher, args.Error(0)
 }
-
-type mockBlacklist struct {
-	mock.Mock
-}
-
-func (mb *mockBlacklist) InList(ID string) (reason string, ok bool) {
-	args := mb.Called(ID)
-	reason = args.String(0)
-	ok = args.Bool(1)
-	return
-}

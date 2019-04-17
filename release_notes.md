@@ -1,1 +1,3 @@
-
+ - Extended wrp.Message to include birthdate
+ - If an event can't be unmarshaled or decrypted, an Unknown event is returned instead for `events` endpoint
+ - Removed blacklist

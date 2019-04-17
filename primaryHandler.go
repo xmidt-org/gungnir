@@ -20,12 +20,9 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/Comcast/codex/blacklist"
 
 	"github.com/Comcast/codex/cipher"
 
@@ -46,7 +43,6 @@ type App struct {
 	logger      log.Logger
 	getLimit    int
 	decrypter   cipher.Decrypt
-	blacklist   blacklist.List
 
 	measures *Measures
 }
@@ -84,10 +80,6 @@ type ErrResponse struct {
 }
 
 func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
-	if reason, ok := app.blacklist.InList(deviceID); ok {
-		return []Event{}, serverErr{errors.New(fmt.Sprintf("device in blacklist, reason: %s", reason)),
-			http.StatusBadRequest}
-	}
 
 	records, hErr := app.eventGetter.GetRecords(deviceID, app.getLimit)
 	events := []Event{}

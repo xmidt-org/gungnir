@@ -16,7 +16,6 @@ authHeader: ["YXV0aEhlYWRlcg=="]
 getLimit: 50
 getRetries: 3
 retryInterval: 10s
-blacklistInterval: 1m
 
 db:
   server: "db:26257"
