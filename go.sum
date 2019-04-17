@@ -3,8 +3,8 @@ cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78/go.mod h1:LmzpDX56iTiv29bbRTIsUNlaFfuhWRQBWjQdVyAevI8=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/Comcast/codex v0.3.3 h1:OjEnYXMmUDGJeINBPX1iHQuTIK7+1DJvwLP2oZjhYL0=
-github.com/Comcast/codex v0.3.3/go.mod h1:0EfKNJTGyayQae7ciafhglQtpGiYD87GaU8nBuLPR1A=
+github.com/Comcast/codex v0.4.0 h1:ORGhOUT/P5zB+jtw/I3UgJbK0LLNfhjnp/HkNwHRPsY=
+github.com/Comcast/codex v0.4.0/go.mod h1:0EfKNJTGyayQae7ciafhglQtpGiYD87GaU8nBuLPR1A=
 github.com/Comcast/comcast-bascule v0.2.3 h1:Mhu9NTiryMxXBViR1YhHVBmoIlg991ffbZcJzxYISsw=
 github.com/Comcast/comcast-bascule v0.2.3/go.mod h1:zE/nz6rh6Hu9zdWLIhVsdW1TLyHtqf0pKILVp/oqPvk=
 github.com/Comcast/webpa-common v0.0.0-20190312224005-400bb4f8fc50 h1:GzM00ldkAr5Zp56z3E/ceRFL4O+S8cjE/ZFIhykHDI8=
