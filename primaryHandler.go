@@ -112,6 +112,8 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 		if err != nil {
 			app.measures.DecryptFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decode event", logging.ErrorKey(), err.Error())
+			// TODO: when we switch to wrp-go, change this to a constant
+			event.Type = 11
 			events = append(events, event)
 			continue
 		}
@@ -120,6 +122,8 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 		if err != nil {
 			app.measures.UnmarshalFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal decoded event", logging.ErrorKey(), err.Error())
+			// TODO: when we switch to wrp-go, change this to a constant
+			event.Type = 11
 			events = append(events, event)
 			continue
 		}

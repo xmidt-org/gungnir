@@ -117,7 +117,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedFailureMetric: 1.0,
-			expectedEvents:        []Event{Event{}},
+			expectedEvents:        []Event{Event{wrp.Message{Type: 11}, 0}},
 		},
 		{
 			description: "Decrypt Error",
@@ -129,7 +129,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			decryptErr:     errors.New("failed to decrypt"),
-			expectedEvents: []Event{Event{}},
+			expectedEvents: []Event{Event{wrp.Message{Type: 11}, 0}},
 		},
 		{
 			description: "Success",
