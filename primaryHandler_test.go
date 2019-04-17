@@ -80,20 +80,20 @@ func TestGetDeviceInfo(t *testing.T) {
 		getRecordsErr         error
 		decryptErr            error
 		expectedFailureMetric float64
-		expectedEvents        []wrp.Message
+		expectedEvents        []Event
 		expectedErr           error
 		expectedStatus        int
 	}{
 		{
 			description:    "Get Records Error",
 			getRecordsErr:  getRecordsErr,
-			expectedEvents: []wrp.Message{},
+			expectedEvents: []Event{},
 			expectedErr:    getRecordsErr,
 			expectedStatus: http.StatusInternalServerError,
 		},
 		{
 			description:    "Empty Records Error",
-			expectedEvents: []wrp.Message{},
+			expectedEvents: []Event{},
 			expectedErr:    errors.New("No events found"),
 			expectedStatus: http.StatusNotFound,
 		},
@@ -104,7 +104,7 @@ func TestGetDeviceInfo(t *testing.T) {
 					DeathDate: previousTime,
 				},
 			},
-			expectedEvents: []wrp.Message{},
+			expectedEvents: []Event{},
 			expectedErr:    errors.New("No events found"),
 			expectedStatus: http.StatusNotFound,
 		},
@@ -117,9 +117,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedFailureMetric: 1.0,
-			expectedEvents:        []wrp.Message{},
-			expectedErr:           errors.New("No events found"),
-			expectedStatus:        http.StatusNotFound,
+			expectedEvents:        []Event{Event{}},
 		},
 		{
 			description: "Decrypt Error",
@@ -131,21 +129,20 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			decryptErr:     errors.New("failed to decrypt"),
-			expectedEvents: []wrp.Message{},
-			expectedErr:    errors.New("No events found"),
-			expectedStatus: http.StatusNotFound,
+			expectedEvents: []Event{Event{}},
 		},
 		{
 			description: "Success",
 			recordsToReturn: []db.Record{
 				{
 					ID:        1234,
+					BirthDate: prevTime.Unix(),
 					DeathDate: futureTime,
 					Data:      goodData,
 				},
 			},
-			expectedEvents: []wrp.Message{
-				goodEvent,
+			expectedEvents: []Event{
+				Event{goodEvent, prevTime.Unix()},
 			},
 		},
 	}
