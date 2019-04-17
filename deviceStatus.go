@@ -163,7 +163,7 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 		var event wrp.Message
 		decrypter, ok := app.decrypters.Get(cipher.ParseAlogrithmType(record.Alg), record.KID)
 		if !ok {
-			app.measures.DecryptFailure.Add(1.0)
+			app.measures.GetDecryptFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to find decrypter")
 			continue
 		}

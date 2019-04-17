@@ -102,7 +102,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 		}
 		decrypter, ok := app.decrypters.Get(cipher.ParseAlogrithmType(record.Alg), record.KID)
 		if !ok {
-			app.measures.DecryptFailure.Add(1.0)
+			app.measures.GetDecryptFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to get decoder", logging.ErrorKey())
 			// TODO: when we switch to wrp-go, change this to a constant
 			event.Type = 11
