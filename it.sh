@@ -17,7 +17,6 @@ function gungnir-docker {
 
 function deploy {
     echo "Deploying Cluster"
-    docker swarm init
     git clone https://github.com/Comcast/codex.git 2> /dev/null || true
     pushd codex/deploy/docker-compose
     GUNGNIR_VERSION=$GUNGNIR_VERSION docker-compose up -d db db-init gungnir
