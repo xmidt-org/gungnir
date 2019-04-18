@@ -3,7 +3,7 @@ module github.com/Comcast/codex-gungnir
 go 1.12
 
 require (
-	github.com/Comcast/codex v0.4.0
+	github.com/Comcast/codex v0.4.1
 	github.com/Comcast/comcast-bascule v0.2.3
 	github.com/Comcast/webpa-common v1.0.0
 	github.com/InVisionApp/go-health v2.1.0+incompatible
