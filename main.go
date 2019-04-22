@@ -154,7 +154,7 @@ func gungnir(arguments []string) int {
 		fmt.Fprintf(os.Stderr, "Database Initialize Failed: %#v\n", err)
 		return 2
 	}
-	retryService := db.CreateRetryRGService(database, config.GetRetries, config.RetryInterval, metricsRegistry)
+	retryService := db.CreateRetryRGService(database, db.WithRetries(config.GetRetries), db.WithInterval(config.RetryInterval), db.WithMeasures(metricsRegistry))
 
 	cipherOptions, err := cipher.FromViper(v)
 	if err != nil {
