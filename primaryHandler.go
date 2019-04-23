@@ -128,15 +128,16 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 			continue
 		}
 
-		err = json.Unmarshal(data, &event)
-		if err != nil {
+		ok = wrp.Decode(&event, data)
+		if !ok {
 			app.measures.UnmarshalFailure.Add(1.0)
-			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal decoded event", logging.ErrorKey(), err.Error())
+			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal decoded event")
 			// TODO: when we switch to wrp-go, change this to a constant
 			event.Type = 11
 			events = append(events, event)
 			continue
 		}
+
 		events = append(events, event)
 	}
 

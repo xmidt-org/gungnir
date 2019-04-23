@@ -18,3 +18,5 @@ require (
 	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.3.0
 )
+
+replace github.com/Comcast/wrp-go => github.com/kcajmagic/wrp-go v1.0.1-0.20190423230628-c39cae8c55b1
