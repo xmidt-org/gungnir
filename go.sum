@@ -11,6 +11,8 @@ github.com/Comcast/webpa-common v0.0.0-20190312224005-400bb4f8fc50 h1:GzM00ldkAr
 github.com/Comcast/webpa-common v0.0.0-20190312224005-400bb4f8fc50/go.mod h1:XSu1nN06grod4RD/3WRYdeMMKDXBpeosZgIoNcmYsus=
 github.com/Comcast/webpa-common v1.0.0 h1:rItnLnh/3nVo+l3+O35pUAeMXaSHNSgyaU7kY6rGBBc=
 github.com/Comcast/webpa-common v1.0.0/go.mod h1:XSu1nN06grod4RD/3WRYdeMMKDXBpeosZgIoNcmYsus=
+github.com/Comcast/wrp-go v1.0.1-0.20190423184738-8d935f3aaca2 h1:rvTD5sAc0/jYCO5e3gAeIP5pT1dhvJ62QfFo8zKDDCU=
+github.com/Comcast/wrp-go v1.0.1-0.20190423184738-8d935f3aaca2/go.mod h1:7kr+51CoKzx6XTwnqjEXQdQ8Y6cszfbglDcwXiXEqhg=
 github.com/DATA-DOG/godog v0.7.13/go.mod h1:z2OZ6a3X0/YAKVqLfVzYBwFt3j6uSt3Xrqa7XTtcQE0=
 github.com/DataDog/datadog-go v0.0.0-20180822151419-281ae9f2d895/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/InVisionApp/go-health v2.1.0+incompatible h1:m5nRf/RKaMCkob7V5Vc3tuzlpqY2K9hL5awZomjzuCk=
