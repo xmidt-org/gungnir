@@ -27,7 +27,7 @@ import (
 	"github.com/Comcast/codex/cipher"
 
 	"github.com/Comcast/webpa-common/logging"
-	"github.com/Comcast/webpa-common/wrp"
+	"github.com/Comcast/wrp-go/wrp"
 	"github.com/goph/emperror"
 
 	"github.com/Comcast/codex/db"
@@ -47,9 +47,18 @@ type App struct {
 	measures *Measures
 }
 
+// Event is the extension of wrp message
+//     https://github.com/Comcast/wrp-c/wiki/Web-Routing-Protocol
+//
+// swagger:response Event
 type Event struct {
 	wrp.Message
-	BirthDate int64
+
+	// BirthDate the time codex received the message
+	//
+	// required: false
+	// example: 1555639704
+	BirthDate int64 `wrp:"birth_date,omitempty" json:"birth_date,omitempty"`
 }
 
 // swagger:parameters getEvents getStatus

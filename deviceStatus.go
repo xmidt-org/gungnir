@@ -20,15 +20,16 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"github.com/Comcast/codex/cipher"
 	"net/http"
 	"path"
 	"strings"
 	"time"
 
+	"github.com/Comcast/codex/cipher"
+
 	"github.com/Comcast/codex/db"
 	"github.com/Comcast/webpa-common/logging"
-	"github.com/Comcast/webpa-common/wrp"
+	"github.com/Comcast/wrp-go/wrp"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
