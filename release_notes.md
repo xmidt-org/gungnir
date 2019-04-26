@@ -1,4 +1,1 @@
- - Stopped building other services for integration tests
- - Bumped codex and bascule
- - Added wrp-go
- - Now we expect the event to be encoded as Msgpack
+
