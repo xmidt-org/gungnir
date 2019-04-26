@@ -11,7 +11,6 @@ github.com/Comcast/webpa-common v0.0.0-20190312224005-400bb4f8fc50 h1:GzM00ldkAr
 github.com/Comcast/webpa-common v0.0.0-20190312224005-400bb4f8fc50/go.mod h1:XSu1nN06grod4RD/3WRYdeMMKDXBpeosZgIoNcmYsus=
 github.com/Comcast/webpa-common v1.0.0 h1:rItnLnh/3nVo+l3+O35pUAeMXaSHNSgyaU7kY6rGBBc=
 github.com/Comcast/webpa-common v1.0.0/go.mod h1:XSu1nN06grod4RD/3WRYdeMMKDXBpeosZgIoNcmYsus=
-github.com/Comcast/wrp-go v1.0.0 h1:LkyAZtxh8WPtOH34kGkXGj5mq5XiNBB28JVs4RbeZ0A=
 github.com/Comcast/wrp-go v1.0.1-0.20190425181536-16cc54c2efd1 h1:xBrhh6SuESs1jI2dXugLCxr+yupTAtsDkBAPpwYPlzs=
 github.com/Comcast/wrp-go v1.0.1-0.20190425181536-16cc54c2efd1/go.mod h1:7kr+51CoKzx6XTwnqjEXQdQ8Y6cszfbglDcwXiXEqhg=
 github.com/DATA-DOG/godog v0.7.13/go.mod h1:z2OZ6a3X0/YAKVqLfVzYBwFt3j6uSt3Xrqa7XTtcQE0=
@@ -215,8 +214,6 @@ github.com/justinas/alice v0.0.0-20171023064455-03f45bd4b7da/go.mod h1:oLH0CmIax
 github.com/jwilder/encoding v0.0.0-20170811194829-b4e1701a28ef/go.mod h1:Ct9fl0F6iIOGgxJ5npU/IUOhOhqlVrGjyIZc8/MagT0=
 github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88/go.mod h1:3w7q1U84EfirKl04SVQ/s7nPm1ZPhiXd34z40TNz36k=
 github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0/go.mod h1:1NbS8ALrpOvjt0rHPNLyCIeMtbizbir8U//inJ+zuB8=
-github.com/kcajmagic/wrp-go v1.0.1-0.20190423230628-c39cae8c55b1 h1:OJFF4MR9bEVjKrfYAj+zwMwMrUzBhhxoO1P+yozUrg0=
-github.com/kcajmagic/wrp-go v1.0.1-0.20190423230628-c39cae8c55b1/go.mod h1:2dS1vPbY24lwSS4GBrQ5F5FGotQunH872OBb1iwGYmw=
 github.com/kevinburke/go-bindata v3.11.0+incompatible/go.mod h1:/pEEZ72flUW2p0yi30bslSp9YqD9pysLxunQDdb2CPM=
 github.com/kevinburke/ssh_config v0.0.0-20180830205328-81db2a75821e/go.mod h1:CT57kijsi8u/K/BOFA39wgDQJ9CxiF4nAY/ojJ6r6mM=
 github.com/keybase/go-crypto v0.0.0-20181031135447-f919bfda4fc1/go.mod h1:ghbZscTyKdM07+Fw3KSi0hcJm+AlEUWj8QLlPtijN/M=
