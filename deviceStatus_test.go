@@ -20,15 +20,17 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/mock"
+
 	"github.com/Comcast/codex/cipher"
 	"github.com/Comcast/webpa-common/logging"
 	"github.com/Comcast/webpa-common/xmetrics/xmetricstest"
+	"github.com/Comcast/wrp-go/wrp"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
@@ -45,11 +47,15 @@ func TestGetStatusInfo(t *testing.T) {
 	testassert.Nil(err)
 	previousTime := prevTime.Unix()
 
-	goodData, err := json.Marshal(&goodEvent)
+	var goodData []byte
+	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
+	err = encoder.Encode(&goodEvent)
 	testassert.Nil(err)
 	event := goodEvent
 	event.Payload = []byte("")
-	emptyPayloadData, err := json.Marshal(&event)
+	var emptyPayloadData []byte
+	encoder = wrp.NewEncoderBytes(&emptyPayloadData, wrp.Msgpack)
+	err = encoder.Encode(&event)
 	testassert.Nil(err)
 	badData, err := json.Marshal("")
 	testassert.Nil(err)
@@ -228,7 +234,9 @@ func TestGetStatusInfo(t *testing.T) {
 func TestHandleGetStatus(t *testing.T) {
 	testassert := assert.New(t)
 	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).Unix()
-	goodData, err := json.Marshal(&goodEvent)
+	var goodData []byte
+	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
+	err := encoder.Encode(&goodEvent)
 	testassert.Nil(err)
 
 	tests := []struct {
