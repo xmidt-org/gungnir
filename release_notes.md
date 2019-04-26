@@ -1,1 +1,3 @@
-
+ - Stopped building other services for integration tests
+ - Bumped codex and bascule
+ - Added wrp-go

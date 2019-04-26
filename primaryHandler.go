@@ -112,7 +112,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 		decrypter, ok := app.decrypters.Get(cipher.ParseAlogrithmType(record.Alg), record.KID)
 		if !ok {
 			app.measures.GetDecryptFailure.Add(1.0)
-			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to get decoder", logging.ErrorKey())
+			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to get decrypter", logging.ErrorKey())
 			// TODO: when we switch to wrp-go, change this to a constant
 			event.Type = 11
 			events = append(events, event)
@@ -121,22 +121,23 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 		data, err := decrypter.DecryptMessage(record.Data, record.Nonce)
 		if err != nil {
 			app.measures.DecryptFailure.Add(1.0)
-			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decode event", logging.ErrorKey(), err.Error())
+			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decrypt event", logging.ErrorKey(), err.Error())
 			// TODO: when we switch to wrp-go, change this to a constant
 			event.Type = 11
 			events = append(events, event)
 			continue
 		}
 
-		err = json.Unmarshal(data, &event)
+		decoder := wrp.NewDecoderBytes(data, wrp.Msgpack)
+		err = decoder.Decode(&event)
 		if err != nil {
 			app.measures.UnmarshalFailure.Add(1.0)
-			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal decoded event", logging.ErrorKey(), err.Error())
-			// TODO: when we switch to wrp-go, change this to a constant
-			event.Type = 11
+			logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to decode decrypted event", logging.ErrorKey(), err.Error())
+			event.Type = wrp.UnknownMessageType
 			events = append(events, event)
 			continue
 		}
+
 		events = append(events, event)
 	}
 

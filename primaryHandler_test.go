@@ -69,7 +69,9 @@ func TestGetDeviceInfo(t *testing.T) {
 	testassert.Nil(err)
 	previousTime := prevTime.Unix()
 
-	goodData, err := json.Marshal(&goodEvent)
+	var goodData []byte
+	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
+	err = encoder.Encode(&goodEvent)
 	testassert.Nil(err)
 	badData, err := json.Marshal("")
 	testassert.Nil(err)
@@ -111,7 +113,7 @@ func TestGetDeviceInfo(t *testing.T) {
 			expectedStatus: http.StatusNotFound,
 		},
 		{
-			description: "Unmarshal Event Error",
+			description: "Decode Event Error",
 			recordsToReturn: []db.Record{
 				{
 					DeathDate: futureTime,
@@ -220,7 +222,9 @@ func TestGetDeviceInfo(t *testing.T) {
 func TestHandleGetEvents(t *testing.T) {
 	testassert := assert.New(t)
 	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).Unix()
-	goodData, err := json.Marshal(&goodEvent)
+	var goodData []byte
+	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
+	err := encoder.Encode(&goodEvent)
 	testassert.Nil(err)
 
 	tests := []struct {

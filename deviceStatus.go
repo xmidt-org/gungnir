@@ -171,14 +171,15 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 		data, err := decrypter.DecryptMessage(record.Data, record.Nonce)
 		if err != nil {
 			app.measures.DecryptFailure.Add(1.0)
-			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decode event", logging.ErrorKey(), err.Error())
+			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decrypt event", logging.ErrorKey(), err.Error())
 			continue
 		}
 
-		err = json.Unmarshal(data, &event)
+		decoder := wrp.NewDecoderBytes(data, wrp.Msgpack)
+		err = decoder.Decode(&event)
 		if err != nil {
 			app.measures.UnmarshalFailure.Add(1.0)
-			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal event", logging.ErrorKey(), err.Error())
+			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decode event", logging.ErrorKey(), err.Error())
 			continue
 		}
 		var payload map[string]interface{}
