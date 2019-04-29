@@ -113,8 +113,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 		if !ok {
 			app.measures.GetDecryptFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to get decrypter", logging.ErrorKey())
-			// TODO: when we switch to wrp-go, change this to a constant
-			event.Type = 11
+			event.Type = wrp.UnknownMessageType
 			events = append(events, event)
 			continue
 		}
@@ -122,8 +121,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 		if err != nil {
 			app.measures.DecryptFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decrypt event", logging.ErrorKey(), err.Error())
-			// TODO: when we switch to wrp-go, change this to a constant
-			event.Type = 11
+			event.Type = wrp.UnknownMessageType
 			events = append(events, event)
 			continue
 		}
