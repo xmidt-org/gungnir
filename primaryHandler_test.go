@@ -129,7 +129,6 @@ func TestGetDeviceInfo(t *testing.T) {
 			description: "Decrypt Error",
 			recordsToReturn: []db.Record{
 				{
-					ID:        1234,
 					DeathDate: futureTime,
 					Data:      goodData,
 					Alg:       string(cipher.None),
@@ -143,7 +142,6 @@ func TestGetDeviceInfo(t *testing.T) {
 			description: "No Decrypter",
 			recordsToReturn: []db.Record{
 				{
-					ID:        1234,
 					BirthDate: prevTime.Unix(),
 					DeathDate: futureTime,
 					Data:      goodData,
@@ -159,7 +157,6 @@ func TestGetDeviceInfo(t *testing.T) {
 			description: "Success",
 			recordsToReturn: []db.Record{
 				{
-					ID:        1234,
 					BirthDate: prevTime.Unix(),
 					DeathDate: futureTime,
 					Data:      goodData,
@@ -249,7 +246,6 @@ func TestHandleGetEvents(t *testing.T) {
 			deviceID:    "1234",
 			recordsToReturn: []db.Record{
 				{
-					ID:        1234,
 					DeathDate: futureTime,
 					Data:      goodData,
 					Alg:       string(cipher.None),

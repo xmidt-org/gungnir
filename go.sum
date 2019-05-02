@@ -5,6 +5,8 @@ github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/Comcast/codex v0.4.2 h1:g6Cd84y24BJM52dJFPA3NaRIadVIyoayac2tAtnSp08=
 github.com/Comcast/codex v0.4.2/go.mod h1:0EfKNJTGyayQae7ciafhglQtpGiYD87GaU8nBuLPR1A=
+github.com/Comcast/codex v0.4.3-0.20190501235205-77020a90c851 h1:w33df1poFt+NuuR1dyzjmDYmysHU3zV3lphefMbOlyw=
+github.com/Comcast/codex v0.4.3-0.20190501235205-77020a90c851/go.mod h1:0EfKNJTGyayQae7ciafhglQtpGiYD87GaU8nBuLPR1A=
 github.com/Comcast/comcast-bascule v0.2.4 h1:G8MtlXKkCwA5OIm6IyJoUW/lVMJUH2XZ3yYC9VA2S30=
 github.com/Comcast/comcast-bascule v0.2.4/go.mod h1:auqlZLeJK2t2b5PRrPN3tWuJwEhvNf0Oht7tVmxvQfY=
 github.com/Comcast/webpa-common v0.0.0-20190312224005-400bb4f8fc50 h1:GzM00ldkAr5Zp56z3E/ceRFL4O+S8cjE/ZFIhykHDI8=
