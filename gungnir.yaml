@@ -11,21 +11,26 @@ log:
   level: "INFO"
   json: true
 
-authHeader: ["YXV0aEhlYWRlcg=="]
+authHeader: ["dGVzdDp0ZXN0"]
 
 getLimit: 50
 getRetries: 3
 retryInterval: 10s
 
 db:
-  server: "db:26257"
-  username: "roachadmin"
+  server: "db-prod-hoa.codex.comcast.net:80"
   database: "devices"
+  table: "events"
+  username: "gungnir"
   numRetries: 4
   waitTimeMult: 5
-  pingInterval: 1s
-  connectTimeout: 1m
-  opTimeout: 100ms
+  connectTimeout: "1m"
+  opTimeout: "3m"
+  pingInterval: 1m
+  sslRootCert: "/Users/jmurdo202/Documents/Work/Sunnyvale/codex/support/prod_keys/ca.crt"
+  sslKey: "/Users/jmurdo202/Documents/Work/Sunnyvale/codex/support/prod_keys/client.gungnir.key"
+  sslCert: "/Users/jmurdo202/Documents/Work/Sunnyvale/codex/support/prod_keys/client.gungnir.crt"
+  maxOpenConns: 500
 
 cipher:
   - type: none
