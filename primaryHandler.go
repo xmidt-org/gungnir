@@ -143,6 +143,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 		return events, serverErr{emperror.With(errors.New("No events found for device id"), "device id", deviceID),
 			http.StatusNotFound}
 	}
+	app.measures.EventsReturnedCount.Add(float64(len(events)))
 	return events, nil
 }
 
