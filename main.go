@@ -36,6 +36,7 @@ import (
 	"github.com/Comcast/comcast-bascule/bascule/key"
 	"github.com/SermoDigital/jose/jwt"
 
+	"github.com/Comcast/webpa-common/basculechecks"
 	"github.com/Comcast/webpa-common/secure"
 
 	"github.com/go-kit/kit/log"
@@ -63,13 +64,14 @@ const (
 )
 
 type Config struct {
-	Db            db.Config
-	GetLimit      int
-	GetRetries    int
-	RetryInterval time.Duration
-	Health        HealthConfig
-	AuthHeader    []string
-	JwtValidator  JWTValidator
+	Db               db.Config
+	GetLimit         int
+	GetRetries       int
+	RetryInterval    time.Duration
+	Health           HealthConfig
+	AuthHeader       []string
+	JwtValidator     JWTValidator
+	CapabilityConfig basculechecks.CapabilityConfig
 }
 
 type HealthConfig struct {
@@ -203,17 +205,22 @@ func gungnir(arguments []string) int {
 
 	authConstructor := basculehttp.NewConstructor(options...)
 
+	bearerRules := []bascule.Validator{
+		bascule.CreateNonEmptyPrincipalCheck(),
+		bascule.CreateNonEmptyTypeCheck(),
+		bascule.CreateValidTypeCheck([]string{"jwt"}),
+	}
+
+	if config.CapabilityConfig.FirstPiece != "" && config.CapabilityConfig.SecondPiece != "" && config.CapabilityConfig.ThirdPiece != "" {
+		bearerRules = append(bearerRules, bascule.CreateListAttributeCheck("capabilities", basculechecks.CreateValidCapabilityCheck(config.CapabilityConfig)))
+	}
+
 	authEnforcer := basculehttp.NewEnforcer(
 		basculehttp.WithELogger(GetLogger),
 		basculehttp.WithRules("Basic", []bascule.Validator{
 			bascule.CreateAllowAllCheck(),
 		}),
-		basculehttp.WithRules("Bearer", []bascule.Validator{
-			bascule.CreateNonEmptyPrincipalCheck(),
-			bascule.CreateNonEmptyTypeCheck(),
-			bascule.CreateValidTypeCheck([]string{"jwt"}),
-			bascule.CreateListAttributeCheck("capabilities", CreateValidCapabilityCheck("x1", "codex", "api", "all")),
-		}),
+		basculehttp.WithRules("Bearer", bearerRules),
 	)
 
 	// TODO: fix bookkeeping, add a decorator to add the bookkeeping requests and logger
