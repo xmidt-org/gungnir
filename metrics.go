@@ -27,6 +27,7 @@ const (
 	UnmarshalFailureCounter    = "unmarshal_failure_count"
 	DecryptFailureCounter      = "decrypt_failure_count"
 	GetDecrypterFailureCounter = "get_decrypter_failure_count"
+	EventsReturnedCounter      = "events_returned_counter"
 )
 
 func Metrics() []xmetrics.Metric {
@@ -46,20 +47,27 @@ func Metrics() []xmetrics.Metric {
 			Help: "The total number of failures to get the decypter",
 			Type: "counter",
 		},
+		{
+			Name: EventsReturnedCounter,
+			Help: "The total number of events gungnir has responded with",
+			Type: "counter",
+		},
 	}
 }
 
 type Measures struct {
-	UnmarshalFailure  metrics.Counter
-	DecryptFailure    metrics.Counter
-	GetDecryptFailure metrics.Counter
+	UnmarshalFailure    metrics.Counter
+	DecryptFailure      metrics.Counter
+	GetDecryptFailure   metrics.Counter
+	EventsReturnedCount metrics.Counter
 }
 
 // NewMeasures constructs a Measures given a go-kit metrics Provider
 func NewMeasures(p provider.Provider) *Measures {
 	return &Measures{
-		UnmarshalFailure:  p.NewCounter(UnmarshalFailureCounter),
-		DecryptFailure:    p.NewCounter(DecryptFailureCounter),
-		GetDecryptFailure: p.NewCounter(GetDecrypterFailureCounter),
+		UnmarshalFailure:    p.NewCounter(UnmarshalFailureCounter),
+		DecryptFailure:      p.NewCounter(DecryptFailureCounter),
+		GetDecryptFailure:   p.NewCounter(GetDecrypterFailureCounter),
+		EventsReturnedCount: p.NewCounter(EventsReturnedCounter),
 	}
 }

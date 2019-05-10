@@ -274,12 +274,15 @@ func TestHandleGetEvents(t *testing.T) {
 					},
 				},
 			}
+			p := xmetricstest.NewProvider(nil, Metrics)
+			m := NewMeasures(p)
 
 			app := App{
 				eventGetter: mockGetter,
 				getLimit:    5,
 				logger:      logging.DefaultLogger(),
 				decrypters:  ciphers,
+				measures:    m,
 			}
 			rr := httptest.NewRecorder()
 			request := mux.SetURLVars(

@@ -91,7 +91,7 @@ func SetLogger(logger log.Logger) func(delegate http.Handler) http.Handler {
 		return http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
 				ctx := r.WithContext(logging.WithLogger(r.Context(),
-					log.With(logger, "request headers", r.Header, "request URL", r.URL.EscapedPath(), "method", r.Method)))
+					log.With(logger, "requestHeaders", r.Header, "requestURL", r.URL.EscapedPath(), "method", r.Method)))
 				delegate.ServeHTTP(w, ctx)
 			})
 	}
@@ -169,7 +169,7 @@ func gungnir(arguments []string) int {
 	for _, a := range config.AuthHeader {
 		decoded, err := base64.StdEncoding.DecodeString(a)
 		if err != nil {
-			logging.Info(logger).Log(logging.MessageKey(), "failed to decode auth header", "auth header", a, logging.ErrorKey(), err.Error())
+			logging.Info(logger).Log(logging.MessageKey(), "failed to decode auth header", "authHeader", a, logging.ErrorKey(), err.Error())
 		}
 
 		i := bytes.IndexByte(decoded, ':')
@@ -178,7 +178,7 @@ func gungnir(arguments []string) int {
 			basicAllowed[string(decoded[:i])] = string(decoded[i+1:])
 		}
 	}
-	logging.Debug(logger).Log(logging.MessageKey(), "Created list of allowed basic auths", "allowed list", basicAllowed, "config", config.AuthHeader)
+	logging.Debug(logger).Log(logging.MessageKey(), "Created list of allowed basic auths", "allowedList", basicAllowed, "config", config.AuthHeader)
 
 	options := []basculehttp.COption{basculehttp.WithCLogger(GetLogger)}
 	if len(basicAllowed) > 0 {
