@@ -113,7 +113,6 @@ func TestGetStatusInfo(t *testing.T) {
 			description: "Unmarshal Payload Error",
 			recordsToReturn: []db.Record{
 				{
-					ID:        1234,
 					Type:      db.State,
 					DeathDate: futureTime,
 					Data:      emptyPayloadData,
@@ -129,7 +128,6 @@ func TestGetStatusInfo(t *testing.T) {
 			description: "Decrypt Error",
 			recordsToReturn: []db.Record{
 				{
-					ID:        1234,
 					Type:      db.State,
 					BirthDate: futureTime - 500,
 					DeathDate: futureTime,
@@ -138,7 +136,6 @@ func TestGetStatusInfo(t *testing.T) {
 					KID:       "none",
 				},
 				{
-					ID:        1234,
 					Type:      db.State,
 					DeathDate: futureTime,
 					Data:      goodData,
@@ -155,7 +152,6 @@ func TestGetStatusInfo(t *testing.T) {
 			description: "Success",
 			recordsToReturn: []db.Record{
 				{
-					ID:        1234,
 					Type:      db.State,
 					BirthDate: futureTime - 500,
 					DeathDate: futureTime,
@@ -164,7 +160,6 @@ func TestGetStatusInfo(t *testing.T) {
 					KID:       "none",
 				},
 				{
-					ID:        1234,
 					Type:      db.State,
 					DeathDate: futureTime,
 					Data:      goodData,
@@ -261,7 +256,6 @@ func TestHandleGetStatus(t *testing.T) {
 			deviceID:    "1234",
 			recordsToReturn: []db.Record{
 				{
-					ID:        1234,
 					DeathDate: futureTime,
 					Data:      goodData,
 					Alg:       string(cipher.None),
@@ -276,7 +270,6 @@ func TestHandleGetStatus(t *testing.T) {
 			deviceID:    "1234",
 			recordsToReturn: []db.Record{
 				{
-					ID:        1234,
 					DeathDate: futureTime,
 					Data:      goodData,
 					Alg:       string(cipher.Box),
