@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.7.0]
+- bumped codex to v0.5.0
+
+
+
 ## [v0.6.0]
  - Stopped building other services for integration tests
  - Bumped codex and bascule
@@ -107,7 +112,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/Comcast/codex-gungnir/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/Comcast/codex-gungnir/compare/v0.7.0...HEAD
+[v0.7.0]: https://github.com/Comcast/codex-gungnir/compare/v0.6.0...v0.7.0
 [v0.6.0]: https://github.com/Comcast/codex-gungnir/compare/v0.5.1...v0.6.0
 [v0.5.1]: https://github.com/Comcast/codex-gungnir/compare/v0.5.0...v0.5.1
 [v0.5.0]: https://github.com/Comcast/codex-gungnir/compare/v0.4.1...v0.5.0
