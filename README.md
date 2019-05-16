@@ -63,7 +63,7 @@ mkdir -p $GOPATH/src/github.com/Comcast
 cd $GOPATH/src/github.com/Comcast
 git clone git@github.com:Comcast/codex-gungnir.git
 cd codex-gungnir
-make build -o gungnir
+make build
 ```
 
 ### Makefile
