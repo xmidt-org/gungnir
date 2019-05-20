@@ -18,9 +18,7 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/base64"
 	"fmt"
 	olog "log"
 	"net/http"
@@ -32,9 +30,7 @@ import (
 	"github.com/Comcast/codex/cipher"
 
 	"github.com/Comcast/comcast-bascule/bascule"
-	"github.com/Comcast/comcast-bascule/bascule/basculehttp"
 	"github.com/Comcast/comcast-bascule/bascule/key"
-	"github.com/SermoDigital/jose/jwt"
 
 	"github.com/Comcast/webpa-common/basculechecks"
 	"github.com/Comcast/webpa-common/secure"
@@ -42,13 +38,11 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
-	"github.com/justinas/alice"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/Comcast/codex/db"
 	"github.com/Comcast/codex/healthlogger"
-	"github.com/Comcast/webpa-common/bookkeeping"
 	"github.com/Comcast/webpa-common/concurrent"
 	"github.com/Comcast/webpa-common/logging"
 	"github.com/Comcast/webpa-common/server"
@@ -103,7 +97,7 @@ func GetLogger(ctx context.Context) bascule.Logger {
 	return log.With(logging.GetLogger(ctx), "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 }
 
-func gungnir(arguments []string) int {
+func gungnir(arguments []string) {
 	start := time.Now()
 
 	var (
@@ -111,21 +105,13 @@ func gungnir(arguments []string) int {
 		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v, secure.Metrics, db.Metrics)
 	)
 
-	printVer := f.BoolP("version", "v", false, "displays the version number")
-	if err := f.Parse(arguments); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to parse arguments: %s\n", err.Error())
-		return 1
+	if parseErr, done := printVersion(f, arguments); done {
+		// if we're done, we're exiting no matter what
+		exitIfError(logger, emperror.Wrap(parseErr, "failed to parse arguments"))
+		os.Exit(0)
 	}
 
-	if *printVer {
-		fmt.Println(applicationVersion)
-		return 0
-	}
-
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to initialize viper: %s\n", err.Error())
-		return 1
-	}
+	exitIfError(logger, emperror.Wrap(err, "unable to initialize viper"))
 	logging.Info(logger).Log(logging.MessageKey(), "Successfully loaded config file", "configurationFile", v.ConfigFileUsed())
 
 	serverHealth := health.New()
@@ -150,83 +136,16 @@ func gungnir(arguments []string) int {
 	//database.Password = pwd
 
 	database, err := db.CreateDbConnection(dbConfig, metricsRegistry, serverHealth)
-	if err != nil {
-		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to initialize database connection",
-			logging.ErrorKey(), err.Error())
-		fmt.Fprintf(os.Stderr, "Database Initialize Failed: %#v\n", err)
-		return 2
-	}
+	exitIfError(logger, emperror.Wrap(err, "failed to initialize database connection"))
 	retryService := db.CreateRetryRGService(database, db.WithRetries(config.GetRetries), db.WithInterval(config.RetryInterval), db.WithMeasures(metricsRegistry))
 
 	cipherOptions, err := cipher.FromViper(v)
-	if err != nil {
-		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to initialize cipher config",
-			logging.ErrorKey(), err.Error())
-		fmt.Fprintf(os.Stderr, "Cipher Initialize Failed: %#v\n", err)
-		return 2
-	}
+	exitIfError(logger, emperror.Wrap(err, "failed to initialize cipher config"))
 	decrypters := cipher.PopulateCiphers(cipherOptions, logger)
 
-	basicAllowed := make(map[string]string)
-	for _, a := range config.AuthHeader {
-		decoded, err := base64.StdEncoding.DecodeString(a)
-		if err != nil {
-			logging.Info(logger).Log(logging.MessageKey(), "failed to decode auth header", "authHeader", a, logging.ErrorKey(), err.Error())
-		}
+	gungnirHandler, err := authChain(config.AuthHeader, config.JwtValidator, config.CapabilityConfig, logger, metricsRegistry)
+	exitIfError(logger, emperror.Wrap(err, "failed to setup auth chain"))
 
-		i := bytes.IndexByte(decoded, ':')
-		logging.Debug(logger).Log(logging.MessageKey(), "decoded string", "string", decoded, "i", i)
-		if i > 0 {
-			basicAllowed[string(decoded[:i])] = string(decoded[i+1:])
-		}
-	}
-	logging.Debug(logger).Log(logging.MessageKey(), "Created list of allowed basic auths", "allowedList", basicAllowed, "config", config.AuthHeader)
-
-	options := []basculehttp.COption{basculehttp.WithCLogger(GetLogger)}
-	if len(basicAllowed) > 0 {
-		options = append(options, basculehttp.WithTokenFactory("Basic", basculehttp.BasicTokenFactory(basicAllowed)))
-	}
-	if config.JwtValidator.Keys.URI != "" {
-		resolver, err := config.JwtValidator.Keys.NewResolver()
-		if err != nil {
-			logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to create resolver",
-				logging.ErrorKey(), err.Error())
-			fmt.Fprintf(os.Stderr, "New resolver failed: %#v\n", err)
-			return 2
-		}
-
-		options = append(options, basculehttp.WithTokenFactory("Bearer", basculehttp.BearerTokenFactory{
-			DefaultKeyId:  DEFAULT_KEY_ID,
-			Resolver:      resolver,
-			Parser:        bascule.DefaultJWSParser,
-			JWTValidators: []*jwt.Validator{config.JwtValidator.Custom.New()},
-		}))
-	}
-
-	authConstructor := basculehttp.NewConstructor(options...)
-
-	bearerRules := []bascule.Validator{
-		bascule.CreateNonEmptyPrincipalCheck(),
-		bascule.CreateNonEmptyTypeCheck(),
-		bascule.CreateValidTypeCheck([]string{"jwt"}),
-	}
-
-	if config.CapabilityConfig.FirstPiece != "" && config.CapabilityConfig.SecondPiece != "" && config.CapabilityConfig.ThirdPiece != "" {
-		bearerRules = append(bearerRules, bascule.CreateListAttributeCheck("capabilities", basculechecks.CreateValidCapabilityCheck(config.CapabilityConfig)))
-	}
-
-	authEnforcer := basculehttp.NewEnforcer(
-		basculehttp.WithELogger(GetLogger),
-		basculehttp.WithRules("Basic", []bascule.Validator{
-			bascule.CreateAllowAllCheck(),
-		}),
-		basculehttp.WithRules("Bearer", bearerRules),
-	)
-
-	// TODO: fix bookkeeping, add a decorator to add the bookkeeping requests and logger
-	bookkeeper := bookkeeping.New(bookkeeping.WithResponses(bookkeeping.Code))
-
-	gungnirHandler := alice.New(SetLogger(logger), authConstructor, authEnforcer, bookkeeper)
 	router := mux.NewRouter()
 	measures := NewMeasures(metricsRegistry)
 	// MARK: Actual server logic
@@ -260,10 +179,7 @@ func gungnir(arguments []string) int {
 	_, runnable, done := codex.Prepare(logger, nil, metricsRegistry, router)
 
 	waitGroup, shutdown, err := concurrent.Execute(runnable)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to start device manager: %s\n", err)
-		return 1
-	}
+	exitIfError(logger, emperror.Wrap(err, "unable to start device manager"))
 
 	logging.Info(logger).Log(logging.MessageKey(), fmt.Sprintf("%s is up and running!", applicationName), "elapsedTime", time.Since(start))
 	signals := make(chan os.Signal, 10)
@@ -290,9 +206,32 @@ func gungnir(arguments []string) int {
 	}
 	close(shutdown)
 	waitGroup.Wait()
-	return 0
+	logging.Info(logger).Log(logging.MessageKey(), "Gungnir has shut down")
+}
+
+func printVersion(f *pflag.FlagSet, arguments []string) (error, bool) {
+	printVer := f.BoolP("version", "v", false, "displays the version number")
+	if err := f.Parse(arguments); err != nil {
+		return err, true
+	}
+
+	if *printVer {
+		fmt.Println(applicationVersion)
+		return nil, true
+	}
+	return nil, false
+}
+
+func exitIfError(logger log.Logger, err error) {
+	if err != nil {
+		if logger != nil {
+			logging.Error(logger, emperror.Context(err)...).Log(logging.ErrorKey(), err.Error())
+		}
+		fmt.Fprintf(os.Stderr, "Error: %#v\n", err.Error())
+		os.Exit(1)
+	}
 }
 
 func main() {
-	os.Exit(gungnir(os.Args))
+	gungnir(os.Args)
 }
