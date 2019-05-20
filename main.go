@@ -97,7 +97,7 @@ func GetLogger(ctx context.Context) bascule.Logger {
 	return log.With(logging.GetLogger(ctx), "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 }
 
-func gungnir(arguments []string) int {
+func gungnir(arguments []string) {
 	start := time.Now()
 
 	var (
@@ -105,14 +105,13 @@ func gungnir(arguments []string) int {
 		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v, secure.Metrics, db.Metrics)
 	)
 
-	if errCode, done := printVersion(f, arguments); done {
-		return errCode
+	if parseErr, done := printVersion(f, arguments); done {
+		// if we're done, we're exiting no matter what
+		exitIfError(logger, emperror.Wrap(parseErr, "failed to parse arguments"))
+		os.Exit(0)
 	}
 
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to initialize viper: %s\n", err.Error())
-		return 1
-	}
+	exitIfError(logger, emperror.Wrap(err, "unable to initialize viper"))
 	logging.Info(logger).Log(logging.MessageKey(), "Successfully loaded config file", "configurationFile", v.ConfigFileUsed())
 
 	serverHealth := health.New()
@@ -137,29 +136,15 @@ func gungnir(arguments []string) int {
 	//database.Password = pwd
 
 	database, err := db.CreateDbConnection(dbConfig, metricsRegistry, serverHealth)
-	if err != nil {
-		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to initialize database connection",
-			logging.ErrorKey(), err.Error())
-		fmt.Fprintf(os.Stderr, "Database Initialize Failed: %#v\n", err)
-		return 2
-	}
+	exitIfError(logger, emperror.Wrap(err, "failed to initialize database connection"))
 	retryService := db.CreateRetryRGService(database, db.WithRetries(config.GetRetries), db.WithInterval(config.RetryInterval), db.WithMeasures(metricsRegistry))
 
 	cipherOptions, err := cipher.FromViper(v)
-	if err != nil {
-		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to initialize cipher config",
-			logging.ErrorKey(), err.Error())
-		fmt.Fprintf(os.Stderr, "Cipher Initialize Failed: %#v\n", err)
-		return 2
-	}
+	exitIfError(logger, emperror.Wrap(err, "failed to initialize cipher config"))
 	decrypters := cipher.PopulateCiphers(cipherOptions, logger)
 
 	gungnirHandler, err := authChain(config.AuthHeader, config.JwtValidator, config.CapabilityConfig, logger, metricsRegistry)
-	if err != nil {
-		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to setup auth chain",
-			logging.ErrorKey(), err.Error())
-		fmt.Fprintf(os.Stderr, "Setting up auth chain failed: %#v\n", err)
-	}
+	exitIfError(logger, emperror.Wrap(err, "failed to setup auth chain"))
 
 	router := mux.NewRouter()
 	measures := NewMeasures(metricsRegistry)
@@ -194,10 +179,7 @@ func gungnir(arguments []string) int {
 	_, runnable, done := codex.Prepare(logger, nil, metricsRegistry, router)
 
 	waitGroup, shutdown, err := concurrent.Execute(runnable)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to start device manager: %s\n", err)
-		return 1
-	}
+	exitIfError(logger, emperror.Wrap(err, "unable to start device manager"))
 
 	logging.Info(logger).Log(logging.MessageKey(), fmt.Sprintf("%s is up and running!", applicationName), "elapsedTime", time.Since(start))
 	signals := make(chan os.Signal, 10)
@@ -224,23 +206,32 @@ func gungnir(arguments []string) int {
 	}
 	close(shutdown)
 	waitGroup.Wait()
-	return 0
+	logging.Info(logger).Log(logging.MessageKey(), "Gungnir has shut down")
 }
 
-func printVersion(f *pflag.FlagSet, arguments []string) (int, bool) {
+func printVersion(f *pflag.FlagSet, arguments []string) (error, bool) {
 	printVer := f.BoolP("version", "v", false, "displays the version number")
 	if err := f.Parse(arguments); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to parse arguments: %s\n", err.Error())
-		return 1, true
+		return err, true
 	}
 
 	if *printVer {
 		fmt.Println(applicationVersion)
-		return 0, true
+		return nil, true
 	}
-	return 0, false
+	return nil, false
+}
+
+func exitIfError(logger log.Logger, err error) {
+	if err != nil {
+		if logger != nil {
+			logging.Error(logger, emperror.Context(err)...).Log(logging.ErrorKey(), err.Error())
+		}
+		fmt.Fprintf(os.Stderr, "Error: %#v\n", err.Error())
+		os.Exit(1)
+	}
 }
 
 func main() {
-	os.Exit(gungnir(os.Args))
+	gungnir(os.Args)
 }
