@@ -18,9 +18,7 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/base64"
 	"fmt"
 	olog "log"
 	"net/http"
@@ -32,9 +30,7 @@ import (
 	"github.com/Comcast/codex/cipher"
 
 	"github.com/Comcast/comcast-bascule/bascule"
-	"github.com/Comcast/comcast-bascule/bascule/basculehttp"
 	"github.com/Comcast/comcast-bascule/bascule/key"
-	"github.com/SermoDigital/jose/jwt"
 
 	"github.com/Comcast/webpa-common/basculechecks"
 	"github.com/Comcast/webpa-common/secure"
@@ -42,13 +38,11 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
-	"github.com/justinas/alice"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/Comcast/codex/db"
 	"github.com/Comcast/codex/healthlogger"
-	"github.com/Comcast/webpa-common/bookkeeping"
 	"github.com/Comcast/webpa-common/concurrent"
 	"github.com/Comcast/webpa-common/logging"
 	"github.com/Comcast/webpa-common/server"
@@ -111,15 +105,8 @@ func gungnir(arguments []string) int {
 		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v, secure.Metrics, db.Metrics)
 	)
 
-	printVer := f.BoolP("version", "v", false, "displays the version number")
-	if err := f.Parse(arguments); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to parse arguments: %s\n", err.Error())
-		return 1
-	}
-
-	if *printVer {
-		fmt.Println(applicationVersion)
-		return 0
+	if errCode, done := printVersion(f, arguments); done {
+		return errCode
 	}
 
 	if err != nil {
@@ -167,66 +154,13 @@ func gungnir(arguments []string) int {
 	}
 	decrypters := cipher.PopulateCiphers(cipherOptions, logger)
 
-	basicAllowed := make(map[string]string)
-	for _, a := range config.AuthHeader {
-		decoded, err := base64.StdEncoding.DecodeString(a)
-		if err != nil {
-			logging.Info(logger).Log(logging.MessageKey(), "failed to decode auth header", "authHeader", a, logging.ErrorKey(), err.Error())
-		}
-
-		i := bytes.IndexByte(decoded, ':')
-		logging.Debug(logger).Log(logging.MessageKey(), "decoded string", "string", decoded, "i", i)
-		if i > 0 {
-			basicAllowed[string(decoded[:i])] = string(decoded[i+1:])
-		}
-	}
-	logging.Debug(logger).Log(logging.MessageKey(), "Created list of allowed basic auths", "allowedList", basicAllowed, "config", config.AuthHeader)
-
-	options := []basculehttp.COption{basculehttp.WithCLogger(GetLogger)}
-	if len(basicAllowed) > 0 {
-		options = append(options, basculehttp.WithTokenFactory("Basic", basculehttp.BasicTokenFactory(basicAllowed)))
-	}
-	if config.JwtValidator.Keys.URI != "" {
-		resolver, err := config.JwtValidator.Keys.NewResolver()
-		if err != nil {
-			logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to create resolver",
-				logging.ErrorKey(), err.Error())
-			fmt.Fprintf(os.Stderr, "New resolver failed: %#v\n", err)
-			return 2
-		}
-
-		options = append(options, basculehttp.WithTokenFactory("Bearer", basculehttp.BearerTokenFactory{
-			DefaultKeyId:  DEFAULT_KEY_ID,
-			Resolver:      resolver,
-			Parser:        bascule.DefaultJWSParser,
-			JWTValidators: []*jwt.Validator{config.JwtValidator.Custom.New()},
-		}))
+	gungnirHandler, err := authChain(config.AuthHeader, config.JwtValidator, config.CapabilityConfig, logger, metricsRegistry)
+	if err != nil {
+		logging.Error(logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to setup auth chain",
+			logging.ErrorKey(), err.Error())
+		fmt.Fprintf(os.Stderr, "Setting up auth chain failed: %#v\n", err)
 	}
 
-	authConstructor := basculehttp.NewConstructor(options...)
-
-	bearerRules := []bascule.Validator{
-		bascule.CreateNonEmptyPrincipalCheck(),
-		bascule.CreateNonEmptyTypeCheck(),
-		bascule.CreateValidTypeCheck([]string{"jwt"}),
-	}
-
-	if config.CapabilityConfig.FirstPiece != "" && config.CapabilityConfig.SecondPiece != "" && config.CapabilityConfig.ThirdPiece != "" {
-		bearerRules = append(bearerRules, bascule.CreateListAttributeCheck("capabilities", basculechecks.CreateValidCapabilityCheck(config.CapabilityConfig)))
-	}
-
-	authEnforcer := basculehttp.NewEnforcer(
-		basculehttp.WithELogger(GetLogger),
-		basculehttp.WithRules("Basic", []bascule.Validator{
-			bascule.CreateAllowAllCheck(),
-		}),
-		basculehttp.WithRules("Bearer", bearerRules),
-	)
-
-	// TODO: fix bookkeeping, add a decorator to add the bookkeeping requests and logger
-	bookkeeper := bookkeeping.New(bookkeeping.WithResponses(bookkeeping.Code))
-
-	gungnirHandler := alice.New(SetLogger(logger), authConstructor, authEnforcer, bookkeeper)
 	router := mux.NewRouter()
 	measures := NewMeasures(metricsRegistry)
 	// MARK: Actual server logic
@@ -291,6 +225,20 @@ func gungnir(arguments []string) int {
 	close(shutdown)
 	waitGroup.Wait()
 	return 0
+}
+
+func printVersion(f *pflag.FlagSet, arguments []string) (int, bool) {
+	printVer := f.BoolP("version", "v", false, "displays the version number")
+	if err := f.Parse(arguments); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to parse arguments: %s\n", err.Error())
+		return 1, true
+	}
+
+	if *printVer {
+		fmt.Println(applicationVersion)
+		return 0, true
+	}
+	return 0, false
 }
 
 func main() {
