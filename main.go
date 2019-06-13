@@ -27,6 +27,10 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/Comcast/codex/db/retry"
+
+	"github.com/Comcast/codex/db/postgresql"
+
 	"github.com/Comcast/codex/cipher"
 
 	"github.com/Comcast/comcast-bascule/bascule"
@@ -41,7 +45,6 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/Comcast/codex/db"
 	"github.com/Comcast/codex/healthlogger"
 	"github.com/Comcast/webpa-common/concurrent"
 	"github.com/Comcast/webpa-common/logging"
@@ -58,7 +61,7 @@ const (
 )
 
 type Config struct {
-	Db               db.Config
+	Db               postgresql.Config
 	GetLimit         int
 	GetRetries       int
 	RetryInterval    time.Duration
@@ -102,7 +105,7 @@ func gungnir(arguments []string) {
 
 	var (
 		f, v                                = pflag.NewFlagSet(applicationName, pflag.ContinueOnError), viper.New()
-		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v, secure.Metrics, db.Metrics)
+		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v, secure.Metrics, postgresql.Metrics, dbretry.Metrics)
 	)
 
 	if parseErr, done := printVersion(f, arguments); done {
@@ -135,9 +138,14 @@ func gungnir(arguments []string) {
 	//database.Username = usr
 	//database.Password = pwd
 
-	database, err := db.CreateDbConnection(dbConfig, metricsRegistry, serverHealth)
+	database, err := postgresql.CreateDbConnection(dbConfig, metricsRegistry, serverHealth)
 	exitIfError(logger, emperror.Wrap(err, "failed to initialize database connection"))
-	retryService := db.CreateRetryRGService(database, db.WithRetries(config.GetRetries), db.WithInterval(config.RetryInterval), db.WithMeasures(metricsRegistry))
+	retryService := dbretry.CreateRetryRGService(
+		database,
+		dbretry.WithRetries(config.GetRetries),
+		dbretry.WithInterval(config.RetryInterval),
+		dbretry.WithMeasures(metricsRegistry),
+	)
 
 	cipherOptions, err := cipher.FromViper(v)
 	exitIfError(logger, emperror.Wrap(err, "failed to initialize cipher config"))
