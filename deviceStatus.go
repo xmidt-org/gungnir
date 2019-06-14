@@ -83,6 +83,13 @@ type Status struct {
 	// required: true
 	// example: ping miss
 	LastOfflineReason string `json:"last_offline_reason"`
+
+	// the partner ids used by the device.  Determined from the same event that
+	// provides the state
+	//
+	// required: true
+	// example: [".*", "example partner"]
+	PartnerIDs []string `json:"partner_ids"`
 }
 
 /*
@@ -199,6 +206,7 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 			s.State = path.Base(event.Destination)
 			s.Since = time.Unix(record.BirthDate, 0)
 			s.Now = time.Now()
+			s.PartnerIDs = event.PartnerIDs
 		}
 	}
 

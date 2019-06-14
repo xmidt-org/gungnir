@@ -3,7 +3,7 @@ module github.com/Comcast/codex-gungnir
 go 1.12
 
 require (
-	github.com/Comcast/codex v0.5.0
+	github.com/Comcast/codex v0.6.0
 	github.com/Comcast/comcast-bascule v0.2.5
 	github.com/Comcast/webpa-common v1.0.1
 	github.com/Comcast/wrp-go v1.0.1-0.20190425181536-16cc54c2efd1
