@@ -27,9 +27,9 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/Comcast/codex/db/retry"
+	"github.com/Comcast/codex/db/mongodb"
 
-	"github.com/Comcast/codex/db/postgresql"
+	"github.com/Comcast/codex/db/retry"
 
 	"github.com/Comcast/codex/cipher"
 
@@ -61,7 +61,7 @@ const (
 )
 
 type Config struct {
-	Db               postgresql.Config
+	Db               mongodb.Config
 	GetLimit         int
 	GetRetries       int
 	RetryInterval    time.Duration
@@ -105,7 +105,7 @@ func gungnir(arguments []string) {
 
 	var (
 		f, v                                = pflag.NewFlagSet(applicationName, pflag.ContinueOnError), viper.New()
-		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v, secure.Metrics, postgresql.Metrics, dbretry.Metrics)
+		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v, secure.Metrics, mongodb.Metrics, dbretry.Metrics)
 	)
 
 	if parseErr, done := printVersion(f, arguments); done {
@@ -138,7 +138,7 @@ func gungnir(arguments []string) {
 	//database.Username = usr
 	//database.Password = pwd
 
-	database, err := postgresql.CreateDbConnection(dbConfig, metricsRegistry, serverHealth)
+	database, err := mongodb.CreateDbConnection(dbConfig, metricsRegistry, serverHealth)
 	exitIfError(logger, emperror.Wrap(err, "failed to initialize database connection"))
 	retryService := dbretry.CreateRetryRGService(
 		database,

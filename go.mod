@@ -3,7 +3,7 @@ module github.com/Comcast/codex-gungnir
 go 1.12
 
 require (
-	github.com/Comcast/codex v0.6.1-0.20190613201925-c7b9214dec22
+	github.com/Comcast/codex v0.6.1-0.20190614211901-750763ad818e
 	github.com/Comcast/comcast-bascule v0.2.5
 	github.com/Comcast/webpa-common v1.0.1
 	github.com/Comcast/wrp-go v1.0.1-0.20190425181536-16cc54c2efd1
@@ -17,4 +17,5 @@ require (
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.3.0
+	github.com/tidwall/pretty v1.0.0 // indirect
 )
