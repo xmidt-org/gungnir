@@ -42,10 +42,10 @@ func TestGetStatusInfo(t *testing.T) {
 	getRecordsErr := errors.New("get records of type test error")
 
 	testassert := assert.New(t)
-	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).Unix()
+	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).UnixNano()
 	prevTime, err := time.Parse(time.RFC3339Nano, "2019-02-13T21:19:02.614191735Z")
 	testassert.Nil(err)
-	previousTime := prevTime.Unix()
+	previousTime := prevTime.UnixNano()
 
 	var goodData []byte
 	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
@@ -170,7 +170,7 @@ func TestGetStatusInfo(t *testing.T) {
 			expectedStatus: Status{
 				DeviceID:          "test",
 				State:             "online",
-				Since:             time.Unix(futureTime-500, 0),
+				Since:             time.Unix(0, futureTime-500),
 				Now:               time.Now(),
 				LastOfflineReason: "ping miss",
 			},
@@ -228,7 +228,7 @@ func TestGetStatusInfo(t *testing.T) {
 
 func TestHandleGetStatus(t *testing.T) {
 	testassert := assert.New(t)
-	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).Unix()
+	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).UnixNano()
 	var goodData []byte
 	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
 	err := encoder.Encode(&goodEvent)

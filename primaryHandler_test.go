@@ -64,10 +64,10 @@ func TestGetDeviceInfo(t *testing.T) {
 	getRecordsErr := errors.New("get records test error")
 
 	testassert := assert.New(t)
-	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).Unix()
+	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).UnixNano()
 	prevTime, err := time.Parse(time.RFC3339Nano, "2019-02-13T21:19:02.614191735Z")
 	testassert.Nil(err)
-	previousTime := prevTime.Unix()
+	previousTime := prevTime.UnixNano()
 
 	var goodData []byte
 	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
@@ -142,7 +142,7 @@ func TestGetDeviceInfo(t *testing.T) {
 			description: "No Decrypter",
 			recordsToReturn: []db.Record{
 				{
-					BirthDate: prevTime.Unix(),
+					BirthDate: prevTime.UnixNano(),
 					DeathDate: futureTime,
 					Data:      goodData,
 					Alg:       string(cipher.Box),
@@ -150,14 +150,14 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedEvents: []Event{
-				Event{wrp.Message{Type: 11}, prevTime.Unix()},
+				Event{wrp.Message{Type: 11}, prevTime.UnixNano()},
 			},
 		},
 		{
 			description: "Success",
 			recordsToReturn: []db.Record{
 				{
-					BirthDate: prevTime.Unix(),
+					BirthDate: prevTime.UnixNano(),
 					DeathDate: futureTime,
 					Data:      goodData,
 					Alg:       string(cipher.None),
@@ -165,7 +165,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedEvents: []Event{
-				Event{goodEvent, prevTime.Unix()},
+				Event{goodEvent, prevTime.UnixNano()},
 			},
 		},
 	}
@@ -218,7 +218,7 @@ func TestGetDeviceInfo(t *testing.T) {
 
 func TestHandleGetEvents(t *testing.T) {
 	testassert := assert.New(t)
-	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).Unix()
+	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).UnixNano()
 	var goodData []byte
 	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
 	err := encoder.Encode(&goodEvent)
