@@ -1,5 +1,1 @@
-- Updated documentation: README and other md files and the yaml
-- Refactored main.go
-- Added device ids to `status` endpoint 
-- Bumped codex
-- Expect the record's times to be in UnixNano
+
