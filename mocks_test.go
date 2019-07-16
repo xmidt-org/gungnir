@@ -46,8 +46,8 @@ func (md *mockDecrypter) DecryptMessage(cipher []byte, nonce []byte) ([]byte, er
 	return cipher, args.Error(0)
 }
 
-func (*mockDecrypter) GetAlgorithm() cipher.AlgorithmType {
-	return cipher.None
+func (*mockDecrypter) GetAlgorithm() voynicrypto.AlgorithmType {
+	return voynicrypto.None
 }
 
 func (*mockDecrypter) GetKID() string {
