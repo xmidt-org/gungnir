@@ -27,17 +27,17 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/Comcast/codex/db/retry"
+	"github.com/xmidt-org/codex-db/retry"
 
-	"github.com/Comcast/codex/db/postgresql"
+	"github.com/xmidt-org/codex-db/postgresql"
 
-	"github.com/Comcast/codex/cipher"
+	"github.com/xmidt-org/voynicrypto"
 
-	"github.com/Comcast/comcast-bascule/bascule"
-	"github.com/Comcast/comcast-bascule/bascule/key"
+	"github.com/xmidt-org/bascule"
+	"github.com/xmidt-org/bascule/key"
 
-	"github.com/Comcast/webpa-common/basculechecks"
-	"github.com/Comcast/webpa-common/secure"
+	"github.com/xmidt-org/webpa-common/basculechecks"
+	"github.com/xmidt-org/webpa-common/secure"
 
 	"github.com/go-kit/kit/log"
 	"github.com/goph/emperror"
@@ -45,10 +45,10 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/Comcast/codex/healthlogger"
-	"github.com/Comcast/webpa-common/concurrent"
-	"github.com/Comcast/webpa-common/logging"
-	"github.com/Comcast/webpa-common/server"
+	"github.com/xmidt-org/codex-db/healthlogger"
+	"github.com/xmidt-org/webpa-common/concurrent"
+	"github.com/xmidt-org/webpa-common/logging"
+	"github.com/xmidt-org/webpa-common/server"
 
 	"github.com/InVisionApp/go-health"
 	"github.com/InVisionApp/go-health/handlers"
@@ -80,9 +80,9 @@ type JWTValidator struct {
 	// JWTKeys is used to create the key.Resolver for JWT verification keys
 	Keys key.ResolverFactory
 
-	// Custom is an optional configuration section that defines
-	// custom rules for validation over and above the standard RFC rules.
-	Custom secure.JWTValidatorFactory
+	// Leeway is used to set the amount of time buffer should be given to JWT
+	// time values, such as nbf
+	Leeway bascule.Leeway
 }
 
 func SetLogger(logger log.Logger) func(delegate http.Handler) http.Handler {
@@ -147,9 +147,9 @@ func gungnir(arguments []string) {
 		dbretry.WithMeasures(metricsRegistry),
 	)
 
-	cipherOptions, err := cipher.FromViper(v)
+	cipherOptions, err := voynicrypto.FromViper(v)
 	exitIfError(logger, emperror.Wrap(err, "failed to initialize cipher config"))
-	decrypters := cipher.PopulateCiphers(cipherOptions, logger)
+	decrypters := voynicrypto.PopulateCiphers(cipherOptions, logger)
 
 	gungnirHandler, err := authChain(config.AuthHeader, config.JwtValidator, config.CapabilityConfig, logger, metricsRegistry)
 	exitIfError(logger, emperror.Wrap(err, "failed to setup auth chain"))

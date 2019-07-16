@@ -24,7 +24,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Comcast/comcast-bascule/bascule"
+	"github.com/xmidt-org/bascule"
 )
 
 func CreateValidCapabilityCheck(firstPiece, secondPiece, thirdPiece, acceptAllMethod string) func(context.Context, []interface{}) error {

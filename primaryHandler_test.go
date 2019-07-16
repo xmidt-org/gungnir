@@ -25,18 +25,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Comcast/codex/cipher"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"github.com/xmidt-org/codex-db/cipher"
 
-	"github.com/Comcast/webpa-common/logging"
-	"github.com/Comcast/webpa-common/xmetrics/xmetricstest"
-	"github.com/Comcast/wrp-go/wrp"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
+	"github.com/xmidt-org/webpa-common/logging"
+	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
+	"github.com/xmidt-org/wrp-go/wrp"
 
-	"github.com/Comcast/codex/db"
+	"github.com/xmidt-org/codex-db"
 )
 
 var (

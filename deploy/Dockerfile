@@ -1,7 +1,7 @@
 FROM golang:alpine as builder
 MAINTAINER Jack Murdock <jack_murdock@comcast.com>
 
-WORKDIR /go/src/github.com/comcast/codex-gungnir
+WORKDIR /go/src/github.com/xmidt-org/codex-gungnir
 
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh
@@ -17,6 +17,6 @@ VOLUME /etc/gungnir
 
 EXPOSE 8080
 
-COPY --from=builder /go/src/github.com/comcast/codex-gungnir/gungnir_linux_amd64 /
+COPY --from=builder /go/src/github.com/xmidt-org/codex-gungnir/gungnir_linux_amd64 /
 COPY gungnir.yaml /
 ENTRYPOINT ["/gungnir_linux_amd64"]

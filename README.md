@@ -5,8 +5,8 @@
 [![codecov.io](http://codecov.io/github/Comcast/codex-gungnir/coverage.svg?branch=master)](http://codecov.io/github/Comcast/codex-gungnir?branch=master)
 [![Code Climate](https://codeclimate.com/github/Comcast/codex-gungnir/badges/gpa.svg)](https://codeclimate.com/github/Comcast/codex-gungnir)
 [![Issue Count](https://codeclimate.com/github/Comcast/codex-gungnir/badges/issue_count.svg)](https://codeclimate.com/github/Comcast/codex-gungnir)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Comcast/codex-gungnir)](https://goreportcard.com/report/github.com/Comcast/codex-gungnir)
-[![Apache V2 License](http://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/Comcast/codex-gungnir/blob/master/LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/xmidt-org/codex-gungnir)](https://goreportcard.com/report/github.com/xmidt-org/codex-gungnir)
+[![Apache V2 License](http://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/xmidt-org/codex-gungnir/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/Comcast/codex-gungnir.svg)](CHANGELOG.md)
 
 
@@ -14,8 +14,8 @@
 
 Gungnir provides an API to get information about a device, based upon events 
 found in the database.  It can also return the events themselves, which are
-[WRP Messages](https://github.com/Comcast/wrp-c/wiki/Web-Routing-Protocol).
-For more information on how Gungnir fits into codex, check out [the codex README](https://github.com/Comcast/codex).
+[WRP Messages](https://github.com/xmidt-org/wrp-c/wiki/Web-Routing-Protocol).
+For more information on how Gungnir fits into codex, check out [the codex README](https://github.com/xmidt-org/codex).
 
 ## Details
 
@@ -53,14 +53,14 @@ version 1.11 or greater. Find more information on the [Go website](https://golan
 
 You can directly use `go get` to put the Gungnir binary into your `GOPATH`:
 ```bash
-GO111MODULE=on go get github.com/Comcast/codex-gungnir
+GO111MODULE=on go get github.com/xmidt-org/codex-gungnir
 ```
 
 You can also clone the repository yourself and build using make:
 
 ```bash
-mkdir -p $GOPATH/src/github.com/Comcast
-cd $GOPATH/src/github.com/Comcast
+mkdir -p $GOPATH/src/github.com/xmidt-org
+cd $GOPATH/src/github.com/xmidt-org
 git clone git@github.com:Comcast/codex-gungnir.git
 cd codex-gungnir
 make build
@@ -108,7 +108,7 @@ WIP. TODO: add info
 
 ## Deploy
 
-For deploying on Docker or in Kubernetes, refer to the [deploy README](https://github.com/Comcast/codex/tree/master/deploy/README.md).
+For deploying on Docker or in Kubernetes, refer to the [deploy README](https://github.com/xmidt-org/codex/tree/master/deploy/README.md).
 
 For running locally, ensure you have the binary [built](#Source).  If it's in 
 your `GOPATH`, run:

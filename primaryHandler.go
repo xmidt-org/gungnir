@@ -26,22 +26,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Comcast/codex/cipher"
-	"github.com/Comcast/comcast-bascule/bascule"
-	"github.com/Comcast/comcast-bascule/bascule/basculehttp"
-	"github.com/SermoDigital/jose/jwt"
 	"github.com/justinas/alice"
+	"github.com/xmidt-org/bascule"
+	"github.com/xmidt-org/bascule/basculehttp"
+	"github.com/xmidt-org/voynicrypto"
 
-	"github.com/Comcast/webpa-common/basculechecks"
-	"github.com/Comcast/webpa-common/logging"
-	"github.com/Comcast/webpa-common/xmetrics"
-	"github.com/Comcast/wrp-go/wrp"
 	"github.com/goph/emperror"
+	"github.com/xmidt-org/webpa-common/basculechecks"
+	"github.com/xmidt-org/webpa-common/logging"
+	"github.com/xmidt-org/webpa-common/xmetrics"
+	"github.com/xmidt-org/wrp-go/wrp"
 
-	"github.com/Comcast/codex/db"
 	"github.com/go-kit/kit/log"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	"github.com/xmidt-org/codex-db"
 )
 
 //go:generate swagger generate spec -m -o swagger.spec
@@ -50,13 +49,13 @@ type App struct {
 	eventGetter db.RecordGetter
 	logger      log.Logger
 	getLimit    int
-	decrypters  cipher.Ciphers
+	decrypters  voynicrypto.Ciphers
 
 	measures *Measures
 }
 
 // Event is the extension of wrp message
-//     https://github.com/Comcast/wrp-c/wiki/Web-Routing-Protocol
+//     https://github.com/xmidt-org/wrp-c/wiki/Web-Routing-Protocol
 //
 // swagger:response Event
 type Event struct {
@@ -117,7 +116,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 		event := Event{
 			BirthDate: record.BirthDate,
 		}
-		decrypter, ok := app.decrypters.Get(cipher.ParseAlogrithmType(record.Alg), record.KID)
+		decrypter, ok := app.decrypters.Get(voynicrypto.ParseAlgorithmType(record.Alg), record.KID)
 		if !ok {
 			app.measures.GetDecryptFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to get decrypter", logging.ErrorKey())
@@ -243,16 +242,16 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityConfig bascule
 		}
 
 		options = append(options, basculehttp.WithTokenFactory("Bearer", basculehttp.BearerTokenFactory{
-			DefaultKeyId:  DEFAULT_KEY_ID,
-			Resolver:      resolver,
-			Parser:        bascule.DefaultJWSParser,
-			JWTValidators: []*jwt.Validator{jwtVal.Custom.New()},
+			DefaultKeyId: DEFAULT_KEY_ID,
+			Resolver:     resolver,
+			Parser:       bascule.DefaultJWTParser,
+			Leeway:       jwtVal.Leeway,
 		}))
 	}
 
 	authConstructor := basculehttp.NewConstructor(options...)
 
-	bearerRules := []bascule.Validator{
+	bearerRules := bascule.Validators{
 		bascule.CreateNonEmptyPrincipalCheck(),
 		bascule.CreateNonEmptyTypeCheck(),
 		bascule.CreateValidTypeCheck([]string{"jwt"}),
@@ -265,7 +264,7 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityConfig bascule
 
 	authEnforcer := basculehttp.NewEnforcer(
 		basculehttp.WithELogger(GetLogger),
-		basculehttp.WithRules("Basic", []bascule.Validator{
+		basculehttp.WithRules("Basic", bascule.Validators{
 			bascule.CreateAllowAllCheck(),
 		}),
 		basculehttp.WithRules("Bearer", bearerRules),

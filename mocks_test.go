@@ -18,9 +18,9 @@
 package main
 
 import (
-	"github.com/Comcast/codex/cipher"
-	"github.com/Comcast/codex/db"
 	"github.com/stretchr/testify/mock"
+	"github.com/xmidt-org/codex-db"
+	"github.com/xmidt-org/codex-db/cipher"
 )
 
 type mockRecordGetter struct {

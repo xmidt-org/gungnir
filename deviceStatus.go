@@ -25,14 +25,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Comcast/codex/cipher"
+	"github.com/xmidt-org/voynicrypto"
 
-	"github.com/Comcast/codex/db"
-	"github.com/Comcast/webpa-common/logging"
-	"github.com/Comcast/wrp-go/wrp"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
+	"github.com/xmidt-org/codex-db"
+	"github.com/xmidt-org/webpa-common/logging"
+	"github.com/xmidt-org/wrp-go/wrp"
 )
 
 const (
@@ -169,7 +169,7 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 		}
 
 		var event wrp.Message
-		decrypter, ok := app.decrypters.Get(cipher.ParseAlogrithmType(record.Alg), record.KID)
+		decrypter, ok := app.decrypters.Get(voynicrypto.ParseAlgorithmType(record.Alg), record.KID)
 		if !ok {
 			app.measures.GetDecryptFailure.Add(1.0)
 			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to find decrypter")
