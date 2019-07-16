@@ -18,7 +18,7 @@ function gungnir-docker {
 function deploy {
     echo "Deploying Cluster"
     git clone https://github.com/xmidt-org/codex-deploy.git 2> /dev/null || true
-    pushd codex/deploy/docker-compose
+    pushd codex-deploy/deploy/docker-compose
     GUNGNIR_VERSION=$GUNGNIR_VERSION docker-compose up -d db db-init gungnir
     check $?
     popd
