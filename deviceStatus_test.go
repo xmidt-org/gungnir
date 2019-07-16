@@ -27,15 +27,15 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/Comcast/codex/cipher"
-	"github.com/Comcast/webpa-common/logging"
-	"github.com/Comcast/webpa-common/xmetrics/xmetricstest"
-	"github.com/Comcast/wrp-go/wrp"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
+	"github.com/xmidt-org/voynicrypto"
+	"github.com/xmidt-org/webpa-common/logging"
+	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
+	"github.com/xmidt-org/wrp-go/wrp"
 
-	"github.com/Comcast/codex/db"
+	"github.com/xmidt-org/codex-db"
 )
 
 func TestGetStatusInfo(t *testing.T) {
@@ -87,7 +87,7 @@ func TestGetStatusInfo(t *testing.T) {
 			recordsToReturn: []db.Record{
 				db.Record{
 					DeathDate: previousTime,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 			},
@@ -101,7 +101,7 @@ func TestGetStatusInfo(t *testing.T) {
 				{
 					DeathDate: futureTime,
 					Data:      badData,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 			},
@@ -116,7 +116,7 @@ func TestGetStatusInfo(t *testing.T) {
 					Type:      db.State,
 					DeathDate: futureTime,
 					Data:      emptyPayloadData,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 			},
@@ -132,14 +132,14 @@ func TestGetStatusInfo(t *testing.T) {
 					BirthDate: futureTime - 500,
 					DeathDate: futureTime,
 					Data:      goodData,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 				{
 					Type:      db.State,
 					DeathDate: futureTime,
 					Data:      goodData,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 			},
@@ -156,14 +156,14 @@ func TestGetStatusInfo(t *testing.T) {
 					BirthDate: futureTime - 500,
 					DeathDate: futureTime,
 					Data:      goodData,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 				{
 					Type:      db.State,
 					DeathDate: futureTime,
 					Data:      goodData,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 			},
@@ -189,9 +189,9 @@ func TestGetStatusInfo(t *testing.T) {
 			mockDecrypter := new(mockDecrypter)
 			mockDecrypter.On("DecryptMessage", mock.Anything, mock.Anything).Return(tc.decryptErr)
 
-			ciphers := cipher.Ciphers{
-				Options: map[cipher.AlgorithmType]map[string]cipher.Decrypt{
-					cipher.None: map[string]cipher.Decrypt{
+			ciphers := voynicrypto.Ciphers{
+				Options: map[voynicrypto.AlgorithmType]map[string]voynicrypto.Decrypt{
+					voynicrypto.None: map[string]voynicrypto.Decrypt{
 						"none": mockDecrypter,
 					},
 				},
@@ -258,7 +258,7 @@ func TestHandleGetStatus(t *testing.T) {
 				{
 					DeathDate: futureTime,
 					Data:      goodData,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 			},
@@ -272,7 +272,7 @@ func TestHandleGetStatus(t *testing.T) {
 				{
 					DeathDate: futureTime,
 					Data:      goodData,
-					Alg:       string(cipher.Box),
+					Alg:       string(voynicrypto.Box),
 					KID:       "test",
 				},
 			},
@@ -292,9 +292,9 @@ func TestHandleGetStatus(t *testing.T) {
 			mockDecrypter := new(mockDecrypter)
 			mockDecrypter.On("DecryptMessage", mock.Anything, mock.Anything).Return(nil)
 
-			ciphers := cipher.Ciphers{
-				Options: map[cipher.AlgorithmType]map[string]cipher.Decrypt{
-					cipher.None: map[string]cipher.Decrypt{
+			ciphers := voynicrypto.Ciphers{
+				Options: map[voynicrypto.AlgorithmType]map[string]voynicrypto.Decrypt{
+					voynicrypto.None: map[string]voynicrypto.Decrypt{
 						"none": mockDecrypter,
 					},
 				},

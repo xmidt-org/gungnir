@@ -18,9 +18,9 @@
 package main
 
 import (
-	"github.com/Comcast/codex/cipher"
-	"github.com/Comcast/codex/db"
 	"github.com/stretchr/testify/mock"
+	"github.com/xmidt-org/codex-db"
+	"github.com/xmidt-org/voynicrypto"
 )
 
 type mockRecordGetter struct {
@@ -46,8 +46,8 @@ func (md *mockDecrypter) DecryptMessage(cipher []byte, nonce []byte) ([]byte, er
 	return cipher, args.Error(0)
 }
 
-func (*mockDecrypter) GetAlgorithm() cipher.AlgorithmType {
-	return cipher.None
+func (*mockDecrypter) GetAlgorithm() voynicrypto.AlgorithmType {
+	return voynicrypto.None
 }
 
 func (*mockDecrypter) GetKID() string {

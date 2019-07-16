@@ -2,7 +2,7 @@
 
 [Unit]
 Description=The api layer to get the data from the database.
-Documentation=https://github.com/Comcast/codex-gungnir
+Documentation=https://github.com/xmidt-org/gungnir
 After=network.target
 
 [Service]

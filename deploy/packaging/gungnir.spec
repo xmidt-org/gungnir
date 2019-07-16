@@ -10,7 +10,7 @@ Vendor:     Comcast
 Packager:   Comcast
 Group:      System Environment/Daemons
 License:    ASL 2.0
-URL:        https://github.com/Comcast/codex-gungnir
+URL:        https://github.com/xmidt-org/gungnir
 Source0:    %{name}-%{_version}.tar.gz
 
 Prefix:     /opt
@@ -40,6 +40,7 @@ echo rm -rf %{buildroot}
 
 %files
 %defattr(644, root, root, 755)
+%doc LICENSE CHANGELOG.md NOTICE
 
 %attr(755, root, root) %{_bindir}/%{name}
 

@@ -25,18 +25,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Comcast/codex/cipher"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"github.com/xmidt-org/voynicrypto"
 
-	"github.com/Comcast/webpa-common/logging"
-	"github.com/Comcast/webpa-common/xmetrics/xmetricstest"
-	"github.com/Comcast/wrp-go/wrp"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
+	"github.com/xmidt-org/webpa-common/logging"
+	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
+	"github.com/xmidt-org/wrp-go/wrp"
 
-	"github.com/Comcast/codex/db"
+	"github.com/xmidt-org/codex-db"
 )
 
 var (
@@ -104,7 +104,7 @@ func TestGetDeviceInfo(t *testing.T) {
 			recordsToReturn: []db.Record{
 				db.Record{
 					DeathDate: previousTime,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 			},
@@ -118,7 +118,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				{
 					DeathDate: futureTime,
 					Data:      badData,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 			},
@@ -131,7 +131,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				{
 					DeathDate: futureTime,
 					Data:      goodData,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 			},
@@ -145,7 +145,7 @@ func TestGetDeviceInfo(t *testing.T) {
 					BirthDate: prevTime.UnixNano(),
 					DeathDate: futureTime,
 					Data:      goodData,
-					Alg:       string(cipher.Box),
+					Alg:       string(voynicrypto.Box),
 					KID:       "test",
 				},
 			},
@@ -160,7 +160,7 @@ func TestGetDeviceInfo(t *testing.T) {
 					BirthDate: prevTime.UnixNano(),
 					DeathDate: futureTime,
 					Data:      goodData,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 			},
@@ -180,9 +180,9 @@ func TestGetDeviceInfo(t *testing.T) {
 			mockDecrypter := new(mockDecrypter)
 			mockDecrypter.On("DecryptMessage", mock.Anything, mock.Anything).Return(tc.decryptErr)
 
-			ciphers := cipher.Ciphers{
-				Options: map[cipher.AlgorithmType]map[string]cipher.Decrypt{
-					cipher.None: map[string]cipher.Decrypt{
+			ciphers := voynicrypto.Ciphers{
+				Options: map[voynicrypto.AlgorithmType]map[string]voynicrypto.Decrypt{
+					voynicrypto.None: map[string]voynicrypto.Decrypt{
 						"none": mockDecrypter,
 					},
 				},
@@ -248,7 +248,7 @@ func TestHandleGetEvents(t *testing.T) {
 				{
 					DeathDate: futureTime,
 					Data:      goodData,
-					Alg:       string(cipher.None),
+					Alg:       string(voynicrypto.None),
 					KID:       "none",
 				},
 			},
@@ -263,10 +263,10 @@ func TestHandleGetEvents(t *testing.T) {
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecords", tc.deviceID, 5).Return(tc.recordsToReturn, nil).Once()
 
-			ciphers := cipher.Ciphers{
-				Options: map[cipher.AlgorithmType]map[string]cipher.Decrypt{
-					cipher.None: map[string]cipher.Decrypt{
-						"none": new(cipher.NOOP),
+			ciphers := voynicrypto.Ciphers{
+				Options: map[voynicrypto.AlgorithmType]map[string]voynicrypto.Decrypt{
+					voynicrypto.None: map[string]voynicrypto.Decrypt{
+						"none": new(voynicrypto.NOOP),
 					},
 				},
 			}
