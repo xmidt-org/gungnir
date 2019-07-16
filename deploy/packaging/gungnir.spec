@@ -40,7 +40,8 @@ echo rm -rf %{buildroot}
 
 %files
 %defattr(644, root, root, 755)
-%doc LICENSE CHANGELOG.md NOTICE
+%doc $RPM_SOURCE_DIR/LICENSE $RPM_SOURCE_DIR/CHANGELOG.md $RPM_SOURCE_DIR/NOTICE
+
 
 %attr(755, root, root) %{_bindir}/%{name}
 
