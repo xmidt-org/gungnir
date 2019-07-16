@@ -27,7 +27,7 @@ import (
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"github.com/xmidt-org/codex-db/cipher"
+	"github.com/xmidt-org/voynicrypto"
 
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"

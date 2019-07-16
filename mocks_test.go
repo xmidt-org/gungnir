@@ -20,7 +20,7 @@ package main
 import (
 	"github.com/stretchr/testify/mock"
 	"github.com/xmidt-org/codex-db"
-	"github.com/xmidt-org/codex-db/cipher"
+	"github.com/xmidt-org/voynicrypto"
 )
 
 type mockRecordGetter struct {
