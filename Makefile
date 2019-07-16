@@ -87,4 +87,4 @@ it:
 
 .PHONY: clean
 clean:
-	rm -rf ./codex-gungnir ./OPATH ./coverage.txt ./vendor
+	rm -rf ./gungnir ./OPATH ./coverage.txt ./vendor

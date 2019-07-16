@@ -30,5 +30,5 @@ echo "Gungnir V:$GUNGNIR_VERSION"
 deploy
 go get -d github.com/xmidt-org/codex-deploy/tests/...
 printf "Starting Tests \n\n\n"
-go run github.com/xmidt-org/codex-deploy/tests/runners/travis -feature=codex/tests/features/gungnir/travis
+go run github.com/xmidt-org/codex-deploy/tests/runners/travis -feature=codex-deploy/tests/features/gungnir/travis
 check $?

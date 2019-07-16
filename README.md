@@ -1,7 +1,7 @@
 # gungnir
 (pronounced “GUNG-neer”)
 
-[![Build Status](https://travis-ci.com/Comcast/codex-gungnir.svg?branch=master)](https://travis-ci.com/Comcast/codex-gungnir)
+[![Build Status](https://travis-ci.com/xmidt-org/gungnir.svg?branch=master)](https://travis-ci.com/xmidt-org/gungnir)
 [![codecov.io](http://codecov.io/github/xmidt-org/gungnir/coverage.svg?branch=master)](http://codecov.io/github/xmidt-org/gungnir?branch=master)
 [![Code Climate](https://codeclimate.com/github/xmidt-org/gungnir/badges/gpa.svg)](https://codeclimate.com/github/xmidt-org/gungnir)
 [![Issue Count](https://codeclimate.com/github/xmidt-org/gungnir/badges/issue_count.svg)](https://codeclimate.com/github/xmidt-org/gungnir)
@@ -61,8 +61,8 @@ You can also clone the repository yourself and build using make:
 ```bash
 mkdir -p $GOPATH/src/github.com/xmidt-org
 cd $GOPATH/src/github.com/xmidt-org
-git clone git@github.com:Comcast/codex-gungnir.git
-cd codex-gungnir
+git clone git@github.com:xmidt-org/gungnir.git
+cd gungnir
 make build
 ```
 
