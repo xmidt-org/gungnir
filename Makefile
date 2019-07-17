@@ -71,7 +71,7 @@ style:
 
 .PHONY: test
 test: go-mod-vendor
-	go test -o $(GUNGNIR) -v -race  -coverprofile=cover.out $(go list ./... | grep -v "/vendor/")
+	go test -v -race  -coverprofile=cover.out ./...
 
 .PHONY: test-cover
 test-cover: test
