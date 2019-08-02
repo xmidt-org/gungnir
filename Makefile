@@ -71,7 +71,7 @@ style:
 
 .PHONY: test
 test: go-mod-vendor
-	go test -v -race  -coverprofile=cover.out ./...
+	GO111MODULE=on go test -v -race  -coverprofile=cover.out ./...
 
 .PHONY: test-cover
 test-cover: test
