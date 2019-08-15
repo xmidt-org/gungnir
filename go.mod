@@ -18,3 +18,5 @@ require (
 	github.com/xmidt-org/webpa-common v1.3.0
 	github.com/xmidt-org/wrp-go v1.2.0
 )
+
+replace github.com/xmidt-org/codex-db => github.com/xmidt-org/codex-db v0.1.3-0.20190808222843-c56f57b13b7a

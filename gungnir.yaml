@@ -189,67 +189,74 @@ capabilityConfig:
 # db provides the configuration for connecting to the database and database 
 # calls.
 db:
-  # server is the address and port used to connect to the server.
-  server: "db:26257"
-
-  # username is the username to use when connecting to the database.
-  username: "roachadmin"
-
-  # database is the name of the database being connected to.
+  hosts: "db"
   database: "devices"
-
-  # SSLRootCert is the root cert to use when connecting to the database.
-  # The SSLKey and SSLCert must also be provided in order to connect securely.
-  # (Optional)
-  #sslRootCert: "/etc/gungnir/ca.crt"
-
-  # SSLKey is the SSL key to use when connecting to the database.  The 
-  # SSLRootCert and SSLCert must also be provided in order to connect securely.
-  # (Optional)
-  #sslKey: "/etc/svalinn/client.svalinn.key"
-
-  # SSLCert is the SSL cert to use when connecting to the database.  The SSLKey 
-  # and SSLRootCert must also be provided in order to connect securely.
-  # (Optional)
-  #sslCert: "/etc/svalinn/client.svalinn.crt"
-
-  # numRetries is the number of times to retry connecting to the database.  If 
-  # numRetries is below 1, there will be no attempts to retry.
-  # (Optional)
-  numRetries: 4
-
-  # waitTimeMult is the number to multiply by 1 second in between each attempt 
-  # to connect to the database. If there is only the initial attempt, this 
-  # value is not used.  If the multiple is set below 1, it defaults to 1.
-  # (Optional) defaults to 1
-  waitTimeMult: 5
-
-  # pingInterval is the time to wait in between pinging the database.  The ping 
-  # is a part of the health check for gungnir.  If pinging fails, gungnir will 
-  # report as unhealthy. If the ping interval is set to 0, it defaults to 1s.
-  # (Optional) defaults to 1s
-  pingInterval: 1s
-
-  # connectTimeout is the timeout for connecting to the database.  If 
-  # establishing a connection takes longer than this, it will fail.  If 
-  # the connectTimeout is set to 0, it defaults to 10s.
-  # (Optional) defaults to 10s
-  connectTimeout: 1m
-
-  # opTimeout is the timeout for database calls after gungnir is connected.
-  # If the opTimeout is set to 0, it defaults to 10s.
-  # (Optional) defaults to 10s
   opTimeout: 100ms
 
-  # maxIdleConns are the maximum number of idle connections allowed at one time.
-  # If a value below 2 is chosen, it defaults to 2.
-  # (Optional) defaults to 2
-  #maxIdleConns: 2
-
-  # maxOpenConns are the maximum number of open connections allowed at one time.
-  # If the value is 0, there is an unlimited number of connections.
-  # (Optional)I
-  #maxOpenConns: 0
+########################################
+#   postgres config
+########################################
+#  # server is the address and port used to connect to the server.
+#  server: "db:26257"
+#
+#  # username is the username to use when connecting to the database.
+#  username: "roachadmin"
+#
+#  # database is the name of the database being connected to.
+#  database: "devices"
+#
+#  # SSLRootCert is the root cert to use when connecting to the database.
+#  # The SSLKey and SSLCert must also be provided in order to connect securely.
+#  # (Optional)
+#  #sslRootCert: "/etc/gungnir/ca.crt"
+#
+#  # SSLKey is the SSL key to use when connecting to the database.  The
+#  # SSLRootCert and SSLCert must also be provided in order to connect securely.
+#  # (Optional)
+#  #sslKey: "/etc/svalinn/client.svalinn.key"
+#
+#  # SSLCert is the SSL cert to use when connecting to the database.  The SSLKey
+#  # and SSLRootCert must also be provided in order to connect securely.
+#  # (Optional)
+#  #sslCert: "/etc/svalinn/client.svalinn.crt"
+#
+#  # numRetries is the number of times to retry connecting to the database.  If
+#  # numRetries is below 1, there will be no attempts to retry.
+#  # (Optional)
+#  numRetries: 4
+#
+#  # waitTimeMult is the number to multiply by 1 second in between each attempt
+#  # to connect to the database. If there is only the initial attempt, this
+#  # value is not used.  If the multiple is set below 1, it defaults to 1.
+#  # (Optional) defaults to 1
+#  waitTimeMult: 5
+#
+#  # pingInterval is the time to wait in between pinging the database.  The ping
+#  # is a part of the health check for gungnir.  If pinging fails, gungnir will
+#  # report as unhealthy. If the ping interval is set to 0, it defaults to 1s.
+#  # (Optional) defaults to 1s
+#  pingInterval: 1s
+#
+#  # connectTimeout is the timeout for connecting to the database.  If
+#  # establishing a connection takes longer than this, it will fail.  If
+#  # the connectTimeout is set to 0, it defaults to 10s.
+#  # (Optional) defaults to 10s
+#  connectTimeout: 1m
+#
+#  # opTimeout is the timeout for database calls after gungnir is connected.
+#  # If the opTimeout is set to 0, it defaults to 10s.
+#  # (Optional) defaults to 10s
+#  opTimeout: 100ms
+#
+#  # maxIdleConns are the maximum number of idle connections allowed at one time.
+#  # If a value below 2 is chosen, it defaults to 2.
+#  # (Optional) defaults to 2
+#  #maxIdleConns: 2
+#
+#  # maxOpenConns are the maximum number of open connections allowed at one time.
+#  # If the value is 0, there is an unlimited number of connections.
+#  # (Optional)I
+#  #maxOpenConns: 0
 
 # getLimit is the maximum number of records one database get call will return.
 # (Optional)

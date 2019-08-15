@@ -29,7 +29,7 @@ import (
 
 	"github.com/xmidt-org/codex-db/retry"
 
-	"github.com/xmidt-org/codex-db/postgresql"
+	"github.com/xmidt-org/codex-db/cassandra"
 
 	"github.com/xmidt-org/voynicrypto"
 
@@ -61,7 +61,7 @@ const (
 )
 
 type Config struct {
-	Db               postgresql.Config
+	Db               cassandra.Config
 	GetLimit         int
 	GetRetries       int
 	RetryInterval    time.Duration
@@ -105,7 +105,7 @@ func gungnir(arguments []string) {
 
 	var (
 		f, v                                = pflag.NewFlagSet(applicationName, pflag.ContinueOnError), viper.New()
-		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v, secure.Metrics, postgresql.Metrics, dbretry.Metrics)
+		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v, secure.Metrics, cassandra.Metrics, dbretry.Metrics)
 	)
 
 	if parseErr, done := printVersion(f, arguments); done {
@@ -138,7 +138,7 @@ func gungnir(arguments []string) {
 	//database.Username = usr
 	//database.Password = pwd
 
-	database, err := postgresql.CreateDbConnection(dbConfig, metricsRegistry, serverHealth)
+	database, err := cassandra.CreateDbConnection(dbConfig, metricsRegistry, serverHealth)
 	exitIfError(logger, emperror.Wrap(err, "failed to initialize database connection"))
 	retryService := dbretry.CreateRetryRGService(
 		database,
