@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.9.1]
+- Updated imports and versions for codex packages and webpa-common
+- Updated bascule 
+- Updated links to update new location for gungnir
+
+
+
 ## [v0.9.0]
 - Updated documentation: README and other md files and the yaml
 - Refactored main.go
@@ -121,7 +128,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.9.1...HEAD
+[v0.9.1]: https://github.com/xmidt-org/gungnir/compare/v0.9.0...v0.9.1
 [v0.9.0]: https://github.com/xmidt-org/gungnir/compare/v0.7.0...v0.9.0
 [v0.7.0]: https://github.com/xmidt-org/gungnir/compare/v0.6.0...v0.7.0
 [v0.6.0]: https://github.com/xmidt-org/gungnir/compare/v0.5.1...v0.6.0
