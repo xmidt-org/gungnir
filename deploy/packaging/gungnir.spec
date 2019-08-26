@@ -3,7 +3,7 @@
 
 Name:       gungnir
 Version:    %{_version}
-Release:    %{_release}
+Release:    %{_release}%{?dist}
 Summary:    The api layer to get the data from the database.
 
 Vendor:     Comcast
