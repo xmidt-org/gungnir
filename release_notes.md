@@ -1,2 +1,1 @@
-- switched database configuration from postgres to cassandra
-- bumped codex-db to v0.2.0
+
