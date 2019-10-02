@@ -189,9 +189,47 @@ capabilityConfig:
 # db provides the configuration for connecting to the database and database 
 # calls.
 db:
-  hosts: "db"
-  database: "devices"
+  ########################################
+  #   ycql config
+  ########################################
+  #  # hosts is and array of address and port used to connect to the cluster.
+  hosts:
+    - "db"
+  #  # username is the username to use when connecting to the database.
+  #  # (Optional)
+  #  username: "cassandra"
+  #
+  #  # password is the password to use when connecting to the database.
+  #  # (Optional)
+  #  password: "cassandra"
+  #
+  #  # database is the name of the database being connected to.
+  #  database: "devices"
+  #  # opTimeout is the timeout for database calls after svalinn is connected.
+  #  # If the opTimeout is set to 0, it defaults to 10s.
+  #  # (Optional) defaults to 10s
   opTimeout: 100ms
+
+#  # SSLRootCert is the root cert to use when connecting to the database.
+#  # The SSLKey and SSLCert must also be provided in order to connect securely.
+#  # (Optional)
+#  #sslRootCert: "/etc/svalinn/ca.crt"
+#
+#  # SSLKey is the SSL key to use when connecting to the database.  The
+#  # SSLRootCert and SSLCert must also be provided in order to connect securely.
+#  # (Optional)
+#  #sslKey: "/etc/svalinn/node.0.0.0.0.key"
+#
+#  # SSLCert is the SSL cert to use when connecting to the database.  The SSLKey
+#  # and SSLRootCert must also be provided in order to connect securely.
+#  # (Optional)
+#  #sslCert: "/etc/svalinn/node.0.0.0.0.crt"
+#
+#  # If you want to verify the hostname and server cert (like a wildcard for cass cluster) then you should turn this on
+#  # This option is basically the inverse of InSecureSkipVerify
+#  # See InSecureSkipVerify in http://golang.org/pkg/crypto/tls/ for more info
+#  # (Optional) defaults to false
+#  #enableHostVerification: false
 
 ########################################
 #   postgres config

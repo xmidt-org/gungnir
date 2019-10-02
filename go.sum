@@ -214,6 +214,8 @@ github.com/xmidt-org/codex-db v0.1.2 h1:zyKN1i808G61fnlJAm3cdKbTZIcejigHf4UaVcV7
 github.com/xmidt-org/codex-db v0.1.2/go.mod h1:sNfUvP41CMKncMmLvysGW35oZw8toeurxZoK97pEHuA=
 github.com/xmidt-org/codex-db v0.1.3-0.20190808222843-c56f57b13b7a h1:lzkqhvK5jwpiJN4EsM/tiFN2yAK26lqUyMuLKp9cDB0=
 github.com/xmidt-org/codex-db v0.1.3-0.20190808222843-c56f57b13b7a/go.mod h1:6yjozdS4PK2zv/onPQ0XZUzszHSIB8pXNRKlfaVTR8Y=
+github.com/xmidt-org/codex-db v0.2.0 h1:BDP6TEQOqzJkAe58dgL132Pja/xe6BegVSJpdw70C18=
+github.com/xmidt-org/codex-db v0.2.0/go.mod h1:3sauqorqztJTopTr797lJUDp9sPVN0hKDxWok0hFZfY=
 github.com/xmidt-org/voynicrypto v0.1.1 h1:hMqSOgYzpkbUUpgKxJcPTVRGdmDY0jem8PufsUikh+c=
 github.com/xmidt-org/voynicrypto v0.1.1/go.mod h1:YSw/rwukAL2tpkB6wSeuoCRBOIK2mhpV4OzJLX292fs=
 github.com/xmidt-org/webpa-common v1.1.0/go.mod h1:oCpKzOC+9h2vYHVzAU/06tDTQuBN4RZz+rhgIXptpOI=
