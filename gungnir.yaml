@@ -57,7 +57,7 @@ primary:
 # health defines the details needed for the health check endpoint.  The
 # health check endpoint is generally used by services (like AWS Route53
 # or consul) to determine if this particular machine is healthy or not.
-health: 
+health:
   # port provides the port number for the endpoint to bind to.
   # ":80" is ideal, but may require some special handling due to it being
   # a reserved (by the kernel) port.
@@ -189,27 +189,24 @@ capabilityConfig:
 # db provides the configuration for connecting to the database and database 
 # calls.
 db:
-  ########################################
-  #   ycql config
-  ########################################
-  #  # hosts is and array of address and port used to connect to the cluster.
+  # hosts is and array of address and port used to connect to the cluster.
   hosts:
     - "db"
-  #  # username is the username to use when connecting to the database.
-  #  # (Optional)
-  #  username: "cassandra"
-  #
-  #  # password is the password to use when connecting to the database.
-  #  # (Optional)
-  #  password: "cassandra"
-  #
-  #  # database is the name of the database being connected to.
-  #  database: "devices"
-  #  # opTimeout is the timeout for database calls after svalinn is connected.
-  #  # If the opTimeout is set to 0, it defaults to 10s.
-  #  # (Optional) defaults to 10s
+  # database is the name of the database being connected to.
+  database: "devices"
+  # opTimeout is the timeout for database calls after svalinn is connected.
+  # If the opTimeout is set to 0, it defaults to 10s.
+  # (Optional) defaults to 10s
   opTimeout: 100ms
 
+#  # username is the username to use when connecting to the database.
+#  # (Optional)
+#  username: "cassandra"
+#
+#  # password is the password to use when connecting to the database.
+#  # (Optional)
+#  password: "cassandra"
+#
 #  # SSLRootCert is the root cert to use when connecting to the database.
 #  # The SSLKey and SSLCert must also be provided in order to connect securely.
 #  # (Optional)
@@ -230,71 +227,6 @@ db:
 #  # See InSecureSkipVerify in http://golang.org/pkg/crypto/tls/ for more info
 #  # (Optional) defaults to false
 #  #enableHostVerification: false
-
-########################################
-#   postgres config
-########################################
-#  # server is the address and port used to connect to the server.
-#  server: "db:26257"
-#
-#  # username is the username to use when connecting to the database.
-#  username: "roachadmin"
-#
-#  # database is the name of the database being connected to.
-#  database: "devices"
-#
-#  # SSLRootCert is the root cert to use when connecting to the database.
-#  # The SSLKey and SSLCert must also be provided in order to connect securely.
-#  # (Optional)
-#  #sslRootCert: "/etc/gungnir/ca.crt"
-#
-#  # SSLKey is the SSL key to use when connecting to the database.  The
-#  # SSLRootCert and SSLCert must also be provided in order to connect securely.
-#  # (Optional)
-#  #sslKey: "/etc/svalinn/client.svalinn.key"
-#
-#  # SSLCert is the SSL cert to use when connecting to the database.  The SSLKey
-#  # and SSLRootCert must also be provided in order to connect securely.
-#  # (Optional)
-#  #sslCert: "/etc/svalinn/client.svalinn.crt"
-#
-#  # numRetries is the number of times to retry connecting to the database.  If
-#  # numRetries is below 1, there will be no attempts to retry.
-#  # (Optional)
-#  numRetries: 4
-#
-#  # waitTimeMult is the number to multiply by 1 second in between each attempt
-#  # to connect to the database. If there is only the initial attempt, this
-#  # value is not used.  If the multiple is set below 1, it defaults to 1.
-#  # (Optional) defaults to 1
-#  waitTimeMult: 5
-#
-#  # pingInterval is the time to wait in between pinging the database.  The ping
-#  # is a part of the health check for gungnir.  If pinging fails, gungnir will
-#  # report as unhealthy. If the ping interval is set to 0, it defaults to 1s.
-#  # (Optional) defaults to 1s
-#  pingInterval: 1s
-#
-#  # connectTimeout is the timeout for connecting to the database.  If
-#  # establishing a connection takes longer than this, it will fail.  If
-#  # the connectTimeout is set to 0, it defaults to 10s.
-#  # (Optional) defaults to 10s
-#  connectTimeout: 1m
-#
-#  # opTimeout is the timeout for database calls after gungnir is connected.
-#  # If the opTimeout is set to 0, it defaults to 10s.
-#  # (Optional) defaults to 10s
-#  opTimeout: 100ms
-#
-#  # maxIdleConns are the maximum number of idle connections allowed at one time.
-#  # If a value below 2 is chosen, it defaults to 2.
-#  # (Optional) defaults to 2
-#  #maxIdleConns: 2
-#
-#  # maxOpenConns are the maximum number of open connections allowed at one time.
-#  # If the value is 0, there is an unlimited number of connections.
-#  # (Optional)I
-#  #maxOpenConns: 0
 
 # getLimit is the maximum number of records one database get call will return.
 # (Optional)
@@ -320,15 +252,13 @@ retryInterval: 10s
 # this list.  At least one is required.  If there is no decryption, use the 
 # "none" configuration below.
 cipher:
-  - 
-    # type is the type of decryption.
+  - # type is the type of decryption.
     type: none
 
     # kid is the a further identifier for what kind of decryption should be used.
     kid: none
 
-  - 
-    # type is the type of decryption.
+  - # type is the type of decryption.
     type: rsa-sym
 
     # kid is a further identifier for what kind of decryption should be used.
@@ -338,7 +268,7 @@ cipher:
     # (Optional)
     params:
       hash: SHA512
-    
+
     # keys are the keys to use for this form of decryption.
     # (Optional)
     keys:
