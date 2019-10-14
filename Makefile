@@ -2,10 +2,16 @@ DEFAULT: build
 
 GO           ?= go
 GOFMT        ?= $(GO)fmt
+DOCKER_ORG   := xmidt
+APP          := gungnir
 FIRST_GOPATH := $(firstword $(subst :, ,$(shell $(GO) env GOPATH)))
 GUNGNIR    := $(FIRST_GOPATH)/bin/gungnir
 
-PROGVER = $(shell grep 'applicationVersion.*= ' main.go | awk '{print $$3}' | sed -e 's/\"//g')
+PROGVER = $(shell git describe --tags `git rev-list --tags --max-count=1` | tail -1 | sed 's/v\(.*\)/\1/')
+RPM_VERSION=$(shell echo $(PROGVER) | sed 's/\(.*\)-\(.*\)/\1/')
+RPM_RELEASE=$(shell echo $(PROGVER) | sed -n 's/.*-\(.*\)/\1/p'  | grep . && (echo "$(echo $(PROGVER) | sed 's/.*-\(.*\)/\1/')") || echo "1")
+BUILDTIME = $(shell date -u '+%Y-%m-%d %H:%M:%S')
+GITCOMMIT = $(shell git rev-parse --short HEAD)
 
 .PHONY: go-mod-vendor
 go-mod-vendor:
@@ -17,16 +23,16 @@ build: go-mod-vendor
 
 rpm:
 	mkdir -p ./OPATH/SOURCES
-	tar -czvf ./OPATH/SOURCES/gungnir-$(PROGVER).tar.gz . --exclude ./.git --exclude ./OPATH --exclude ./conf --exclude ./deploy --exclude ./vendor
-	cp conf/gungnir.service ./OPATH/SOURCES/
-	cp conf/gungnir.yaml  ./OPATH/SOURCES/
+	tar -czvf ./OPATH/SOURCES/$(APP)-$(RPM_VERSION)-$(RPM_RELEASE).tar.gz . --exclude ./.git --exclude ./OPATH --exclude ./conf --exclude ./deploy --exclude ./vendor
+	cp conf/$(APP).service ./OPATH/SOURCES/
+	cp conf/$(APP).yaml  ./OPATH/SOURCES/
 	cp LICENSE ./OPATH/SOURCES/
 	cp NOTICE ./OPATH/SOURCES/
 	cp CHANGELOG.md ./OPATH/SOURCES/
 	rpmbuild --define "_topdir $(CURDIR)/OPATH" \
-    		--define "_version $(PROGVER)" \
-    		--define "_release 1" \
-    		-ba deploy/packaging/gungnir.spec
+		--define "_version $(RPM_VERSION)" \
+		--define "_release $(RPM_RELEASE)" \
+		-ba deploy/packaging/$(APP).spec
 
 .PHONY: version
 version:
@@ -44,26 +50,34 @@ endif
 .PHONY: update-version
 update-version:
 	@echo "Update Version $(PROGVER) to $(RUN_ARGS)"
-	sed -i "s/$(PROGVER)/$(RUN_ARGS)/g" main.go
+	git tag v$(RUN_ARGS)
 
 
 .PHONY: install
 install: go-mod-vendor
-	echo go build -o $(GUNGNIR) $(PROGVER)
+	go install -ldflags "-X 'main.BuildTime=$(BUILDTIME)' -X main.GitCommit=$(GITCOMMIT) -X main.Version=$(PROGVER)"
 
 .PHONY: release-artifacts
 release-artifacts: go-mod-vendor
-	GOOS=darwin GOARCH=amd64 go build -o ./OPATH/gungnir-$(PROGVER).darwin-amd64
-	GOOS=linux  GOARCH=amd64 go build -o ./OPATH/gungnir-$(PROGVER).linux-amd64
+	GOOS=darwin GOARCH=amd64 go build -ldflags "-X 'main.BuildTime=$(BUILDTIME)' -X main.GitCommit=$(GITCOMMIT) -X main.Version=$(PROGVER)" -o ./OPATH/gungnir-$(PROGVER).darwin-amd64
+	GOOS=linux  GOARCH=amd64 go build -ldflags "-X 'main.BuildTime=$(BUILDTIME)' -X main.GitCommit=$(GITCOMMIT) -X main.Version=$(PROGVER)" -o ./OPATH/gungnir-$(PROGVER).linux-amd64
 
 .PHONY: docker
 docker:
-	docker build -f ./deploy/Dockerfile -t gungnir:$(PROGVER) .
+	docker build \
+		--build-arg VERSION=$(PROGVER) \
+		--build-arg GITCOMMIT=$(GITCOMMIT) \
+		--build-arg BUILDTIME='$(BUILDTIME)' \
+		-f ./deploy/Dockerfile -t $(DOCKER_ORG)/gungnir:$(PROGVER) .
 
 # build docker without running modules
 .PHONY: local-docker
 local-docker:
-	docker build -f ./deploy/Dockerfile.local -t gungnir:local .
+	docker build \
+		--build-arg VERSION=$(PROGVER)+local \
+		--build-arg GITCOMMIT=$(GITCOMMIT) \
+		--build-arg BUILDTIME='$(BUILDTIME)' \
+		-f ./deploy/Dockerfile.local -t $(DOCKER_ORG)/gungnir:local .
 
 .PHONY: style
 style:

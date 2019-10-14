@@ -20,11 +20,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	olog "log"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
+	"runtime"
 	"time"
 
 	"github.com/xmidt-org/codex-db/retry"
@@ -57,7 +59,12 @@ import (
 const (
 	applicationName, apiBase = "gungnir", "/api/v1"
 	DEFAULT_KEY_ID           = "current"
-	applicationVersion       = "0.10.0"
+)
+
+var (
+	GitCommit = "undefined"
+	Version   = "undefined"
+	BuildTime = "undefined"
 )
 
 type Config struct {
@@ -224,10 +231,19 @@ func printVersion(f *pflag.FlagSet, arguments []string) (error, bool) {
 	}
 
 	if *printVer {
-		fmt.Println(applicationVersion)
+		printVersionInfo(os.Stdout)
 		return nil, true
 	}
 	return nil, false
+}
+
+func printVersionInfo(writer io.Writer) {
+	fmt.Fprintf(writer, "%s:\n", applicationName)
+	fmt.Fprintf(writer, "  version: \t%s\n", Version)
+	fmt.Fprintf(writer, "  go version: \t%s\n", runtime.Version())
+	fmt.Fprintf(writer, "  built time: \t%s\n", BuildTime)
+	fmt.Fprintf(writer, "  git commit: \t%s\n", GitCommit)
+	fmt.Fprintf(writer, "  os/arch: \t%s/%s\n", runtime.GOOS, runtime.GOARCH)
 }
 
 func exitIfError(logger log.Logger, err error) {
