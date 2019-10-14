@@ -17,6 +17,19 @@ found in the database.  It can also return the events themselves, which are
 [WRP Messages](https://github.com/xmidt-org/wrp-c/wiki/Web-Routing-Protocol).
 For more information on how Gungnir fits into codex, check out [the codex README](https://github.com/xmidt-org/codex).
 
+## Table of Contents
+
+- [Code of Conduct](#code-of-conduct)
+- [Details](#details)
+- [Build](#build)
+- [Deploy](#deploy)
+- [Contributing](#contributing)
+
+## Code of Conduct
+
+This project and everyone participating in it are governed by the [XMiDT Code Of Conduct](https://xmidt.io/code_of_conduct/). 
+By participating, you agree to this Code.
+
 ## Details
 
 Gungnir has two endpoints currently:
