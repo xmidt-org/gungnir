@@ -3,12 +3,14 @@ MAINTAINER Jack Murdock <jack_murdock@comcast.com>
 
 WORKDIR /go/src/github.com/xmidt-org/gungnir
 ARG VERSION=undefined
+ARG GITCOMMIT=undefined
+ARG BUILDTIME=undefined
 
 RUN apk add --update git curl
 
 COPY . .
 
-RUN GO111MODULE=on go build -ldflags "-X 'main.BuildTime=`date -u '+%Y-%m-%d %H:%M:%S'`' -X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$VERSION" -o gungnir_linux_amd64 github.com/xmidt-org/gungnir
+RUN GO111MODULE=on go build -ldflags "-X 'main.BuildTime=${BUILDTIME}' -X main.GitCommit=${GITCOMMIT} -X main.Version=${VERSION}" -o gungnir_linux_amd64 github.com/xmidt-org/gungnir
 
 FROM alpine
 
