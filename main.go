@@ -52,8 +52,8 @@ import (
 	"github.com/xmidt-org/webpa-common/logging"
 	"github.com/xmidt-org/webpa-common/server"
 
-	"github.com/InVisionApp/go-health"
-	"github.com/InVisionApp/go-health/handlers"
+	"github.com/InVisionApp/go-health/v2"
+	"github.com/InVisionApp/go-health/v2/handlers"
 )
 
 const (
