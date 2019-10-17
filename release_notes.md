@@ -1,2 +1,3 @@
 - bumped db package
 - fixed go health package
+- fix status endpoint
