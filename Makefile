@@ -2,10 +2,9 @@ DEFAULT: build
 
 GO           ?= go
 GOFMT        ?= $(GO)fmt
-DOCKER_ORG   := xmidt
 APP          := gungnir
 FIRST_GOPATH := $(firstword $(subst :, ,$(shell $(GO) env GOPATH)))
-GUNGNIR    := $(FIRST_GOPATH)/bin/gungnir
+BINARY    	 := $(FIRST_GOPATH)/bin/$(APP)
 
 PROGVER = $(shell git describe --tags `git rev-list --tags --max-count=1` | tail -1 | sed 's/v\(.*\)/\1/')
 RPM_VERSION=$(shell echo $(PROGVER) | sed 's/\(.*\)-\(.*\)/\1/')
@@ -19,25 +18,24 @@ go-mod-vendor:
 
 .PHONY: build
 build: go-mod-vendor
-	$(GO) build -o gungnir
+	$(GO) build -o $(APP) -ldflags "-X 'main.BuildTime=$(BUILDTIME)' -X main.GitCommit=$(GITCOMMIT) -X main.Version=$(PROGVER)"
 
 rpm:
-	mkdir -p ./OPATH/SOURCES
-	tar -czvf ./OPATH/SOURCES/$(APP)-$(RPM_VERSION)-$(RPM_RELEASE).tar.gz . --exclude ./.git --exclude ./OPATH --exclude ./conf --exclude ./deploy --exclude ./vendor
-	cp conf/$(APP).service ./OPATH/SOURCES/
-	cp conf/$(APP).yaml  ./OPATH/SOURCES/
-	cp LICENSE ./OPATH/SOURCES/
-	cp NOTICE ./OPATH/SOURCES/
-	cp CHANGELOG.md ./OPATH/SOURCES/
-	rpmbuild --define "_topdir $(CURDIR)/OPATH" \
-		--define "_version $(RPM_VERSION)" \
-		--define "_release $(RPM_RELEASE)" \
-		-ba deploy/packaging/$(APP).spec
+	mkdir -p ./.ignore/SOURCES
+	tar -czvf ./.ignore/SOURCES/$(APP)-$(RPM_VERSION)-$(RPM_RELEASE).tar.gz . --exclude ./.git --exclude ./OPATH --exclude ./conf --exclude ./deploy --exclude ./vendor
+	cp conf/$(APP).service ./.ignore/SOURCES/
+	cp conf/$(APP).yaml  ./.ignore/SOURCES/
+	cp LICENSE ./.ignore/SOURCES/
+	cp NOTICE ./.ignore/SOURCES/
+	cp CHANGELOG.md ./.ignore/SOURCES/
+	rpmbuild --define "_topdir $(CURDIR)/.ignore" \
+    		--define "_version $(RPM_VERSION)" \
+    		--define "_release $(RPM_RELEASE)" \
+    		-ba deploy/packaging/$(APP).spec
 
 .PHONY: version
 version:
 	@echo $(PROGVER)
-
 
 # If the first argument is "update-version"...
 ifeq (update-version,$(firstword $(MAKECMDGOALS)))
@@ -55,12 +53,13 @@ update-version:
 
 .PHONY: install
 install: go-mod-vendor
-	go install -ldflags "-X 'main.BuildTime=$(BUILDTIME)' -X main.GitCommit=$(GITCOMMIT) -X main.Version=$(PROGVER)"
+	$(GO) install -ldflags "-X 'main.BuildTime=$(BUILDTIME)' -X main.GitCommit=$(GITCOMMIT) -X main.Version=$(PROGVER)"
 
 .PHONY: release-artifacts
 release-artifacts: go-mod-vendor
-	GOOS=darwin GOARCH=amd64 go build -ldflags "-X 'main.BuildTime=$(BUILDTIME)' -X main.GitCommit=$(GITCOMMIT) -X main.Version=$(PROGVER)" -o ./OPATH/gungnir-$(PROGVER).darwin-amd64
-	GOOS=linux  GOARCH=amd64 go build -ldflags "-X 'main.BuildTime=$(BUILDTIME)' -X main.GitCommit=$(GITCOMMIT) -X main.Version=$(PROGVER)" -o ./OPATH/gungnir-$(PROGVER).linux-amd64
+	mkdir -p ./.ignore
+	GOOS=darwin GOARCH=amd64 $(GO) build -o ./.ignore/$(APP)-$(PROGVER).darwin-amd64 -ldflags "-X 'main.BuildTime=$(BUILDTIME)' -X main.GitCommit=$(GITCOMMIT) -X main.Version=$(PROGVER)"
+	GOOS=linux  GOARCH=amd64 $(GO) build -o ./.ignore/$(APP)-$(PROGVER).linux-amd64 -ldflags "-X 'main.BuildTime=$(BUILDTIME)' -X main.GitCommit=$(GITCOMMIT) -X main.Version=$(PROGVER)"
 
 .PHONY: docker
 docker:
@@ -68,28 +67,27 @@ docker:
 		--build-arg VERSION=$(PROGVER) \
 		--build-arg GITCOMMIT=$(GITCOMMIT) \
 		--build-arg BUILDTIME='$(BUILDTIME)' \
-		-f ./deploy/Dockerfile -t $(DOCKER_ORG)/gungnir:$(PROGVER) .
+		-f ./deploy/Dockerfile -t $(APP):$(PROGVER) .
 
-# build docker without running modules
 .PHONY: local-docker
 local-docker:
 	docker build \
 		--build-arg VERSION=$(PROGVER)+local \
 		--build-arg GITCOMMIT=$(GITCOMMIT) \
 		--build-arg BUILDTIME='$(BUILDTIME)' \
-		-f ./deploy/Dockerfile.local -t $(DOCKER_ORG)/gungnir:local .
+		-f ./deploy/Dockerfile.local -t $(APP):local .
 
 .PHONY: style
 style:
-	! gofmt -d $$(find . -path ./vendor -prune -o -name '*.go' -print) | grep '^'
+	! $(GOFMT) -d $$(find . -path ./vendor -prune -o -name '*.go' -print) | grep '^'
 
 .PHONY: test
 test: go-mod-vendor
-	GO111MODULE=on go test -v -race  -coverprofile=cover.out ./...
+	GO111MODULE=on $(GO) test -v -race  -coverprofile=cover.out ./...
 
 .PHONY: test-cover
 test-cover: test
-	go tool cover -html=cover.out
+	$(GO) tool cover -html=cover.out
 
 .PHONY: codecov
 codecov: test
@@ -101,4 +99,4 @@ it:
 
 .PHONY: clean
 clean:
-	rm -rf ./gungnir ./OPATH ./coverage.txt ./vendor
+	rm -rf ./$(APP) ./.ignore ./coverage.txt ./vendor
