@@ -22,7 +22,7 @@ build: go-mod-vendor
 
 rpm:
 	mkdir -p ./.ignore/SOURCES
-	tar -czvf ./.ignore/SOURCES/$(APP)-$(RPM_VERSION)-$(RPM_RELEASE).tar.gz . --exclude ./.git --exclude ./OPATH --exclude ./conf --exclude ./deploy --exclude ./vendor
+	tar -czvf ./.ignore/SOURCES/$(APP)-$(RPM_VERSION)-$(RPM_RELEASE).tar.gz . --exclude ./.git --exclude ./.ignore --exclude ./conf --exclude ./deploy --exclude ./vendor
 	cp conf/$(APP).service ./.ignore/SOURCES/
 	cp conf/$(APP).yaml  ./.ignore/SOURCES/
 	cp LICENSE ./.ignore/SOURCES/
