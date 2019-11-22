@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.10.1]
+- bumped db package to v0.3.1
+- fixed go health package
+- fix status endpoint
+
+
 ## [v0.10.0]
 - switched database configuration from postgres to cassandra
 - bumped codex-db to v0.2.0
@@ -139,7 +145,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.10.1...HEAD
+[v0.10.1]: https://github.com/xmidt-org/gungnir/compare/v0.10.1-rc.2...v0.10.1
 [v0.10.0]: https://github.com/xmidt-org/gungnir/compare/v0.9.2...v0.10.0
 [v0.9.2]: https://github.com/xmidt-org/gungnir/compare/v0.9.1...v0.9.2
 [v0.9.1]: https://github.com/xmidt-org/gungnir/compare/v0.9.0...v0.9.1
