@@ -46,10 +46,11 @@ import (
 //go:generate swagger generate spec -m -o swagger.spec
 
 type App struct {
-	eventGetter db.RecordGetter
-	logger      log.Logger
-	getLimit    int
-	decrypters  voynicrypto.Ciphers
+	eventGetter    db.RecordGetter
+	logger         log.Logger
+	getEventLimit  int
+	getStatusLimit int
+	decrypters     voynicrypto.Ciphers
 
 	measures *Measures
 }
@@ -97,7 +98,7 @@ type ErrResponse struct {
 
 func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 
-	records, hErr := app.eventGetter.GetRecords(deviceID, app.getLimit)
+	records, hErr := app.eventGetter.GetRecords(deviceID, app.getEventLimit)
 	events := []Event{}
 
 	// if both have errors or are empty, return an error

@@ -191,11 +191,11 @@ func TestGetDeviceInfo(t *testing.T) {
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
 			app := App{
-				eventGetter: mockGetter,
-				logger:      logging.DefaultLogger(),
-				decrypters:  ciphers,
-				measures:    m,
-				getLimit:    5,
+				eventGetter:   mockGetter,
+				logger:        logging.DefaultLogger(),
+				decrypters:    ciphers,
+				measures:      m,
+				getEventLimit: 5,
 			}
 			p.Assert(t, UnmarshalFailureCounter)(xmetricstest.Value(0.0))
 			events, err := app.getDeviceInfo("test")
@@ -274,11 +274,11 @@ func TestHandleGetEvents(t *testing.T) {
 			m := NewMeasures(p)
 
 			app := App{
-				eventGetter: mockGetter,
-				getLimit:    5,
-				logger:      logging.DefaultLogger(),
-				decrypters:  ciphers,
-				measures:    m,
+				eventGetter:   mockGetter,
+				getEventLimit: 5,
+				logger:        logging.DefaultLogger(),
+				decrypters:    ciphers,
+				measures:      m,
 			}
 			rr := httptest.NewRecorder()
 			request := mux.SetURLVars(
