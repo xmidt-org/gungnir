@@ -1,1 +1,2 @@
 - added getStatusLimit
+- bumped codex-db to v0.3.3
