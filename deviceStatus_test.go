@@ -198,11 +198,11 @@ func TestGetStatusInfo(t *testing.T) {
 			}
 
 			app := App{
-				eventGetter: mockGetter,
-				getLimit:    5,
-				logger:      logging.DefaultLogger(),
-				decrypters:  ciphers,
-				measures:    m,
+				eventGetter:   mockGetter,
+				getStatusLimit: 5,
+				logger:        logging.DefaultLogger(),
+				decrypters:    ciphers,
+				measures:      m,
 			}
 			status, err := app.getStatusInfo("test")
 
@@ -301,11 +301,11 @@ func TestHandleGetStatus(t *testing.T) {
 			}
 
 			app := App{
-				eventGetter: mockGetter,
-				getLimit:    5,
-				logger:      logging.DefaultLogger(),
-				decrypters:  ciphers,
-				measures:    m,
+				eventGetter:   mockGetter,
+				getStatusLimit: 5,
+				logger:        logging.DefaultLogger(),
+				decrypters:    ciphers,
+				measures:      m,
 			}
 			rr := httptest.NewRecorder()
 			request := mux.SetURLVars(

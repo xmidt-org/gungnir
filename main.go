@@ -69,7 +69,8 @@ var (
 
 type Config struct {
 	Db               cassandra.Config
-	GetLimit         int
+	GetEventsLimit   int
+	GetStatusLimit   int
 	GetRetries       int
 	RetryInterval    time.Duration
 	Health           HealthConfig
@@ -131,6 +132,7 @@ func gungnir(arguments []string) {
 
 	v.Unmarshal(config)
 	dbConfig := config.Db
+	validateConfig(config)
 
 	//vaultClient, err := xvault.Initialize(v)
 	//if err != nil {
@@ -165,11 +167,12 @@ func gungnir(arguments []string) {
 	measures := NewMeasures(metricsRegistry)
 	// MARK: Actual server logic
 	app := &App{
-		eventGetter: retryService,
-		logger:      logger,
-		getLimit:    config.GetLimit,
-		decrypters:  decrypters,
-		measures:    measures,
+		eventGetter:    retryService,
+		logger:         logger,
+		getEventLimit:  config.GetEventsLimit,
+		getStatusLimit: config.GetStatusLimit,
+		decrypters:     decrypters,
+		measures:       measures,
 	}
 
 	logging.GetLogger(context.Background())
@@ -253,6 +256,20 @@ func exitIfError(logger log.Logger, err error) {
 		}
 		fmt.Fprintf(os.Stderr, "Error: %#v\n", err.Error())
 		os.Exit(1)
+	}
+}
+
+const (
+	defaultGetEventsLimit = 50
+	defaultGetStatusLimit = 10
+)
+
+func validateConfig(config *Config) {
+	if config.GetEventsLimit < 1 {
+		config.GetEventsLimit = defaultGetEventsLimit
+	}
+	if config.GetStatusLimit < 1 {
+		config.GetStatusLimit = defaultGetStatusLimit
 	}
 }
 
