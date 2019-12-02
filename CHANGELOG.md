@@ -19,7 +19,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - fixed go health package
 - fix status endpoint
 
-
 ## [v0.10.0]
 - switched database configuration from postgres to cassandra
 - bumped codex-db to v0.2.0
