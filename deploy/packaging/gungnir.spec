@@ -1,9 +1,9 @@
-%define AutoReqProv: no
 %define __os_install_post %{nil}
+%define debug_package %{nil}
 
 Name:       gungnir
-Version:    %{_version}
-Release:    %{_release}%{?dist}
+Version:    {{{ git_tag_version }}}
+Release:    1%{?dist}
 Summary:    The api layer to get the data from the database.
 
 Vendor:     Comcast
@@ -11,19 +11,23 @@ Packager:   Comcast
 Group:      System Environment/Daemons
 License:    ASL 2.0
 URL:        https://github.com/xmidt-org/gungnir
-Source0:    %{name}-%{_version}-%{_release}.tar.gz
+Source0:    %{name}-%{_version}.tar.gz
 
 Prefix:     /opt
 BuildRoot:  %{_tmppath}/%{name}
 BuildRequires: systemd
 BuildRequires: golang >= 1.11
+BuildRequires: git
 
 %description
 The spear used with shield to help our users via the codex project
 aka. The api layer to get the data from the database.
 
+%prep
+%setup -q
+
 %build
-GO111MODULE=on go build -ldflags "-X 'main.BuildTime=`date -u '+%Y-%m-%d %H:%M:%S'`' -X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=%{_version}" -o $RPM_SOURCE_DIR/%{name} %{_topdir}/..
+GO111MODULE=on GOPROXY=https://proxy.golang.org go build -ldflags "-linkmode=external -X 'main.BuildTime=`date -u '+%Y-%m-%d %H:%M:%S'`' -X main.GitCommit={{{ git_short_hash }}} -X main.Version=%{version}" -o %{name} .
 
 %install
 echo rm -rf %{buildroot}
@@ -34,13 +38,13 @@ echo rm -rf %{buildroot}
 %{__install} -d %{buildroot}%{_localstatedir}/run/%{name}
 %{__install} -d %{buildroot}%{_unitdir}
 
-%{__install} -p $RPM_SOURCE_DIR/%{name} %{buildroot}%{_bindir}
-%{__install} -p $RPM_SOURCE_DIR/%{name}.service %{buildroot}%{_unitdir}/%{name}.service
-%{__install} -p $RPM_SOURCE_DIR/%{name}.yaml %{buildroot}%{_sysconfdir}/%{name}/%{name}.yaml
+%{__install} -p %{name} %{buildroot}%{_bindir}
+%{__install} -p conf/%{name}.service %{buildroot}%{_unitdir}/%{name}.service
+%{__install} -p %{name}.yaml %{buildroot}%{_sysconfdir}/%{name}/%{name}.yaml
 
 %files
 %defattr(644, root, root, 755)
-%doc $RPM_SOURCE_DIR/LICENSE $RPM_SOURCE_DIR/CHANGELOG.md $RPM_SOURCE_DIR/NOTICE
+%doc LICENSE CHANGELOG.md NOTICE
 
 %attr(755, root, root) %{_bindir}/%{name}
 
