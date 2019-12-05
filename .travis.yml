@@ -49,6 +49,7 @@ jobs:
           all_branches: true
           tags: true
         provider: releases
+        file_glob: true
         api_key: "$GH_TOKEN"
         file: ./.ignore/*
         skip_cleanup: true

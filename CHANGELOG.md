@@ -5,9 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- added getStatusLimit
-- bumped codex-db to v0.3.3
-- Updated release pipeline to use travis
+
+## [v0.11.0]
+- added getStatusLimit [#92](https://github.com/xmidt-org/gungnir/pull/92)
+- Updated release pipeline to use travis [#93](https://github.com/xmidt-org/gungnir/pull/93)
+- bumped codex-db to v0.4.0 and removed db retry logic [#94](https://github.com/xmidt-org/gungnir/pull/94)
+- bumped webpa-common to v1.5.1 [#94](https://github.com/xmidt-org/gungnir/pull/94)
+- bumped bascule to v0.7.0 and updated constructor setup to match [#94](https://github.com/xmidt-org/gungnir/pull/94)
 
 ## [v0.10.1]
 - bumped db package to v0.3.1
@@ -117,7 +121,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.10.1...HEAD
+[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.11.0...HEAD
+[v0.11.0]: https://github.com/xmidt-org/gungnir/compare/v0.10.1...v0.11.0
 [v0.10.1]: https://github.com/xmidt-org/gungnir/compare/v0.10.0...v0.10.1
 [v0.10.0]: https://github.com/xmidt-org/gungnir/compare/v0.9.2...v0.10.0
 [v0.9.2]: https://github.com/xmidt-org/gungnir/compare/v0.9.1...v0.9.2

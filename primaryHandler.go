@@ -40,7 +40,7 @@ import (
 	"github.com/go-kit/kit/log"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
-	"github.com/xmidt-org/codex-db"
+	db "github.com/xmidt-org/codex-db"
 )
 
 //go:generate swagger generate spec -m -o swagger.spec
@@ -209,7 +209,7 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 	writer.Write(data)
 }
 
-func authChain(basicAuth []string, jwtVal JWTValidator, capabilityConfig basculechecks.CapabilityConfig, logger log.Logger, registry xmetrics.Registry) (alice.Chain, error) {
+func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck CapabilityConfig, logger log.Logger, registry xmetrics.Registry) (alice.Chain, error) {
 	var m *basculechecks.JWTValidationMeasures
 
 	if registry != nil {
@@ -231,7 +231,11 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityConfig bascule
 	}
 	logging.Debug(logger).Log(logging.MessageKey(), "Created list of allowed basic auths", "allowed", basicAllowed, "config", basicAuth)
 
-	options := []basculehttp.COption{basculehttp.WithCLogger(GetLogger), basculehttp.WithCErrorResponseFunc(listener.OnErrorResponse)}
+	options := []basculehttp.COption{
+		basculehttp.WithCLogger(GetLogger),
+		basculehttp.WithCErrorResponseFunc(listener.OnErrorResponse),
+		basculehttp.WithParseURLFunc(basculehttp.CreateRemovePrefixURLFunc(apiBase, basculehttp.DefaultParseURLFunc)),
+	}
 	if len(basicAllowed) > 0 {
 		options = append(options, basculehttp.WithTokenFactory("Basic", basculehttp.BasicTokenFactory(basicAllowed)))
 	}
@@ -259,8 +263,12 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityConfig bascule
 	}
 
 	// only add capability check if the configuration is set
-	if capabilityConfig.FirstPiece != "" && capabilityConfig.SecondPiece != "" && capabilityConfig.ThirdPiece != "" {
-		bearerRules = append(bearerRules, bascule.CreateListAttributeCheck("capabilities", basculechecks.CreateValidCapabilityCheck(capabilityConfig)))
+	if capabilityCheck.Prefix != "" {
+		check, err := basculechecks.CreateValidCapabilityCheck(capabilityCheck.Prefix, capabilityCheck.AcceptAllMethod)
+		if err != nil {
+			return alice.Chain{}, emperror.With(err, "failed to create capability check")
+		}
+		bearerRules = append(bearerRules, bascule.CreateListAttributeCheck("capabilities", check))
 	}
 
 	authEnforcer := basculehttp.NewEnforcer(
