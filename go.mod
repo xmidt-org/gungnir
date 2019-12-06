@@ -12,9 +12,9 @@ require (
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.4.0
-	github.com/xmidt-org/bascule v0.5.0
-	github.com/xmidt-org/codex-db v0.3.3
+	github.com/xmidt-org/bascule v0.7.0
+	github.com/xmidt-org/codex-db v0.4.0
 	github.com/xmidt-org/voynicrypto v0.1.1
-	github.com/xmidt-org/webpa-common v1.4.0
+	github.com/xmidt-org/webpa-common v1.5.1
 	github.com/xmidt-org/wrp-go v1.3.4
 )

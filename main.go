@@ -29,7 +29,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/xmidt-org/codex-db/retry"
+	dbretry "github.com/xmidt-org/codex-db/retry"
 
 	"github.com/xmidt-org/codex-db/cassandra"
 
@@ -38,7 +38,6 @@ import (
 	"github.com/xmidt-org/bascule"
 	"github.com/xmidt-org/bascule/key"
 
-	"github.com/xmidt-org/webpa-common/basculechecks"
 	"github.com/xmidt-org/webpa-common/secure"
 
 	"github.com/go-kit/kit/log"
@@ -68,20 +67,23 @@ var (
 )
 
 type Config struct {
-	Db               cassandra.Config
-	GetEventsLimit   int
-	GetStatusLimit   int
-	GetRetries       int
-	RetryInterval    time.Duration
-	Health           HealthConfig
-	AuthHeader       []string
-	JwtValidator     JWTValidator
-	CapabilityConfig basculechecks.CapabilityConfig
+	Db              cassandra.Config
+	GetEventsLimit  int
+	GetStatusLimit  int
+	Health          HealthConfig
+	AuthHeader      []string
+	JwtValidator    JWTValidator
+	CapabilityCheck CapabilityConfig
 }
 
 type HealthConfig struct {
 	Port     string
 	Endpoint string
+}
+
+type CapabilityConfig struct {
+	Prefix          string
+	AcceptAllMethod string
 }
 
 type JWTValidator struct {
@@ -149,25 +151,19 @@ func gungnir(arguments []string) {
 
 	database, err := cassandra.CreateDbConnection(dbConfig, metricsRegistry, serverHealth)
 	exitIfError(logger, emperror.Wrap(err, "failed to initialize database connection"))
-	retryService := dbretry.CreateRetryRGService(
-		database,
-		dbretry.WithRetries(config.GetRetries),
-		dbretry.WithInterval(config.RetryInterval),
-		dbretry.WithMeasures(metricsRegistry),
-	)
 
 	cipherOptions, err := voynicrypto.FromViper(v)
 	exitIfError(logger, emperror.Wrap(err, "failed to initialize cipher config"))
 	decrypters := voynicrypto.PopulateCiphers(cipherOptions, logger)
 
-	gungnirHandler, err := authChain(config.AuthHeader, config.JwtValidator, config.CapabilityConfig, logger, metricsRegistry)
+	gungnirHandler, err := authChain(config.AuthHeader, config.JwtValidator, config.CapabilityCheck, logger, metricsRegistry)
 	exitIfError(logger, emperror.Wrap(err, "failed to setup auth chain"))
 
 	router := mux.NewRouter()
 	measures := NewMeasures(metricsRegistry)
 	// MARK: Actual server logic
 	app := &App{
-		eventGetter:    retryService,
+		eventGetter:    database,
 		logger:         logger,
 		getEventLimit:  config.GetEventsLimit,
 		getStatusLimit: config.GetStatusLimit,
