@@ -168,7 +168,7 @@ jwtValidator:
 # capabilities.  If this isn't provided, no checking is done.  The capability 
 # is expected to have the format:
 #
-# {prefix}:{endpoint}:{method}
+# {prefix}{endpoint}:{method}
 #
 # The prefix can be a regular expression.  If it's empty, no capability check 
 # is done.  The endpoint is a regular expression that should match the endpoint
