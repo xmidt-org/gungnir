@@ -2,6 +2,7 @@ DEFAULT: build
 
 GO           ?= go
 GOFMT        ?= $(GO)fmt
+DOCKER_ORG   := xmidt
 APP          := gungnir
 
 PROGVER = $(shell git describe --tags `git rev-list --tags --max-count=1` | tail -1 | sed 's/v\(.*\)/\1/')
@@ -50,7 +51,7 @@ docker:
 		--build-arg VERSION=$(PROGVER) \
 		--build-arg GITCOMMIT=$(GITCOMMIT) \
 		--build-arg BUILDTIME='$(BUILDTIME)' \
-		-f ./deploy/Dockerfile -t $(APP):$(PROGVER) .
+		-f ./deploy/Dockerfile -t $(DOCKER_ORG)/$(APP):$(PROGVER) .
 
 .PHONY: local-docker
 local-docker:
@@ -58,7 +59,7 @@ local-docker:
 		--build-arg VERSION=$(PROGVER)+local \
 		--build-arg GITCOMMIT=$(GITCOMMIT) \
 		--build-arg BUILDTIME='$(BUILDTIME)' \
-		-f ./deploy/Dockerfile.local -t $(APP):local .
+		-f ./deploy/Dockerfile.local -t $(DOCKER_ORG)/$(APP):local .
 
 .PHONY: style
 style:
