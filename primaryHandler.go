@@ -96,17 +96,60 @@ type ErrResponse struct {
 	Code int `json:"code"`
 }
 
-func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
+func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string) ([]Event, string, error) {
 
-	records, hErr := app.eventGetter.GetRecords(deviceID, app.getEventLimit)
-	events := []Event{}
-
+	records, hErr := app.eventGetter.GetRecordsAfter(deviceID, app.getEventLimit, requestHash)
 	// if both have errors or are empty, return an error
 	if hErr != nil {
-		return events, serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID),
+		return []Event{}, "", serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID, "hash", requestHash),
+			http.StatusInternalServerError}
+	}
+	if len(records) == 0 {
+		// TODO: handle logic for long poll
+	}
+
+	hash, err := app.eventGetter.GetLatestHash(records)
+	if err != nil {
+		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error())
+	}
+	events := app.parseRecords(records)
+
+	if len(events) == 0 {
+		// TODO: Timeout Error
+		return events, "", serverErr{emperror.With(errors.New("No events found for device id after hash"), "device id", deviceID, "hash", requestHash),
+			http.StatusNotFound}
+	}
+	app.measures.EventsReturnedCount.Add(float64(len(events)))
+
+	return events, hash, nil
+}
+
+func (app *App) getDeviceInfo(deviceID string) ([]Event, string, error) {
+
+	records, hErr := app.eventGetter.GetRecords(deviceID, app.getEventLimit)
+	// if both have errors or are empty, return an error
+	if hErr != nil && len(records) == 0 {
+		return []Event{}, "", serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID),
 			http.StatusInternalServerError}
 	}
 
+	hash, err := app.eventGetter.GetLatestHash(records)
+	if err != nil {
+		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error())
+	}
+	events := app.parseRecords(records)
+
+	if len(events) == 0 {
+		return events, "", serverErr{emperror.With(errors.New("No events found for device id"), "device id", deviceID),
+			http.StatusNotFound}
+	}
+	app.measures.EventsReturnedCount.Add(float64(len(events)))
+
+	return events, hash, nil
+}
+
+func (app *App) parseRecords(records []db.Record) []Event {
+	events := []Event{}
 	// if all is good, unmarshal everything
 	for _, record := range records {
 		// if the record is expired, don't include it
@@ -146,13 +189,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 
 		events = append(events, event)
 	}
-
-	if len(events) == 0 {
-		return events, serverErr{emperror.With(errors.New("No events found for device id"), "device id", deviceID),
-			http.StatusNotFound}
-	}
-	app.measures.EventsReturnedCount.Add(float64(len(events)))
-	return events, nil
+	return events
 }
 
 /*
@@ -178,8 +215,9 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
  */
 func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Request) {
 	var (
-		d   []Event
-		err error
+		d    []Event
+		hash string
+		err  error
 	)
 	vars := mux.Vars(request)
 	id := strings.ToLower(vars["deviceID"])
@@ -187,10 +225,25 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 		writer.WriteHeader(http.StatusNotFound)
 		return
 	}
-	if d, err = app.getDeviceInfo(id); err != nil {
+
+	if requestHash := request.FormValue("after"); requestHash != "" {
+		if d, hash, err = app.getDeviceInfoAfterHash(id, requestHash); err != nil {
+			logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(),
+				"Failed to get status info", logging.ErrorKey(), err.Error())
+			writer.Header().Add("X-Codex-Error", err.Error())
+
+			if val, ok := err.(kithttp.StatusCoder); ok {
+				writer.WriteHeader(val.StatusCode())
+				return
+			}
+			writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	} else if d, hash, err = app.getDeviceInfo(id); err != nil {
 		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(),
 			"Failed to get status info", logging.ErrorKey(), err.Error())
 		writer.Header().Add("X-Codex-Error", err.Error())
+
 		if val, ok := err.(kithttp.StatusCoder); ok {
 			writer.WriteHeader(val.StatusCode())
 			return
@@ -205,6 +258,9 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 		return
 	}
 	writer.Header().Set("Content-Type", "application/json")
+	if hash != "" {
+		writer.Header().Add("X-Codex-Hash", hash)
+	}
 	writer.WriteHeader(http.StatusOK)
 	writer.Write(data)
 }

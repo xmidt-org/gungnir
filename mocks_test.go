@@ -37,6 +37,15 @@ func (rg *mockRecordGetter) GetRecordsOfType(deviceID string, limit int, eventTy
 	return args.Get(0).([]db.Record), args.Error(1)
 }
 
+func (rg *mockRecordGetter) GetLatestHash(records []db.Record) (string, error) {
+	args := rg.Called(records)
+	return args.String(0), args.Error(1)
+}
+func (rg *mockRecordGetter) GetRecordsAfter(deviceID string, limit int, hash string) ([]db.Record, error) {
+	args := rg.Called(deviceID, limit, hash)
+	return args.Get(0).([]db.Record), args.Error(1)
+}
+
 type mockDecrypter struct {
 	mock.Mock
 }

@@ -198,7 +198,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				getEventLimit: 5,
 			}
 			p.Assert(t, UnmarshalFailureCounter)(xmetricstest.Value(0.0))
-			events, err := app.getDeviceInfo("test")
+			events, _, err := app.getDeviceInfo("test")
 			p.Assert(t, UnmarshalFailureCounter)(xmetricstest.Value(tc.expectedFailureMetric))
 			assert.Equal(tc.expectedEvents, events)
 
