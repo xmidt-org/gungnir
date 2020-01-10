@@ -20,8 +20,9 @@ package main
 import (
 	"bytes"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
+	"github.com/xmidt-org/gungnir/model"
+	"github.com/xmidt-org/wrp-go/wrp"
 	"net/http"
 	"strings"
 	"time"
@@ -31,16 +32,14 @@ import (
 	"github.com/xmidt-org/bascule/basculehttp"
 	"github.com/xmidt-org/voynicrypto"
 
+	"github.com/go-kit/kit/log"
+	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/emperror"
+	"github.com/gorilla/mux"
+	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/basculechecks"
 	"github.com/xmidt-org/webpa-common/logging"
 	"github.com/xmidt-org/webpa-common/xmetrics"
-	"github.com/xmidt-org/wrp-go/wrp"
-
-	"github.com/go-kit/kit/log"
-	kithttp "github.com/go-kit/kit/transport/http"
-	"github.com/gorilla/mux"
-	db "github.com/xmidt-org/codex-db"
 )
 
 //go:generate swagger generate spec -m -o swagger.spec
@@ -53,20 +52,6 @@ type App struct {
 	decrypters     voynicrypto.Ciphers
 
 	measures *Measures
-}
-
-// Event is the extension of wrp message
-//     https://github.com/xmidt-org/wrp-c/wiki/Web-Routing-Protocol
-//
-// swagger:response Event
-type Event struct {
-	wrp.Message
-
-	// BirthDate the time codex received the message
-	//
-	// required: false
-	// example: 1555639704
-	BirthDate int64 `wrp:"birth_date,omitempty" json:"birth_date,omitempty"`
 }
 
 // swagger:parameters getEvents getStatus
@@ -83,7 +68,7 @@ type DeviceIdParam struct {
 // swagger:response EventResponse
 type EventResponse struct {
 	// in:body
-	Body []Event
+	Body []model.Event
 }
 
 // ErrResponse is the information passed to the client on an error
@@ -96,10 +81,10 @@ type ErrResponse struct {
 	Code int `json:"code"`
 }
 
-func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
+func (app *App) getDeviceInfo(deviceID string) ([]model.Event, error) {
 
 	records, hErr := app.eventGetter.GetRecords(deviceID, app.getEventLimit)
-	events := []Event{}
+	events := []model.Event{}
 
 	// if both have errors or are empty, return an error
 	if hErr != nil {
@@ -114,7 +99,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
 			continue
 		}
 
-		event := Event{
+		event := model.Event{
 			BirthDate: record.BirthDate,
 		}
 		decrypter, ok := app.decrypters.Get(voynicrypto.ParseAlgorithmType(record.Alg), record.KID)
@@ -178,7 +163,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]Event, error) {
  */
 func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Request) {
 	var (
-		d   []Event
+		d   []model.Event
 		err error
 	)
 	vars := mux.Vars(request)
@@ -199,8 +184,10 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 		return
 	}
 
-	data, err := json.Marshal(&d)
+	var data []byte
+	err = wrp.NewEncoderBytes(&data, wrp.JSON).Encode(d)
 	if err != nil {
+		writer.Header().Add("X-Codex-Error", err.Error())
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
