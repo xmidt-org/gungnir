@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.11.1]
+- fix json encoding of events payload [#98](https://github.com/xmidt-org/gungnir/pull/98)
+
 ## [v0.11.0]
 - added getStatusLimit [#92](https://github.com/xmidt-org/gungnir/pull/92)
 - Updated release pipeline to use travis [#93](https://github.com/xmidt-org/gungnir/pull/93)
@@ -121,7 +124,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.11.1...HEAD
+[v0.11.1]: https://github.com/xmidt-org/gungnir/compare/v0.11.0...v0.11.1
 [v0.11.0]: https://github.com/xmidt-org/gungnir/compare/v0.10.1...v0.11.0
 [v0.10.1]: https://github.com/xmidt-org/gungnir/compare/v0.10.0...v0.10.1
 [v0.10.0]: https://github.com/xmidt-org/gungnir/compare/v0.9.2...v0.10.0
