@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.11.2]
+- fix json encoding of int for backward compatibility [#100](https://github.com/xmidt-org/gungnir/pull/100)
+
 ## [v0.11.1]
 - fix json encoding of events payload [#98](https://github.com/xmidt-org/gungnir/pull/98)
 
@@ -124,7 +127,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.11.1...HEAD
+[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.11.2...HEAD
+[v0.11.2]: https://github.com/xmidt-org/gungnir/compare/v0.11.1...v0.11.2
 [v0.11.1]: https://github.com/xmidt-org/gungnir/compare/v0.11.0...v0.11.1
 [v0.11.0]: https://github.com/xmidt-org/gungnir/compare/v0.10.1...v0.11.0
 [v0.10.1]: https://github.com/xmidt-org/gungnir/compare/v0.10.0...v0.10.1
