@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"errors"
+	"github.com/ugorji/go/codec"
 	"github.com/xmidt-org/gungnir/model"
 	"github.com/xmidt-org/wrp-go/wrp"
 	"net/http"
@@ -185,7 +186,12 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 	}
 
 	var data []byte
-	err = wrp.NewEncoderBytes(&data, wrp.JSON).Encode(d)
+	// TODO: revert to json spec, aka encode integers > 2^53 as a json string
+	err = codec.NewEncoderBytes(&data, &codec.JsonHandle{
+		BasicHandle: codec.BasicHandle{
+			TypeInfos: codec.NewTypeInfos([]string{"wrp"}),
+		},
+	}).Encode(d)
 	if err != nil {
 		writer.Header().Add("X-Codex-Error", err.Error())
 		writer.WriteHeader(http.StatusInternalServerError)
