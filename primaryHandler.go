@@ -50,6 +50,7 @@ type App struct {
 	logger         log.Logger
 	getEventLimit  int
 	getStatusLimit int
+	longPollSleep  time.Duration
 	decrypters     voynicrypto.Ciphers
 
 	measures *Measures
@@ -104,8 +105,16 @@ func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string) ([]E
 		return []Event{}, "", serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID, "hash", requestHash),
 			http.StatusInternalServerError}
 	}
-	if len(records) == 0 {
-		// TODO: handle logic for long poll
+
+	// TODO: improve long poll logic
+	for len(records) == 0 {
+		time.Sleep(app.longPollSleep)
+		records, hErr = app.eventGetter.GetRecordsAfter(deviceID, app.getEventLimit, requestHash)
+		// if both have errors or are empty, return an error
+		if hErr != nil {
+			return []Event{}, "", serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID, "hash", requestHash),
+				http.StatusInternalServerError}
+		}
 	}
 
 	hash, err := app.eventGetter.GetLatestHash(records)
