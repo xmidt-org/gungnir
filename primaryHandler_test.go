@@ -20,6 +20,8 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"github.com/xmidt-org/gungnir/model"
+	"github.com/xmidt-org/wrp-go/wrp"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -32,11 +34,9 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
+	"github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/logging"
 	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
-	"github.com/xmidt-org/wrp-go/wrp"
-
-	"github.com/xmidt-org/codex-db"
 )
 
 var (
@@ -82,20 +82,20 @@ func TestGetDeviceInfo(t *testing.T) {
 		getRecordsErr         error
 		decryptErr            error
 		expectedFailureMetric float64
-		expectedEvents        []Event
+		expectedEvents        []model.Event
 		expectedErr           error
 		expectedStatus        int
 	}{
 		{
 			description:    "Get Records Error",
 			getRecordsErr:  getRecordsErr,
-			expectedEvents: []Event{},
+			expectedEvents: []model.Event{},
 			expectedErr:    getRecordsErr,
 			expectedStatus: http.StatusInternalServerError,
 		},
 		{
 			description:    "Empty Records Error",
-			expectedEvents: []Event{},
+			expectedEvents: []model.Event{},
 			expectedErr:    errors.New("No events found"),
 			expectedStatus: http.StatusNotFound,
 		},
@@ -108,7 +108,7 @@ func TestGetDeviceInfo(t *testing.T) {
 					KID:       "none",
 				},
 			},
-			expectedEvents: []Event{},
+			expectedEvents: []model.Event{},
 			expectedErr:    errors.New("No events found"),
 			expectedStatus: http.StatusNotFound,
 		},
@@ -123,7 +123,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedFailureMetric: 1.0,
-			expectedEvents:        []Event{Event{wrp.Message{Type: 11}, 0}},
+			expectedEvents:        []model.Event{model.Event{wrp.Message{Type: 11}, 0}},
 		},
 		{
 			description: "Decrypt Error",
@@ -136,7 +136,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			decryptErr:     errors.New("failed to decrypt"),
-			expectedEvents: []Event{Event{wrp.Message{Type: 11}, 0}},
+			expectedEvents: []model.Event{model.Event{wrp.Message{Type: 11}, 0}},
 		},
 		{
 			description: "No Decrypter",
@@ -149,8 +149,8 @@ func TestGetDeviceInfo(t *testing.T) {
 					KID:       "test",
 				},
 			},
-			expectedEvents: []Event{
-				Event{wrp.Message{Type: 11}, prevTime.UnixNano()},
+			expectedEvents: []model.Event{
+				model.Event{wrp.Message{Type: 11}, prevTime.UnixNano()},
 			},
 		},
 		{
@@ -164,8 +164,8 @@ func TestGetDeviceInfo(t *testing.T) {
 					KID:       "none",
 				},
 			},
-			expectedEvents: []Event{
-				Event{goodEvent, prevTime.UnixNano()},
+			expectedEvents: []model.Event{
+				model.Event{goodEvent, prevTime.UnixNano()},
 			},
 		},
 	}
