@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.12.0]
+- Added long-poll feature [#97](https://github.com/xmidt-org/gungnir/pull/97)
+- updated codex-db to v0.5.0
+
 ## [v0.11.2]
 - fix json encoding of int for backward compatibility [#100](https://github.com/xmidt-org/gungnir/pull/100)
 

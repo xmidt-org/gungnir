@@ -85,7 +85,7 @@ type ErrResponse struct {
 
 func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string) ([]model.Event, string, error) {
 
-	records, hErr := app.eventGetter.GetRecordsAfter(deviceID, app.getEventLimit, requestHash)
+	records, hErr := app.eventGetter.GetRecords(deviceID, app.getEventLimit, requestHash)
 	// if both have errors or are empty, return an error
 	if hErr != nil {
 		return []model.Event{}, "", serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID, "hash", requestHash),
@@ -95,7 +95,7 @@ func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string) ([]m
 	// TODO: improve long poll logic
 	for len(records) == 0 {
 		time.Sleep(app.longPollSleep)
-		records, hErr = app.eventGetter.GetRecordsAfter(deviceID, app.getEventLimit, requestHash)
+		records, hErr = app.eventGetter.GetRecords(deviceID, app.getEventLimit, requestHash)
 		// if both have errors or are empty, return an error
 		if hErr != nil {
 			return []model.Event{}, "", serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID, "hash", requestHash),
@@ -103,7 +103,7 @@ func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string) ([]m
 		}
 	}
 
-	hash, err := app.eventGetter.GetLatestHash(records)
+	hash, err := app.eventGetter.GetStateHash(records)
 	if err != nil {
 		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error())
 	}
@@ -121,14 +121,14 @@ func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string) ([]m
 
 func (app *App) getDeviceInfo(deviceID string) ([]model.Event, string, error) {
 
-	records, hErr := app.eventGetter.GetRecords(deviceID, app.getEventLimit)
+	records, hErr := app.eventGetter.GetRecords(deviceID, app.getEventLimit, "")
 	// if both have errors or are empty, return an error
 	if hErr != nil && len(records) == 0 {
 		return []model.Event{}, "", serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID),
 			http.StatusInternalServerError}
 	}
 
-	hash, err := app.eventGetter.GetLatestHash(records)
+	hash, err := app.eventGetter.GetStateHash(records)
 	if err != nil {
 		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error())
 	}

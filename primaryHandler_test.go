@@ -175,8 +175,8 @@ func TestGetDeviceInfo(t *testing.T) {
 			assert := assert.New(t)
 			require := require.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecords", "test", 5).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
-			mockGetter.On("GetLatestHash", mock.Anything).Return("123", nil).Once()
+			mockGetter.On("GetRecords", "test", 5,"").Return(tc.recordsToReturn, tc.getRecordsErr).Once()
+			mockGetter.On("GetStateHash", mock.Anything).Return("123", nil).Once()
 
 			mockDecrypter := new(mockDecrypter)
 			mockDecrypter.On("DecryptMessage", mock.Anything, mock.Anything).Return(tc.decryptErr)
@@ -262,8 +262,8 @@ func TestHandleGetEvents(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecords", tc.deviceID, 5).Return(tc.recordsToReturn, nil).Once()
-			mockGetter.On("GetLatestHash", mock.Anything).Return("123", nil).Once()
+			mockGetter.On("GetRecords", tc.deviceID, 5,"").Return(tc.recordsToReturn, nil).Once()
+			mockGetter.On("GetStateHash", mock.Anything).Return("123", nil).Once()
 
 			ciphers := voynicrypto.Ciphers{
 				Options: map[voynicrypto.AlgorithmType]map[string]voynicrypto.Decrypt{

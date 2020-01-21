@@ -181,7 +181,7 @@ func TestGetStatusInfo(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecordsOfType", "test", 5, db.State).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
+			mockGetter.On("GetRecordsOfType", "test", 5, db.State,  "").Return(tc.recordsToReturn, tc.getRecordsErr).Once()
 
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
@@ -284,7 +284,7 @@ func TestHandleGetStatus(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecordsOfType", tc.deviceID, 5, db.State).Return(tc.recordsToReturn, nil).Once()
+			mockGetter.On("GetRecordsOfType", tc.deviceID, 5, db.State,"").Return(tc.recordsToReturn, nil).Once()
 
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
