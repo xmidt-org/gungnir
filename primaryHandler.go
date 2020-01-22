@@ -84,6 +84,11 @@ type ErrResponse struct {
 }
 
 func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string) ([]model.Event, string, error) {
+	var (
+		hash string
+		err  error
+	)
+	events := []model.Event{}
 
 	records, hErr := app.eventGetter.GetRecords(deviceID, app.getEventLimit, requestHash)
 	// if both have errors or are empty, return an error
@@ -93,27 +98,24 @@ func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string) ([]m
 	}
 
 	// TODO: improve long poll logic
-	for len(records) == 0 {
+	for len(events) == 0 {
 		time.Sleep(app.longPollSleep)
 		records, hErr = app.eventGetter.GetRecords(deviceID, app.getEventLimit, requestHash)
+		if len(records) == 0{
+			continue
+		}
 		// if both have errors or are empty, return an error
 		if hErr != nil {
 			return []model.Event{}, "", serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID, "hash", requestHash),
 				http.StatusInternalServerError}
 		}
+		hash, err = app.eventGetter.GetStateHash(records)
+		if err != nil {
+			logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error())
+		}
+		events = app.parseRecords(records)
 	}
 
-	hash, err := app.eventGetter.GetStateHash(records)
-	if err != nil {
-		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error())
-	}
-	events := app.parseRecords(records)
-
-	if len(events) == 0 {
-		// TODO: Timeout Error
-		return events, "", serverErr{emperror.With(errors.New("No events found for device id after hash"), "device id", deviceID, "hash", requestHash),
-			http.StatusNotFound}
-	}
 	app.measures.EventsReturnedCount.Add(float64(len(events)))
 
 	return events, hash, nil
