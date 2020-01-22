@@ -240,6 +240,11 @@ getRetries: 3
 # (Optional)
 retryInterval: 10s
 
+# longPollSleep is the amount of time to sleep before checking the database for any new events.
+# refer to https://golang.org/pkg/time/#ParseDuration for which values are allowed.
+# (Optional) defaults to 1s
+longPollSleep: 1s
+
 ########################################
 #   Encryption Related Configuration
 ########################################

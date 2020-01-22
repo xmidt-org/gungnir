@@ -41,8 +41,8 @@ import (
 
 var (
 	goodEvent = wrp.Message{
-		//ID: 1234,
-		//Time:        567890974,
+		// ID: 1234,
+		// Time:        567890974,
 		Source:      "test source",
 		Destination: "/test/online",
 		PartnerIDs:  []string{"test1", "test2"},
@@ -175,7 +175,8 @@ func TestGetDeviceInfo(t *testing.T) {
 			assert := assert.New(t)
 			require := require.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecords", "test", 5).Return(tc.recordsToReturn, tc.getRecordsErr).Once()
+			mockGetter.On("GetRecords", "test", 5, "").Return(tc.recordsToReturn, tc.getRecordsErr).Once()
+			mockGetter.On("GetStateHash", mock.Anything).Return("123", nil).Once()
 
 			mockDecrypter := new(mockDecrypter)
 			mockDecrypter.On("DecryptMessage", mock.Anything, mock.Anything).Return(tc.decryptErr)
@@ -198,7 +199,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				getEventLimit: 5,
 			}
 			p.Assert(t, UnmarshalFailureCounter)(xmetricstest.Value(0.0))
-			events, err := app.getDeviceInfo("test")
+			events, _, err := app.getDeviceInfo("test")
 			p.Assert(t, UnmarshalFailureCounter)(xmetricstest.Value(tc.expectedFailureMetric))
 			assert.Equal(tc.expectedEvents, events)
 
@@ -261,7 +262,8 @@ func TestHandleGetEvents(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			mockGetter := new(mockRecordGetter)
-			mockGetter.On("GetRecords", tc.deviceID, 5).Return(tc.recordsToReturn, nil).Once()
+			mockGetter.On("GetRecords", tc.deviceID, 5, "").Return(tc.recordsToReturn, nil).Once()
+			mockGetter.On("GetStateHash", mock.Anything).Return("123", nil).Once()
 
 			ciphers := voynicrypto.Ciphers{
 				Options: map[voynicrypto.AlgorithmType]map[string]voynicrypto.Decrypt{

@@ -74,6 +74,7 @@ type Config struct {
 	AuthHeader      []string
 	JwtValidator    JWTValidator
 	CapabilityCheck CapabilityConfig
+	LongPollSleep   time.Duration
 }
 
 type HealthConfig struct {
@@ -258,14 +259,19 @@ func exitIfError(logger log.Logger, err error) {
 const (
 	defaultGetEventsLimit = 50
 	defaultGetStatusLimit = 10
+	defaultLongPollSleep  = time.Second
 )
 
 func validateConfig(config *Config) {
+	var emptyDuration time.Duration
 	if config.GetEventsLimit < 1 {
 		config.GetEventsLimit = defaultGetEventsLimit
 	}
 	if config.GetStatusLimit < 1 {
 		config.GetStatusLimit = defaultGetStatusLimit
+	}
+	if config.LongPollSleep == emptyDuration {
+		config.LongPollSleep = defaultLongPollSleep
 	}
 }
 

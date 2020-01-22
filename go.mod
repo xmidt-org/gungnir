@@ -14,7 +14,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/ugorji/go/codec v1.1.7
 	github.com/xmidt-org/bascule v0.7.0
-	github.com/xmidt-org/codex-db v0.4.0
+	github.com/xmidt-org/codex-db v0.5.0
 	github.com/xmidt-org/voynicrypto v0.1.1
 	github.com/xmidt-org/webpa-common v1.5.1
 	github.com/xmidt-org/wrp-go v1.3.4

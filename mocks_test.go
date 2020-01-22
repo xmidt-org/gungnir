@@ -27,14 +27,19 @@ type mockRecordGetter struct {
 	mock.Mock
 }
 
-func (rg *mockRecordGetter) GetRecords(deviceID string, limit int) ([]db.Record, error) {
-	args := rg.Called(deviceID, limit)
+func (rg *mockRecordGetter) GetRecords(deviceID string, limit int, stateHash string) ([]db.Record, error) {
+	args := rg.Called(deviceID, limit, stateHash)
 	return args.Get(0).([]db.Record), args.Error(1)
 }
 
-func (rg *mockRecordGetter) GetRecordsOfType(deviceID string, limit int, eventType db.EventType) ([]db.Record, error) {
-	args := rg.Called(deviceID, limit, eventType)
+func (rg *mockRecordGetter) GetRecordsOfType(deviceID string, limit int, eventType db.EventType, stateHash string) ([]db.Record, error) {
+	args := rg.Called(deviceID, limit, eventType, stateHash)
 	return args.Get(0).([]db.Record), args.Error(1)
+}
+
+func (rg *mockRecordGetter) GetStateHash(records []db.Record) (string, error) {
+	args := rg.Called(records)
+	return args.String(0), args.Error(1)
 }
 
 type mockDecrypter struct {
