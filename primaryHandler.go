@@ -101,7 +101,7 @@ func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string) ([]m
 	for len(events) == 0 {
 		time.Sleep(app.longPollSleep)
 		records, hErr = app.eventGetter.GetRecords(deviceID, app.getEventLimit, requestHash)
-		if len(records) == 0{
+		if len(records) == 0 {
 			continue
 		}
 		// if both have errors or are empty, return an error
