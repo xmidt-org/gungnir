@@ -131,7 +131,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.11.2...HEAD
+[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.12.0...HEAD
+[v0.12.0]: https://github.com/xmidt-org/gungnir/compare/v0.11.2...v0.12.0
 [v0.11.2]: https://github.com/xmidt-org/gungnir/compare/v0.11.1...v0.11.2
 [v0.11.1]: https://github.com/xmidt-org/gungnir/compare/v0.11.0...v0.11.1
 [v0.11.0]: https://github.com/xmidt-org/gungnir/compare/v0.10.1...v0.11.0
