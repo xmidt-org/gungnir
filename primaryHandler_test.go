@@ -18,8 +18,10 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/xmidt-org/gungnir/model"
 	"github.com/xmidt-org/wrp-go/wrp"
 	"net/http"
@@ -96,7 +98,7 @@ func TestGetDeviceInfo(t *testing.T) {
 		{
 			description:    "Empty Records Error",
 			expectedEvents: []model.Event{},
-			expectedErr:    errors.New("No events found"),
+			expectedErr:    errors.New("no events found"),
 			expectedStatus: http.StatusNotFound,
 		},
 		{
@@ -109,7 +111,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedEvents: []model.Event{},
-			expectedErr:    errors.New("No events found"),
+			expectedErr:    errors.New("no events found"),
 			expectedStatus: http.StatusNotFound,
 		},
 		{
@@ -289,6 +291,105 @@ func TestHandleGetEvents(t *testing.T) {
 			)
 			app.handleGetEvents(rr, request)
 			assert.Equal(tc.expectedStatusCode, rr.Code)
+		})
+	}
+}
+
+func TestLongPoll(t *testing.T) {
+	testassert := assert.New(t)
+	birthDate := time.Now().UnixNano()
+	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).UnixNano()
+	var goodData []byte
+	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
+	err := encoder.Encode(&goodEvent)
+	testassert.Nil(err)
+
+	tests := []struct {
+		description     string
+		recordsToReturn []db.Record
+		getRecordsErr   error
+		statuCodeErr    int
+		expectedEvents  []model.Event
+		contextTimeout  time.Duration
+		longPollTimeout time.Duration
+	}{
+		{
+			description:     "Request Canceled",
+			contextTimeout:  time.Millisecond,
+			longPollTimeout: time.Minute,
+			statuCodeErr:    408,
+			getRecordsErr:   fmt.Errorf("request canceled"),
+			expectedEvents:  []model.Event{},
+		},
+		{
+			description:     "Request Timeout",
+			contextTimeout:  time.Minute,
+			longPollTimeout: time.Millisecond,
+			statuCodeErr:    304,
+			getRecordsErr:   fmt.Errorf("long poll timeout expired"),
+			expectedEvents:  []model.Event{},
+		},
+		{
+			description: "Success",
+			recordsToReturn: []db.Record{
+				{
+					BirthDate: birthDate,
+					DeathDate: futureTime,
+					Data:      goodData,
+					Alg:       string(voynicrypto.Box),
+					KID:       "test",
+				},
+			},
+			expectedEvents: []model.Event{
+				model.Event{wrp.Message{Type: 11}, birthDate},
+			},
+			contextTimeout:  time.Minute,
+			longPollTimeout: time.Minute,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.description, func(t *testing.T) {
+			assert := assert.New(t)
+			mockGetter := new(mockRecordGetter)
+			mockGetter.On("GetRecords", "1234", 5, "").Return([]db.Record{}, fmt.Errorf("should not be here")).Once()
+			mockGetter.On("GetRecords", "1234", 5, mock.Anything).Return(tc.recordsToReturn, nil)
+			mockGetter.On("GetStateHash", mock.Anything).Return("123", nil).Once()
+
+			ciphers := voynicrypto.Ciphers{
+				Options: map[voynicrypto.AlgorithmType]map[string]voynicrypto.Decrypt{
+					voynicrypto.None: map[string]voynicrypto.Decrypt{
+						"none": new(voynicrypto.NOOP),
+					},
+				},
+			}
+			p := xmetricstest.NewProvider(nil, Metrics)
+			m := NewMeasures(p)
+
+			app := App{
+				eventGetter:     mockGetter,
+				getEventLimit:   5,
+				logger:          logging.DefaultLogger(),
+				decrypters:      ciphers,
+				measures:        m,
+				longPollSleep:   time.Nanosecond,
+				longPollTimeout: tc.longPollTimeout,
+			}
+
+			ctx, _ := context.WithTimeout(context.Background(), tc.contextTimeout)
+			events, hash, err := app.getDeviceInfoAfterHash("1234", "ee0ce9d6-3ee2-11ea-9dff-1c6fdc758512", ctx)
+			if err != nil {
+				if hErr, ok := err.(serverErr); ok {
+					assert.Equal(tc.statuCodeErr, hErr.StatusCode())
+					assert.Contains(hErr.Error(), tc.getRecordsErr.Error())
+				} else {
+					assert.Fail("unknown type")
+				}
+				assert.Empty(hash)
+			} else {
+				assert.NotEmpty(hash)
+			}
+			assert.Equal(tc.expectedEvents, events)
 		})
 	}
 }

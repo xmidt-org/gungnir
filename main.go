@@ -75,6 +75,7 @@ type Config struct {
 	JwtValidator    JWTValidator
 	CapabilityCheck CapabilityConfig
 	LongPollSleep   time.Duration
+	LongPollTimeout time.Duration
 }
 
 type HealthConfig struct {
@@ -137,19 +138,6 @@ func gungnir(arguments []string) {
 	dbConfig := config.Db
 	validateConfig(config)
 
-	//vaultClient, err := xvault.Initialize(v)
-	//if err != nil {
-	//	fmt.Fprintf(os.Stderr, "Vauilt Initialize error: %v\n", err)
-	//	return 3
-	//}
-	//usr, pwd := vaultClient.GetUsernamePassword("dev", "couchbase")
-	//if usr == "" || pwd == "" {
-	//	fmt.Fprintf(os.Stderr, "Failed to get Login credientals to couchbase")
-	//	return 3
-	//}
-	//database.Username = usr
-	//database.Password = pwd
-
 	database, err := cassandra.CreateDbConnection(dbConfig, metricsRegistry, serverHealth)
 	exitIfError(logger, emperror.Wrap(err, "failed to initialize database connection"))
 
@@ -164,26 +152,26 @@ func gungnir(arguments []string) {
 	measures := NewMeasures(metricsRegistry)
 	// MARK: Actual server logic
 	app := &App{
-		eventGetter:    database,
-		logger:         logger,
-		getEventLimit:  config.GetEventsLimit,
-		getStatusLimit: config.GetStatusLimit,
-		decrypters:     decrypters,
-		measures:       measures,
+		eventGetter:     database,
+		logger:          logger,
+		getEventLimit:   config.GetEventsLimit,
+		getStatusLimit:  config.GetStatusLimit,
+		longPollSleep:   config.LongPollSleep,
+		longPollTimeout: config.LongPollTimeout,
+		decrypters:      decrypters,
+		measures:        measures,
 	}
 
 	logging.GetLogger(context.Background())
 
 	router.Handle(apiBase+"/device/{deviceID}/events", gungnirHandler.ThenFunc(app.handleGetEvents))
 	router.Handle(apiBase+"/device/{deviceID}/status", gungnirHandler.ThenFunc(app.handleGetStatus))
-	// router.Handle(apiBase+"/device/{deviceID}/last", gungnirHandler.ThenFunc(app.handleGetLastState))
 
 	if config.Health.Endpoint != "" && config.Health.Port != "" {
 		err = serverHealth.Start()
 		if err != nil {
 			logging.Error(logger).Log(logging.MessageKey(), "failed to start health", logging.ErrorKey(), err)
 		}
-		//router.Handler(config.Health.Address, handlers)
 		http.HandleFunc(config.Health.Endpoint, handlers.NewJSONHandlerFunc(serverHealth, nil))
 		go func() {
 			olog.Fatal(http.ListenAndServe(config.Health.Port, nil))
@@ -257,9 +245,10 @@ func exitIfError(logger log.Logger, err error) {
 }
 
 const (
-	defaultGetEventsLimit = 50
-	defaultGetStatusLimit = 10
-	defaultLongPollSleep  = time.Second
+	defaultGetEventsLimit  = 50
+	defaultGetStatusLimit  = 10
+	defaultLongPollSleep   = time.Second
+	defaultLongPollTimeout = time.Minute
 )
 
 func validateConfig(config *Config) {
@@ -272,6 +261,9 @@ func validateConfig(config *Config) {
 	}
 	if config.LongPollSleep == emptyDuration {
 		config.LongPollSleep = defaultLongPollSleep
+	}
+	if config.LongPollTimeout == emptyDuration {
+		config.LongPollTimeout = defaultLongPollTimeout
 	}
 }
 
