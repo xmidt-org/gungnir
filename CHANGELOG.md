@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.12.1]
+- Add timeouts to long-poll [#102](https://github.com/xmidt-org/gungnir/pull/102)
+
 ## [v0.12.0]
 - Added long-poll feature [#97](https://github.com/xmidt-org/gungnir/pull/97)
 - updated codex-db to v0.5.0
@@ -131,7 +134,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.12.1...HEAD
+[v0.12.1]: https://github.com/xmidt-org/gungnir/compare/v0.12.0...v0.12.1
 [v0.12.0]: https://github.com/xmidt-org/gungnir/compare/v0.11.2...v0.12.0
 [v0.11.2]: https://github.com/xmidt-org/gungnir/compare/v0.11.1...v0.11.2
 [v0.11.1]: https://github.com/xmidt-org/gungnir/compare/v0.11.0...v0.11.1

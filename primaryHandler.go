@@ -19,8 +19,10 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"github.com/ugorji/go/codec"
 	"github.com/xmidt-org/gungnir/model"
 	"github.com/xmidt-org/wrp-go/wrp"
@@ -46,12 +48,13 @@ import (
 //go:generate swagger generate spec -m -o swagger.spec
 
 type App struct {
-	eventGetter    db.RecordGetter
-	logger         log.Logger
-	getEventLimit  int
-	getStatusLimit int
-	longPollSleep  time.Duration
-	decrypters     voynicrypto.Ciphers
+	eventGetter     db.RecordGetter
+	logger          log.Logger
+	getEventLimit   int
+	getStatusLimit  int
+	longPollSleep   time.Duration
+	longPollTimeout time.Duration
+	decrypters      voynicrypto.Ciphers
 
 	measures *Measures
 }
@@ -83,7 +86,7 @@ type ErrResponse struct {
 	Code int `json:"code"`
 }
 
-func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string) ([]model.Event, string, error) {
+func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string, ctx context.Context) ([]model.Event, string, error) {
 	var (
 		hash string
 		err  error
@@ -97,23 +100,35 @@ func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string) ([]m
 			http.StatusInternalServerError}
 	}
 
+	after := time.After(app.longPollTimeout)
 	// TODO: improve long poll logic
 	for len(events) == 0 {
-		time.Sleep(app.longPollSleep)
-		records, hErr = app.eventGetter.GetRecords(deviceID, app.getEventLimit, requestHash)
-		if len(records) == 0 {
-			continue
+		select {
+		case <-ctx.Done():
+			// request was canceled.
+			return []model.Event{}, "", serverErr{emperror.With(fmt.Errorf("request canceled"), "device id", deviceID, "hash", requestHash),
+				http.StatusRequestTimeout}
+		case <-after:
+			return []model.Event{}, "", serverErr{emperror.With(fmt.Errorf("long poll timeout expired after %s", app.longPollTimeout), "device id", deviceID, "hash", requestHash),
+				http.StatusNotModified}
+
+		default:
+			time.Sleep(app.longPollSleep)
+			records, hErr = app.eventGetter.GetRecords(deviceID, app.getEventLimit, requestHash)
+			if len(records) == 0 {
+				continue
+			}
+			// if both have errors or are empty, return an error
+			if hErr != nil {
+				return []model.Event{}, "", serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID, "hash", requestHash),
+					http.StatusInternalServerError}
+			}
+			hash, err = app.eventGetter.GetStateHash(records)
+			if err != nil {
+				logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error())
+			}
+			events = app.parseRecords(records)
 		}
-		// if both have errors or are empty, return an error
-		if hErr != nil {
-			return []model.Event{}, "", serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID, "hash", requestHash),
-				http.StatusInternalServerError}
-		}
-		hash, err = app.eventGetter.GetStateHash(records)
-		if err != nil {
-			logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error())
-		}
-		events = app.parseRecords(records)
 	}
 
 	app.measures.EventsReturnedCount.Add(float64(len(events)))
@@ -125,9 +140,13 @@ func (app *App) getDeviceInfo(deviceID string) ([]model.Event, string, error) {
 
 	records, hErr := app.eventGetter.GetRecords(deviceID, app.getEventLimit, "")
 	// if both have errors or are empty, return an error
-	if hErr != nil && len(records) == 0 {
+	if hErr != nil {
 		return []model.Event{}, "", serverErr{emperror.WrapWith(hErr, "Failed to get events", "device id", deviceID),
 			http.StatusInternalServerError}
+	}
+	if len(records) == 0 {
+		return []model.Event{}, "", serverErr{emperror.WrapWith(fmt.Errorf("no events found for %s", deviceID), "Failed to get events", "deviceID", deviceID),
+			http.StatusNotFound}
 	}
 
 	hash, err := app.eventGetter.GetStateHash(records)
@@ -137,7 +156,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]model.Event, string, error) {
 	events := app.parseRecords(records)
 
 	if len(events) == 0 {
-		return events, "", serverErr{emperror.With(errors.New("No events found for device id"), "device id", deviceID),
+		return events, "", serverErr{emperror.With(errors.New("no events found for device id"), "device id", deviceID),
 			http.StatusNotFound}
 	}
 	app.measures.EventsReturnedCount.Add(float64(len(events)))
@@ -151,6 +170,7 @@ func (app *App) parseRecords(records []db.Record) []model.Event {
 	for _, record := range records {
 		// if the record is expired, don't include it
 		if time.Unix(0, record.DeathDate).Before(time.Now()) {
+			logging.Debug(app.logger).Log(logging.MessageKey(), "the record is expired", "timesince", time.Now().Sub(time.Unix(0, record.DeathDate)))
 			continue
 		}
 
@@ -160,7 +180,7 @@ func (app *App) parseRecords(records []db.Record) []model.Event {
 		decrypter, ok := app.decrypters.Get(voynicrypto.ParseAlgorithmType(record.Alg), record.KID)
 		if !ok {
 			app.measures.GetDecryptFailure.Add(1.0)
-			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to get decrypter", logging.ErrorKey())
+			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to get decrypter")
 			event.Type = wrp.UnknownMessageType
 			events = append(events, event)
 			continue
@@ -224,7 +244,7 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 	}
 
 	if requestHash := request.FormValue("after"); requestHash != "" {
-		if d, hash, err = app.getDeviceInfoAfterHash(id, requestHash); err != nil {
+		if d, hash, err = app.getDeviceInfoAfterHash(id, requestHash, request.Context()); err != nil {
 			logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(),
 				"Failed to get status info", logging.ErrorKey(), err.Error())
 			writer.Header().Add("X-Codex-Error", err.Error())
