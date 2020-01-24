@@ -245,6 +245,11 @@ retryInterval: 10s
 # (Optional) defaults to 1s
 longPollSleep: 1s
 
+# longPollTimeout is the amount of time to wait before canceling the longpoll request
+# refer to https://golang.org/pkg/time/#ParseDuration for which values are allowed.
+# (Optional) defaults to 60s
+longPollTimeout: 10s
+
 ########################################
 #   Encryption Related Configuration
 ########################################
