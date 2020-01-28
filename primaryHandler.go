@@ -106,11 +106,12 @@ func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string, ctx 
 		select {
 		case <-ctx.Done():
 			// request was canceled.
-			return []model.Event{}, "", serverErr{emperror.With(fmt.Errorf("request canceled"), "device id", deviceID, "hash", requestHash),
-				http.StatusRequestTimeout}
+			// 499 Client Closed Request (from nginx)
+			return []model.Event{}, "", serverErr{emperror.With(ctx.Err(), "device id", deviceID, "hash", requestHash),
+				499}
 		case <-after:
 			return []model.Event{}, "", serverErr{emperror.With(fmt.Errorf("long poll timeout expired after %s", app.longPollTimeout), "device id", deviceID, "hash", requestHash),
-				http.StatusNotModified}
+				http.StatusNoContent}
 
 		default:
 			time.Sleep(app.longPollSleep)
