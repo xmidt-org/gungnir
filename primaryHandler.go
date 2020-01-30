@@ -158,7 +158,7 @@ func (app *App) getDeviceInfo(deviceID string) ([]model.Event, string, error) {
 
 	hash, err := app.eventGetter.GetStateHash(records)
 	if err != nil {
-		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error())
+		logging.Warn(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error(), "hash", hash)
 	}
 	events := app.parseRecords(records)
 

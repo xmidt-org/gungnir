@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.12.3]
+- fixed no state hash returned by updating codex-db to v0.5.2 [#105](https://github.com/xmidt-org/gungnir/pull/105)
+
 ## [v0.12.2]
 - updated long-poll status codes [#103](https://github.com/xmidt-org/gungnir/pull/103)
 - fixed long-poll first get [#104](https://github.com/xmidt-org/gungnir/pull/104)
@@ -139,7 +142,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.12.1...HEAD
+[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.12.3...HEAD
+[v0.12.3]: https://github.com/xmidt-org/gungnir/compare/v0.12.2...v0.12.3
+[v0.12.2]: https://github.com/xmidt-org/gungnir/compare/v0.12.1...v0.12.2
 [v0.12.1]: https://github.com/xmidt-org/gungnir/compare/v0.12.0...v0.12.1
 [v0.12.0]: https://github.com/xmidt-org/gungnir/compare/v0.11.2...v0.12.0
 [v0.11.2]: https://github.com/xmidt-org/gungnir/compare/v0.11.1...v0.11.2
