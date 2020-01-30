@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.12.2]
+- updated long-poll status codes [#103](https://github.com/xmidt-org/gungnir/pull/103)
+- fixed long-poll first get [#104](https://github.com/xmidt-org/gungnir/pull/104)
+- updated codex-db to v0.5.1 [#104](https://github.com/xmidt-org/gungnir/pull/104)
+
 ## [v0.12.1]
 - Add timeouts to long-poll [#102](https://github.com/xmidt-org/gungnir/pull/102)
 

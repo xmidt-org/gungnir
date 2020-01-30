@@ -100,6 +100,12 @@ func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string, ctx 
 			http.StatusInternalServerError}
 	}
 
+	hash, err = app.eventGetter.GetStateHash(records)
+	if err != nil {
+		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error())
+	}
+	events = app.parseRecords(records)
+
 	after := time.After(app.longPollTimeout)
 	// TODO: improve long poll logic
 	for len(events) == 0 {
