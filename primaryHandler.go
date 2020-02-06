@@ -23,12 +23,13 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/ugorji/go/codec"
-	"github.com/xmidt-org/gungnir/model"
-	"github.com/xmidt-org/wrp-go/wrp"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/ugorji/go/codec"
+	"github.com/xmidt-org/gungnir/model"
+	"github.com/xmidt-org/wrp-go/wrp"
 
 	"github.com/justinas/alice"
 	"github.com/xmidt-org/bascule"
@@ -41,6 +42,7 @@ import (
 	"github.com/gorilla/mux"
 	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/basculechecks"
+	"github.com/xmidt-org/webpa-common/basculemetrics"
 	"github.com/xmidt-org/webpa-common/logging"
 	"github.com/xmidt-org/webpa-common/xmetrics"
 )
@@ -297,12 +299,13 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 }
 
 func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck CapabilityConfig, logger log.Logger, registry xmetrics.Registry) (alice.Chain, error) {
-	var m *basculechecks.JWTValidationMeasures
-
-	if registry != nil {
-		m = basculechecks.NewJWTValidationMeasures(registry)
+	if registry == nil {
+		return alice.Chain{}, errors.New("nil registry")
 	}
-	listener := basculechecks.NewMetricListener(m)
+
+	basculeMeasures := basculemetrics.NewAuthValidationMeasures(registry)
+	capabilityCheckMeasures := basculechecks.NewAuthCapabilityCheckMeasures(registry)
+	listener := basculemetrics.NewMetricListener(basculeMeasures)
 
 	basicAllowed := make(map[string]string)
 	for _, a := range basicAuth {
@@ -350,12 +353,12 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck Capabili
 	}
 
 	// only add capability check if the configuration is set
-	if capabilityCheck.Prefix != "" {
-		check, err := basculechecks.CreateValidCapabilityCheck(capabilityCheck.Prefix, capabilityCheck.AcceptAllMethod)
+	if capabilityCheck.Type == "enforce" || capabilityCheck.Type == "monitor" {
+		checker, err := basculechecks.NewCapabilityChecker(capabilityCheckMeasures, capabilityCheck.Prefix, capabilityCheck.AcceptAllMethod)
 		if err != nil {
 			return alice.Chain{}, emperror.With(err, "failed to create capability check")
 		}
-		bearerRules = append(bearerRules, bascule.CreateListAttributeCheck("capabilities", check))
+		bearerRules = append(bearerRules, checker.CreateBasculeCheck(capabilityCheck.Type == "enforce"))
 	}
 
 	authEnforcer := basculehttp.NewEnforcer(
