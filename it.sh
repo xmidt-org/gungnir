@@ -21,6 +21,11 @@ function deploy {
     pushd codex-deploy/deploy/docker-compose
     GUNGNIR_VERSION=$GUNGNIR_VERSION docker-compose up -d yb-master yb-tserver gungnir
     check $?
+    
+    sleep 5
+    docker exec -it yb-tserver-n1 /home/yugabyte/bin/cqlsh yb-tserver-n1 -f /create_db.cql
+    check $?
+    
     popd
     printf "\n"
 }
