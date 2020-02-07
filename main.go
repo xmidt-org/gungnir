@@ -38,8 +38,6 @@ import (
 	"github.com/xmidt-org/bascule"
 	"github.com/xmidt-org/bascule/key"
 
-	"github.com/xmidt-org/webpa-common/secure"
-
 	"github.com/go-kit/kit/log"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
@@ -47,6 +45,8 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/xmidt-org/codex-db/healthlogger"
+	"github.com/xmidt-org/webpa-common/basculechecks"
+	"github.com/xmidt-org/webpa-common/basculemetrics"
 	"github.com/xmidt-org/webpa-common/concurrent"
 	"github.com/xmidt-org/webpa-common/logging"
 	"github.com/xmidt-org/webpa-common/server"
@@ -84,6 +84,7 @@ type HealthConfig struct {
 }
 
 type CapabilityConfig struct {
+	Type            string
 	Prefix          string
 	AcceptAllMethod string
 }
@@ -117,7 +118,7 @@ func gungnir(arguments []string) {
 
 	var (
 		f, v                                = pflag.NewFlagSet(applicationName, pflag.ContinueOnError), viper.New()
-		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v, secure.Metrics, cassandra.Metrics, dbretry.Metrics)
+		logger, metricsRegistry, codex, err = server.Initialize(applicationName, arguments, f, v, cassandra.Metrics, dbretry.Metrics, basculechecks.Metrics, basculemetrics.Metrics)
 	)
 
 	if parseErr, done := printVersion(f, arguments); done {
