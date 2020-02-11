@@ -324,7 +324,7 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck Capabili
 	options := []basculehttp.COption{
 		basculehttp.WithCLogger(GetLogger),
 		basculehttp.WithCErrorResponseFunc(listener.OnErrorResponse),
-		basculehttp.WithParseURLFunc(basculehttp.CreateRemovePrefixURLFunc(apiBase, basculehttp.DefaultParseURLFunc)),
+		basculehttp.WithParseURLFunc(basculehttp.CreateRemovePrefixURLFunc(apiBase+"/", basculehttp.DefaultParseURLFunc)),
 	}
 	if len(basicAllowed) > 0 {
 		options = append(options, basculehttp.WithTokenFactory("Basic", basculehttp.BasicTokenFactory(basicAllowed)))
