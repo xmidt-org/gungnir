@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.13.1]
+ - fixed a capabilityCheck issue by correctly parsing out an additional `/` from the URL [#108](https://github.com/xmidt-org/gungnir/pull/108)
+
 ## [v0.13.0]
  - added configurable way to check capabilities and put results into metrics, without rejecting requests [#106](https://github.com/xmidt-org/gungnir/pull/106)
 
@@ -145,7 +148,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.13.1...HEAD
+[v0.13.1]: https://github.com/xmidt-org/gungnir/compare/v0.13.0...v0.13.1
 [v0.13.0]: https://github.com/xmidt-org/gungnir/compare/v0.12.3...v0.13.0
 [v0.12.3]: https://github.com/xmidt-org/gungnir/compare/v0.12.2...v0.12.3
 [v0.12.2]: https://github.com/xmidt-org/gungnir/compare/v0.12.1...v0.12.2
