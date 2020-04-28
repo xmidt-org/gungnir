@@ -59,8 +59,7 @@ var (
 			"up-time": "16m46.6s",
 			"reason-for-closure": "ping miss"
 		}`),
-		Metadata: map[string]string{sessionKey:"54321"},
-
+		Metadata: map[string]string{sessionKey: "54321"},
 	}
 	goodOfflineEvent = wrp.Message{
 		// ID: 1234,
@@ -79,7 +78,7 @@ var (
 			"up-time": "16m46.6s",
 			"reason-for-closure": "ping miss"
 		}`),
-		Metadata: map[string]string{sessionKey:"1234"},
+		Metadata: map[string]string{sessionKey: "1234"},
 	}
 )
 

@@ -66,7 +66,6 @@ func TestGetStatusInfo(t *testing.T) {
 	err = offlineEncoder.Encode(&goodOfflineEvent)
 	testassert.Nil(err)
 
-
 	tests := []struct {
 		description          string
 		recordsToReturn      []db.Record
