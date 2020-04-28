@@ -37,6 +37,7 @@ import (
 
 const (
 	payloadKey = "reason-for-closure"
+	sessionKey = "session-id"
 )
 
 // note: below may be separated later into a separate service
@@ -146,19 +147,29 @@ func (app *App) handleGetStatus(writer http.ResponseWriter, request *http.Reques
 	writer.Write(data)
 }
 
+type eventTuple struct {
+	record    db.Record
+	status    Status
+	sessionID string
+}
+
 func (app *App) getStatusInfo(deviceID string) (Status, error) {
-	var (
-		s Status
-	)
 
 	stateInfo, hErr := app.eventGetter.GetRecordsOfType(deviceID, app.getStatusLimit, db.State, "")
 	if hErr != nil {
-		return s, serverErr{emperror.WrapWith(hErr, "Failed to get state records", "device id", deviceID),
+		return Status{}, serverErr{emperror.WrapWith(hErr, "Failed to get state records", "device id", deviceID),
 			http.StatusInternalServerError}
 	}
 
-	// if all is good, create our Status record
+	var (
+		lastOfflineEvent eventTuple
+		lastOnlineEvent  eventTuple
+	)
 	for _, record := range stateInfo {
+		// if all is good, create our status record
+		var (
+			s Status
+		)
 		// if we have state and last offline reason, we don't need to search anymore
 		if s.State != "" && s.LastOfflineReason != "" {
 			break
@@ -200,6 +211,10 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 		if value, ok := payload[payloadKey]; ok && s.LastOfflineReason == "" {
 			s.LastOfflineReason = value.(string)
 		}
+		var sessionID string
+		if id, ok := event.Metadata[sessionKey]; ok && id != "" {
+			sessionID = id
+		}
 
 		if s.State == "" {
 			s.DeviceID = deviceID
@@ -208,12 +223,37 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 			s.Now = time.Now()
 			s.PartnerIDs = event.PartnerIDs
 		}
+		if s.State == "offline" {
+			if s.Since.After(lastOfflineEvent.status.Since) {
+				lastOfflineEvent = eventTuple{
+					record:    record,
+					status:    s,
+					sessionID: sessionID,
+				}
+			}
+		}
+		if s.State == "online" {
+			if s.Since.After(lastOnlineEvent.status.Since) {
+				lastOnlineEvent = eventTuple{
+					record:    record,
+					status:    s,
+					sessionID: sessionID,
+				}
+			}
+		}
 	}
 
-	if s.State == "" {
+	if lastOfflineEvent.status.State == "" && lastOnlineEvent.status.State == "" {
 		return Status{}, serverErr{emperror.With(errors.New("No events found for device id"), "device id", deviceID),
 			http.StatusNotFound}
+	} else if lastOfflineEvent.status.State == "" && lastOnlineEvent.status.State != "" {
+		return lastOnlineEvent.status, nil
+	} else if lastOfflineEvent.status.State != "" && lastOnlineEvent.status.State == "" {
+		return lastOfflineEvent.status, nil
 	}
 
-	return s, nil
+	if lastOfflineEvent.sessionID == lastOnlineEvent.sessionID {
+		return lastOfflineEvent.status, nil
+	}
+	return lastOnlineEvent.status, nil
 }
