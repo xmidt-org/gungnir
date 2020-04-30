@@ -37,7 +37,6 @@ import (
 
 const (
 	payloadKey = "reason-for-closure"
-	sessionKey = "session-id"
 )
 
 // note: below may be separated later into a separate service
