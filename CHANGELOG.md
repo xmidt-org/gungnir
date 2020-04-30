@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v0.14.0]
 - leverage sessionID for better judgement in offline vs online [#110](https://github.com/xmidt-org/gungnir/pull/110)
 - changed Event struct tag from wrp to json [#110](https://github.com/xmidt-org/gungnir/pull/110)
 - bumped codex-db to v0.6.0 [#110](https://github.com/xmidt-org/gungnir/pull/110)
@@ -153,7 +155,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial creation
 - Bumped codex version, modified code to match changes
 
-[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.13.1...HEAD
+[Unreleased]: https://github.com/xmidt-org/gungnir/compare/v0.14.0...HEAD
+[v0.14.0]: https://github.com/xmidt-org/gungnir/compare/v0.13.1...v0.14.0
 [v0.13.1]: https://github.com/xmidt-org/gungnir/compare/v0.13.0...v0.13.1
 [v0.13.0]: https://github.com/xmidt-org/gungnir/compare/v0.12.3...v0.13.0
 [v0.12.3]: https://github.com/xmidt-org/gungnir/compare/v0.12.2...v0.12.3
