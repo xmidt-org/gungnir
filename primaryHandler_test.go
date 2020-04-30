@@ -23,7 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/xmidt-org/gungnir/model"
-	"github.com/xmidt-org/wrp-go/wrp"
+	"github.com/xmidt-org/wrp-go/v2"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -59,7 +59,7 @@ var (
 			"up-time": "16m46.6s",
 			"reason-for-closure": "ping miss"
 		}`),
-		Metadata: map[string]string{sessionKey: "54321"},
+		SessionID: "54321",
 	}
 	goodOfflineEvent = wrp.Message{
 		// ID: 1234,
@@ -78,7 +78,7 @@ var (
 			"up-time": "16m46.6s",
 			"reason-for-closure": "ping miss"
 		}`),
-		Metadata: map[string]string{sessionKey: "1234"},
+		SessionID: "1234",
 	}
 )
 

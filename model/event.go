@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/xmidt-org/wrp-go/wrp"
+	"github.com/xmidt-org/wrp-go/v2"
 )
 
 //go:generate codecgen -st "wrp" -o event_codec.go event.go

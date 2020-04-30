@@ -32,7 +32,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/logging"
-	"github.com/xmidt-org/wrp-go/wrp"
+	"github.com/xmidt-org/wrp-go/v2"
 )
 
 const (
@@ -211,10 +211,6 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 		if value, ok := payload[payloadKey]; ok && s.LastOfflineReason == "" {
 			s.LastOfflineReason = value.(string)
 		}
-		var sessionID string
-		if id, ok := event.Metadata[sessionKey]; ok && id != "" {
-			sessionID = id
-		}
 
 		if s.State == "" {
 			s.DeviceID = deviceID
@@ -228,7 +224,7 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 				lastOfflineEvent = eventTuple{
 					record:    record,
 					status:    s,
-					sessionID: sessionID,
+					sessionID: event.SessionID,
 				}
 			}
 		}
@@ -237,7 +233,7 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 				lastOnlineEvent = eventTuple{
 					record:    record,
 					status:    s,
-					sessionID: sessionID,
+					sessionID: event.SessionID,
 				}
 			}
 		}

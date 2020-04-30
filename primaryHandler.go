@@ -29,7 +29,7 @@ import (
 
 	"github.com/ugorji/go/codec"
 	"github.com/xmidt-org/gungnir/model"
-	"github.com/xmidt-org/wrp-go/wrp"
+	"github.com/xmidt-org/wrp-go/v2"
 
 	"github.com/justinas/alice"
 	"github.com/xmidt-org/bascule"
