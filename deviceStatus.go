@@ -251,6 +251,9 @@ func determineStatus(lastOnline, lastOffline eventTuple) Status {
 	if lastOnline.status.State == "" {
 		return lastOffline.status
 	}
+	if (lastOnline.sessionID == "" || lastOffline.sessionID == "") && lastOnline.status.Since.After(lastOffline.status.Since) {
+		return lastOnline.status
+	}
 	if lastOffline.sessionID == lastOnline.sessionID {
 		return lastOffline.status
 	}
