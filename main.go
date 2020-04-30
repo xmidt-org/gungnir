@@ -163,8 +163,6 @@ func gungnir(arguments []string) {
 		measures:        measures,
 	}
 
-	logging.GetLogger(context.Background())
-
 	router.Handle(apiBase+"/device/{deviceID}/events", gungnirHandler.ThenFunc(app.handleGetEvents))
 	router.Handle(apiBase+"/device/{deviceID}/status", gungnirHandler.ThenFunc(app.handleGetStatus))
 

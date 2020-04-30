@@ -32,7 +32,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/logging"
-	"github.com/xmidt-org/wrp-go/wrp"
+	"github.com/xmidt-org/wrp-go/v2"
 )
 
 const (
@@ -146,19 +146,29 @@ func (app *App) handleGetStatus(writer http.ResponseWriter, request *http.Reques
 	writer.Write(data)
 }
 
+type eventTuple struct {
+	record    db.Record
+	status    Status
+	sessionID string
+}
+
 func (app *App) getStatusInfo(deviceID string) (Status, error) {
-	var (
-		s Status
-	)
 
 	stateInfo, hErr := app.eventGetter.GetRecordsOfType(deviceID, app.getStatusLimit, db.State, "")
 	if hErr != nil {
-		return s, serverErr{emperror.WrapWith(hErr, "Failed to get state records", "device id", deviceID),
+		return Status{}, serverErr{emperror.WrapWith(hErr, "Failed to get state records", "device id", deviceID),
 			http.StatusInternalServerError}
 	}
 
-	// if all is good, create our Status record
+	var (
+		lastOfflineEvent eventTuple
+		lastOnlineEvent  eventTuple
+	)
 	for _, record := range stateInfo {
+		// if all is good, create our status record
+		var (
+			s Status
+		)
 		// if we have state and last offline reason, we don't need to search anymore
 		if s.State != "" && s.LastOfflineReason != "" {
 			break
@@ -208,12 +218,41 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 			s.Now = time.Now()
 			s.PartnerIDs = event.PartnerIDs
 		}
+		item := eventTuple{
+			record:    record,
+			status:    s,
+			sessionID: event.SessionID,
+		}
+
+		if s.State == "offline" {
+			if s.Since.After(lastOfflineEvent.status.Since) {
+				lastOfflineEvent = item
+			}
+		}
+		if s.State == "online" {
+			if s.Since.After(lastOnlineEvent.status.Since) {
+				lastOnlineEvent = item
+			}
+		}
 	}
 
-	if s.State == "" {
+	if lastOfflineEvent.status.State == "" && lastOnlineEvent.status.State == "" {
 		return Status{}, serverErr{emperror.With(errors.New("No events found for device id"), "device id", deviceID),
 			http.StatusNotFound}
 	}
 
-	return s, nil
+	return determineStatus(lastOnlineEvent, lastOfflineEvent), nil
+}
+
+func determineStatus(lastOnline, lastOffline eventTuple) Status {
+	if lastOffline.status.State == "" {
+		return lastOnline.status
+	}
+	if lastOnline.status.State == "" {
+		return lastOffline.status
+	}
+	if lastOffline.sessionID == lastOnline.sessionID {
+		return lastOffline.status
+	}
+	return lastOnline.status
 }

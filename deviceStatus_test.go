@@ -33,7 +33,7 @@ import (
 	"github.com/xmidt-org/voynicrypto"
 	"github.com/xmidt-org/webpa-common/logging"
 	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
-	"github.com/xmidt-org/wrp-go/wrp"
+	"github.com/xmidt-org/wrp-go/v2"
 
 	"github.com/xmidt-org/codex-db"
 )
@@ -49,15 +49,21 @@ func TestGetStatusInfo(t *testing.T) {
 
 	var goodData []byte
 	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
-	err = encoder.Encode(&goodEvent)
+	err = encoder.Encode(&goodOnlineEvent)
 	testassert.Nil(err)
-	event := goodEvent
+	event := goodOnlineEvent
 	event.Payload = []byte("")
 	var emptyPayloadData []byte
 	encoder = wrp.NewEncoderBytes(&emptyPayloadData, wrp.Msgpack)
 	err = encoder.Encode(&event)
 	testassert.Nil(err)
 	badData, err := json.Marshal("")
+	testassert.Nil(err)
+
+	// create offline event
+	var offlineData []byte
+	offlineEncoder := wrp.NewEncoderBytes(&offlineData, wrp.Msgpack)
+	err = offlineEncoder.Encode(&goodOfflineEvent)
 	testassert.Nil(err)
 
 	tests := []struct {
@@ -149,7 +155,7 @@ func TestGetStatusInfo(t *testing.T) {
 			expectedServerStatus: http.StatusNotFound,
 		},
 		{
-			description: "Success",
+			description: "Success-Online",
 			recordsToReturn: []db.Record{
 				{
 					Type:      db.State,
@@ -171,6 +177,54 @@ func TestGetStatusInfo(t *testing.T) {
 				DeviceID:          "test",
 				State:             "online",
 				Since:             time.Unix(0, futureTime-500),
+				Now:               time.Now(),
+				LastOfflineReason: "ping miss",
+			},
+		},
+		{
+			description: "Success-Offline",
+			recordsToReturn: []db.Record{
+				{
+					Type:      db.State,
+					BirthDate: futureTime - 500,
+					DeathDate: futureTime,
+					Data:      offlineData,
+					Alg:       string(voynicrypto.None),
+					KID:       "none",
+				},
+			},
+			expectedStatus: Status{
+				DeviceID:          "test",
+				State:             "offline",
+				Since:             time.Unix(0, futureTime-500),
+				Now:               time.Now(),
+				LastOfflineReason: "ping miss",
+			},
+		},
+		{
+			description: "Success-Out-of-Order",
+			recordsToReturn: []db.Record{
+				{
+					Type:      db.State,
+					BirthDate: futureTime - 500,
+					DeathDate: futureTime,
+					Data:      offlineData,
+					Alg:       string(voynicrypto.None),
+					KID:       "none",
+				},
+				{
+					Type:      db.State,
+					BirthDate: futureTime - 700,
+					DeathDate: futureTime - 200,
+					Data:      goodData,
+					Alg:       string(voynicrypto.None),
+					KID:       "none",
+				},
+			},
+			expectedStatus: Status{
+				DeviceID:          "test",
+				State:             "online",
+				Since:             time.Unix(0, futureTime-700),
 				Now:               time.Now(),
 				LastOfflineReason: "ping miss",
 			},
@@ -231,7 +285,7 @@ func TestHandleGetStatus(t *testing.T) {
 	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).UnixNano()
 	var goodData []byte
 	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
-	err := encoder.Encode(&goodEvent)
+	err := encoder.Encode(&goodOnlineEvent)
 	testassert.Nil(err)
 
 	tests := []struct {

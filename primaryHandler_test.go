@@ -23,7 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/xmidt-org/gungnir/model"
-	"github.com/xmidt-org/wrp-go/wrp"
+	"github.com/xmidt-org/wrp-go/v2"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -42,7 +42,7 @@ import (
 )
 
 var (
-	goodEvent = wrp.Message{
+	goodOnlineEvent = wrp.Message{
 		// ID: 1234,
 		// Time:        567890974,
 		Source:      "test source",
@@ -59,6 +59,26 @@ var (
 			"up-time": "16m46.6s",
 			"reason-for-closure": "ping miss"
 		}`),
+		SessionID: "54321",
+	}
+	goodOfflineEvent = wrp.Message{
+		// ID: 1234,
+		// Time:        567890974,
+		Source:      "test source",
+		Destination: "/test/offline",
+		PartnerIDs:  []string{"test1", "test2"},
+		Payload: []byte(`{
+			"id": "mac:48f7c0d79024",
+			"ts": "2019-02-14T21:19:02.614191735Z",
+			"bytes-sent": 0,
+			"messages-sent": 1,
+			"bytes-received": 0,
+			"messages-received": 0,
+			"connected-at": "2018-11-22T21:19:02.614191735Z",
+			"up-time": "16m46.6s",
+			"reason-for-closure": "ping miss"
+		}`),
+		SessionID: "1234",
 	}
 )
 
@@ -73,7 +93,7 @@ func TestGetDeviceInfo(t *testing.T) {
 
 	var goodData []byte
 	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
-	err = encoder.Encode(&goodEvent)
+	err = encoder.Encode(&goodOnlineEvent)
 	testassert.Nil(err)
 	badData, err := json.Marshal("")
 	testassert.Nil(err)
@@ -156,7 +176,7 @@ func TestGetDeviceInfo(t *testing.T) {
 			},
 		},
 		{
-			description: "Success",
+			description: "Success-Online",
 			recordsToReturn: []db.Record{
 				{
 					BirthDate: prevTime.UnixNano(),
@@ -167,7 +187,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedEvents: []model.Event{
-				model.Event{goodEvent, prevTime.UnixNano()},
+				model.Event{goodOnlineEvent, prevTime.UnixNano()},
 			},
 		},
 	}
@@ -224,7 +244,7 @@ func TestHandleGetEvents(t *testing.T) {
 	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).UnixNano()
 	var goodData []byte
 	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
-	err := encoder.Encode(&goodEvent)
+	err := encoder.Encode(&goodOnlineEvent)
 	testassert.Nil(err)
 
 	tests := []struct {
@@ -301,7 +321,7 @@ func TestLongPoll(t *testing.T) {
 	futureTime := time.Now().Add(time.Duration(50000) * time.Minute).UnixNano()
 	var goodData []byte
 	encoder := wrp.NewEncoderBytes(&goodData, wrp.Msgpack)
-	err := encoder.Encode(&goodEvent)
+	err := encoder.Encode(&goodOnlineEvent)
 	testassert.Nil(err)
 
 	tests := []struct {

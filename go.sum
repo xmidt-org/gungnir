@@ -292,8 +292,8 @@ github.com/xmidt-org/bascule v0.5.0/go.mod h1:D2DuXSMa5+OpveCtaSWp0+/tmnxZqfYhkC
 github.com/xmidt-org/bascule v0.8.0 h1:xk/c8zqqNjoSW4b4oSrUwemm786Bs5DabmX7AgUgNPw=
 github.com/xmidt-org/bascule v0.8.0/go.mod h1:dPxlbNT3lCwYAtOq2zbzyzTEKgM+azLSbKKcVmgSHBY=
 github.com/xmidt-org/capacityset v0.1.1/go.mod h1:rJ00PZmbkdroZMiL0DOMzgkrwJddVfR1I5LmRX6YG2Y=
-github.com/xmidt-org/codex-db v0.5.2 h1:cISNWGQyUSWG/a9sP9LiFgTa02tJ456jvIAzFniPioM=
-github.com/xmidt-org/codex-db v0.5.2/go.mod h1:vQpkbRzvaOCpiObVv8e5vRHgW08w1o8J1GtgRheulwk=
+github.com/xmidt-org/codex-db v0.7.0 h1:lV5RovmrqtUQsyp3PcG8hdWK3XoYNVMiV07Qw3as1x4=
+github.com/xmidt-org/codex-db v0.7.0/go.mod h1:6CvN42JLUzKqK9uZQMSWAaKf++BFt/ae6FOHkIlfXqQ=
 github.com/xmidt-org/voynicrypto v0.1.1 h1:hMqSOgYzpkbUUpgKxJcPTVRGdmDY0jem8PufsUikh+c=
 github.com/xmidt-org/voynicrypto v0.1.1/go.mod h1:YSw/rwukAL2tpkB6wSeuoCRBOIK2mhpV4OzJLX292fs=
 github.com/xmidt-org/webpa-common v1.1.0/go.mod h1:oCpKzOC+9h2vYHVzAU/06tDTQuBN4RZz+rhgIXptpOI=
@@ -304,8 +304,8 @@ github.com/xmidt-org/webpa-common v1.5.0/go.mod h1:wR27EP2MfUvQNy22rYm9p65VSErlw
 github.com/xmidt-org/webpa-common v1.6.2 h1:2K2PPzEpLJ+SG18j54ST2pyqujE2HUgHzBrrKWS3+W8=
 github.com/xmidt-org/webpa-common v1.6.2/go.mod h1:r6I3zj1HM1iZHcytbgViJpoYCBNHIATF/7aZMgCOfXg=
 github.com/xmidt-org/wrp-go v1.3.3/go.mod h1:VOKYeeVWc2cyYmGWJksqUCV/lGzReRl0EP74y3mcWp0=
-github.com/xmidt-org/wrp-go v1.3.4 h1:7kj+1VXRNNEI7G0Z3z7C58QpIXrWzTw/eI79FdAhyPA=
-github.com/xmidt-org/wrp-go v1.3.4/go.mod h1:EWC9BgcYYO1hKgLzz6VFPpg3LU6ZWSDV/uNiWC7zP+o=
+github.com/xmidt-org/wrp-go/v2 v2.0.1 h1:JWMpAvNCkD1pLXdZLmAs/4g3twxTM7K4YU57dapJvB0=
+github.com/xmidt-org/wrp-go/v2 v2.0.1/go.mod h1:v0HK0go/7OSVDvKbnXsUn6c+M987p0yyxWEs8/Fmf60=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/yugabyte/gocql v0.0.0-20190522232832-e049977574e9 h1:BpVFCemJnLkcheWPQGmFnWzS+4CNXtHwKsgZiyvTT/I=
 github.com/yugabyte/gocql v0.0.0-20190522232832-e049977574e9/go.mod h1:kXnWCffg+Tcm4uCyjKS4JcAJEsWDrMPR58Yav3pfwBc=

@@ -1,10 +1,10 @@
 package model
 
 import (
-	"github.com/xmidt-org/wrp-go/wrp"
+	"github.com/xmidt-org/wrp-go/v2"
 )
 
-//go:generate codecgen -st "wrp" -o event_codec.go event.go
+//go:generate codecgen -st "json" -o event_codec.go event.go
 
 // Event is the extension of wrp message
 //     https://github.com/xmidt-org/wrp-c/wiki/Web-Routing-Protocol
@@ -17,5 +17,5 @@ type Event struct {
 	//
 	// required: false
 	// example: 1555639704
-	BirthDate int64 `wrp:"birth_date,omitempty"`
+	BirthDate int64 `json:"birth_date,omitempty"`
 }
