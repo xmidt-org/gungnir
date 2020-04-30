@@ -24,6 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -354,7 +355,16 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck Capabili
 
 	// only add capability check if the configuration is set
 	if capabilityCheck.Type == "enforce" || capabilityCheck.Type == "monitor" {
-		checker, err := basculechecks.NewCapabilityChecker(capabilityCheckMeasures, capabilityCheck.Prefix, capabilityCheck.AcceptAllMethod)
+		var endpoints []*regexp.Regexp
+		for _, e := range capabilityCheck.EndpointBuckets {
+			r, err := regexp.Compile(e)
+			if err != nil {
+				logging.Error(logger).Log(logging.MessageKey(), "failed to compile regular expression", "regex", e, logging.ErrorKey(), err.Error())
+				continue
+			}
+			endpoints = append(endpoints, r)
+		}
+		checker, err := basculechecks.NewCapabilityChecker(capabilityCheckMeasures, capabilityCheck.Prefix, capabilityCheck.AcceptAllMethod, endpoints)
 		if err != nil {
 			return alice.Chain{}, emperror.With(err, "failed to create capability check")
 		}

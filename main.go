@@ -87,6 +87,7 @@ type CapabilityConfig struct {
 	Type            string
 	Prefix          string
 	AcceptAllMethod string
+	EndpointBuckets []string
 }
 
 type JWTValidator struct {

@@ -186,6 +186,11 @@ jwtValidator:
 #   type: "enforce"
 #   prefix: "prefix Here"
 #   acceptAllMethod: "all"
+#   # endpointBuckets provides regular expressions to use against the request 
+#   # endpoint in order to group requests for a metric label.
+#   endpointBuckets:
+#     - "device/.*/events\\b"
+#     - "device/.*/status\\b"
 
 ########################################
 #   Database Related Configuration
