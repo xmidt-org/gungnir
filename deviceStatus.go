@@ -218,22 +218,20 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 			s.Now = time.Now()
 			s.PartnerIDs = event.PartnerIDs
 		}
+		item := eventTuple{
+			record:    record,
+			status:    s,
+			sessionID: event.SessionID,
+		}
+
 		if s.State == "offline" {
 			if s.Since.After(lastOfflineEvent.status.Since) {
-				lastOfflineEvent = eventTuple{
-					record:    record,
-					status:    s,
-					sessionID: event.SessionID,
-				}
+				lastOfflineEvent = item
 			}
 		}
 		if s.State == "online" {
 			if s.Since.After(lastOnlineEvent.status.Since) {
-				lastOnlineEvent = eventTuple{
-					record:    record,
-					status:    s,
-					sessionID: event.SessionID,
-				}
+				lastOnlineEvent = item
 			}
 		}
 	}
@@ -241,14 +239,20 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 	if lastOfflineEvent.status.State == "" && lastOnlineEvent.status.State == "" {
 		return Status{}, serverErr{emperror.With(errors.New("No events found for device id"), "device id", deviceID),
 			http.StatusNotFound}
-	} else if lastOfflineEvent.status.State == "" && lastOnlineEvent.status.State != "" {
-		return lastOnlineEvent.status, nil
-	} else if lastOfflineEvent.status.State != "" && lastOnlineEvent.status.State == "" {
-		return lastOfflineEvent.status, nil
 	}
 
-	if lastOfflineEvent.sessionID == lastOnlineEvent.sessionID {
-		return lastOfflineEvent.status, nil
+	return determineStatus(lastOnlineEvent, lastOfflineEvent), nil
+}
+
+func determineStatus(lastOnline, lastOffline eventTuple) Status {
+	if lastOffline.status.State == "" {
+		return lastOnline.status
 	}
-	return lastOnlineEvent.status, nil
+	if lastOnline.status.State == "" {
+		return lastOffline.status
+	}
+	if lastOffline.sessionID == lastOnline.sessionID {
+		return lastOffline.status
+	}
+	return lastOnline.status
 }
