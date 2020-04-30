@@ -14,27 +14,27 @@ import (
 
 const (
 	// ----- content types ----
-	codecSelferCcUTF85191 = 1
-	codecSelferCcRAW5191  = 255
+	codecSelferCcUTF84475 = 1
+	codecSelferCcRAW4475  = 255
 	// ----- value types used ----
-	codecSelferValueTypeArray5191     = 10
-	codecSelferValueTypeMap5191       = 9
-	codecSelferValueTypeString5191    = 6
-	codecSelferValueTypeInt5191       = 2
-	codecSelferValueTypeUint5191      = 3
-	codecSelferValueTypeFloat5191     = 4
-	codecSelferValueTypeNil5191       = 1
-	codecSelferBitsize5191            = uint8(32 << (^uint(0) >> 63))
-	codecSelferDecContainerLenNil5191 = -2147483648
+	codecSelferValueTypeArray4475     = 10
+	codecSelferValueTypeMap4475       = 9
+	codecSelferValueTypeString4475    = 6
+	codecSelferValueTypeInt4475       = 2
+	codecSelferValueTypeUint4475      = 3
+	codecSelferValueTypeFloat4475     = 4
+	codecSelferValueTypeNil4475       = 1
+	codecSelferBitsize4475            = uint8(32 << (^uint(0) >> 63))
+	codecSelferDecContainerLenNil4475 = -2147483648
 )
 
 var (
-	errCodecSelferOnlyMapOrArrayEncodeToStruct5191 = errors.New(`only encoded map or array can be decoded into a struct`)
+	errCodecSelferOnlyMapOrArrayEncodeToStruct4475 = errors.New(`only encoded map or array can be decoded into a struct`)
 )
 
-type codecSelfer5191 struct{}
+type codecSelfer4475 struct{}
 
-func codecSelfer5191False() bool { return false }
+func codecSelfer4475False() bool { return false }
 
 func init() {
 	if codec1978.GenVersion != 16 {
@@ -48,7 +48,7 @@ func init() {
 }
 
 func (x *Event) CodecEncodeSelf(e *codec1978.Encoder) {
-	var h codecSelfer5191
+	var h codecSelfer4475
 	z, r := codec1978.GenHelperEncoder(e)
 	_, _, _ = h, z, r
 	if x == nil {
@@ -59,25 +59,25 @@ func (x *Event) CodecEncodeSelf(e *codec1978.Encoder) {
 		_, _ = yysep2, yy2arr2
 		const yyr2 bool = false // struct tag has 'toArray'
 		var yyq2 = [19]bool{    // should field at this index be written?
-			true,             // Type
-			true,             // Source
-			true,             // Destination
-			true,             // TransactionUUID
-			true,             // ContentType
-			true,             // Accept
-			true,             // Status
-			true,             // RequestDeliveryResponse
-			true,             // Headers
-			true,             // Metadata
-			true,             // Spans
-			true,             // IncludeSpans
-			true,             // Path
-			true,             // Payload
-			true,             // ServiceName
-			true,             // URL
-			true,             // PartnerIDs
-			true,             // SessionID
-			x.BirthDate != 0, // BirthDate
+			true,                             // Type
+			x.Source != "",                   // Source
+			x.Destination != "",              // Destination
+			x.TransactionUUID != "",          // TransactionUUID
+			x.ContentType != "",              // ContentType
+			x.Accept != "",                   // Accept
+			x.Status != nil,                  // Status
+			x.RequestDeliveryResponse != nil, // RequestDeliveryResponse
+			len(x.Headers) != 0,              // Headers
+			len(x.Metadata) != 0,             // Metadata
+			len(x.Spans) != 0,                // Spans
+			x.IncludeSpans != nil,            // IncludeSpans
+			x.Path != "",                     // Path
+			len(x.Payload) != 0,              // Payload
+			x.ServiceName != "",              // ServiceName
+			x.URL != "",                      // URL
+			len(x.PartnerIDs) != 0,           // PartnerIDs
+			x.SessionID != "",                // SessionID
+			x.BirthDate != 0,                 // BirthDate
 		}
 		_ = yyq2
 		var yyn9 bool = x.Message.Status == nil
@@ -92,77 +92,145 @@ func (x *Event) CodecEncodeSelf(e *codec1978.Encoder) {
 				r.EncodeInt(int64(x.Message.Type))
 			}
 			z.EncWriteArrayElem()
-			r.EncodeString(string(x.Message.Source))
+			if yyq2[1] {
+				r.EncodeString(string(x.Message.Source))
+			} else {
+				r.EncodeString("")
+			}
 			z.EncWriteArrayElem()
-			r.EncodeString(string(x.Message.Destination))
+			if yyq2[2] {
+				r.EncodeString(string(x.Message.Destination))
+			} else {
+				r.EncodeString("")
+			}
 			z.EncWriteArrayElem()
-			r.EncodeString(string(x.Message.TransactionUUID))
+			if yyq2[3] {
+				r.EncodeString(string(x.Message.TransactionUUID))
+			} else {
+				r.EncodeString("")
+			}
 			z.EncWriteArrayElem()
-			r.EncodeString(string(x.Message.ContentType))
+			if yyq2[4] {
+				r.EncodeString(string(x.Message.ContentType))
+			} else {
+				r.EncodeString("")
+			}
 			z.EncWriteArrayElem()
-			r.EncodeString(string(x.Message.Accept))
+			if yyq2[5] {
+				r.EncodeString(string(x.Message.Accept))
+			} else {
+				r.EncodeString("")
+			}
 			if yyn9 {
 				z.EncWriteArrayElem()
 				r.EncodeNil()
 			} else {
 				z.EncWriteArrayElem()
-				yy28 := *x.Message.Status
-				r.EncodeInt(int64(yy28))
+				if yyq2[6] {
+					yy28 := *x.Message.Status
+					r.EncodeInt(int64(yy28))
+				} else {
+					r.EncodeNil()
+				}
 			}
 			if yyn10 {
 				z.EncWriteArrayElem()
 				r.EncodeNil()
 			} else {
 				z.EncWriteArrayElem()
-				yy30 := *x.Message.RequestDeliveryResponse
-				r.EncodeInt(int64(yy30))
+				if yyq2[7] {
+					yy30 := *x.Message.RequestDeliveryResponse
+					r.EncodeInt(int64(yy30))
+				} else {
+					r.EncodeNil()
+				}
 			}
 			z.EncWriteArrayElem()
-			if x.Message.Headers == nil {
-				r.EncodeNil()
+			if yyq2[8] {
+				if x.Message.Headers == nil {
+					r.EncodeNil()
+				} else {
+					z.F.EncSliceStringV(x.Message.Headers, e)
+				} // end block: if x.Message.Headers slice == nil
 			} else {
-				z.F.EncSliceStringV(x.Message.Headers, e)
-			} // end block: if x.Message.Headers slice == nil
+				r.EncodeNil()
+			}
 			z.EncWriteArrayElem()
-			if x.Message.Metadata == nil {
-				r.EncodeNil()
+			if yyq2[9] {
+				if x.Message.Metadata == nil {
+					r.EncodeNil()
+				} else {
+					z.F.EncMapStringStringV(x.Message.Metadata, e)
+				} // end block: if x.Message.Metadata map == nil
 			} else {
-				z.F.EncMapStringStringV(x.Message.Metadata, e)
-			} // end block: if x.Message.Metadata map == nil
+				r.EncodeNil()
+			}
 			z.EncWriteArrayElem()
-			if x.Message.Spans == nil {
-				r.EncodeNil()
+			if yyq2[10] {
+				if x.Message.Spans == nil {
+					r.EncodeNil()
+				} else {
+					h.encSliceSlicestring(([][]string)(x.Message.Spans), e)
+				} // end block: if x.Message.Spans slice == nil
 			} else {
-				h.encSliceSlicestring(([][]string)(x.Message.Spans), e)
-			} // end block: if x.Message.Spans slice == nil
+				r.EncodeNil()
+			}
 			if yyn14 {
 				z.EncWriteArrayElem()
 				r.EncodeNil()
 			} else {
 				z.EncWriteArrayElem()
-				yy35 := *x.Message.IncludeSpans
-				r.EncodeBool(bool(yy35))
+				if yyq2[11] {
+					yy35 := *x.Message.IncludeSpans
+					r.EncodeBool(bool(yy35))
+				} else {
+					r.EncodeNil()
+				}
 			}
 			z.EncWriteArrayElem()
-			r.EncodeString(string(x.Message.Path))
-			z.EncWriteArrayElem()
-			if x.Message.Payload == nil {
-				r.EncodeNil()
+			if yyq2[12] {
+				r.EncodeString(string(x.Message.Path))
 			} else {
-				r.EncodeStringBytesRaw([]byte(x.Message.Payload))
-			} // end block: if x.Message.Payload slice == nil
+				r.EncodeString("")
+			}
 			z.EncWriteArrayElem()
-			r.EncodeString(string(x.Message.ServiceName))
-			z.EncWriteArrayElem()
-			r.EncodeString(string(x.Message.URL))
-			z.EncWriteArrayElem()
-			if x.Message.PartnerIDs == nil {
-				r.EncodeNil()
+			if yyq2[13] {
+				if x.Message.Payload == nil {
+					r.EncodeNil()
+				} else {
+					r.EncodeStringBytesRaw([]byte(x.Message.Payload))
+				} // end block: if x.Message.Payload slice == nil
 			} else {
-				z.F.EncSliceStringV(x.Message.PartnerIDs, e)
-			} // end block: if x.Message.PartnerIDs slice == nil
+				r.EncodeNil()
+			}
 			z.EncWriteArrayElem()
-			r.EncodeString(string(x.Message.SessionID))
+			if yyq2[14] {
+				r.EncodeString(string(x.Message.ServiceName))
+			} else {
+				r.EncodeString("")
+			}
+			z.EncWriteArrayElem()
+			if yyq2[15] {
+				r.EncodeString(string(x.Message.URL))
+			} else {
+				r.EncodeString("")
+			}
+			z.EncWriteArrayElem()
+			if yyq2[16] {
+				if x.Message.PartnerIDs == nil {
+					r.EncodeNil()
+				} else {
+					z.F.EncSliceStringV(x.Message.PartnerIDs, e)
+				} // end block: if x.Message.PartnerIDs slice == nil
+			} else {
+				r.EncodeNil()
+			}
+			z.EncWriteArrayElem()
+			if yyq2[17] {
+				r.EncodeString(string(x.Message.SessionID))
+			} else {
+				r.EncodeString("")
+			}
 			z.EncWriteArrayElem()
 			if yyq2[18] {
 				r.EncodeInt(int64(x.BirthDate))
@@ -180,188 +248,194 @@ func (x *Event) CodecEncodeSelf(e *codec1978.Encoder) {
 			z.EncWriteMapStart(yynn2)
 			yynn2 = 0
 			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"Type\"")
-			} else {
-				r.EncodeString(`Type`)
-			}
+			r.EncodeString(`msg_type`)
 			z.EncWriteMapElemValue()
 			if yyxt44 := z.Extension(z.I2Rtid(x.Message.Type)); yyxt44 != nil {
 				z.EncExtension(x.Message.Type, yyxt44)
 			} else {
 				r.EncodeInt(int64(x.Message.Type))
 			}
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"Source\"")
-			} else {
-				r.EncodeString(`Source`)
+			if yyq2[1] {
+				z.EncWriteMapElemKey()
+				if z.IsJSONHandle() {
+					z.WriteStr("\"source\"")
+				} else {
+					r.EncodeString(`source`)
+				}
+				z.EncWriteMapElemValue()
+				r.EncodeString(string(x.Message.Source))
 			}
-			z.EncWriteMapElemValue()
-			r.EncodeString(string(x.Message.Source))
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"Destination\"")
-			} else {
-				r.EncodeString(`Destination`)
+			if yyq2[2] {
+				z.EncWriteMapElemKey()
+				if z.IsJSONHandle() {
+					z.WriteStr("\"dest\"")
+				} else {
+					r.EncodeString(`dest`)
+				}
+				z.EncWriteMapElemValue()
+				r.EncodeString(string(x.Message.Destination))
 			}
-			z.EncWriteMapElemValue()
-			r.EncodeString(string(x.Message.Destination))
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"TransactionUUID\"")
-			} else {
-				r.EncodeString(`TransactionUUID`)
+			if yyq2[3] {
+				z.EncWriteMapElemKey()
+				r.EncodeString(`transaction_uuid`)
+				z.EncWriteMapElemValue()
+				r.EncodeString(string(x.Message.TransactionUUID))
 			}
-			z.EncWriteMapElemValue()
-			r.EncodeString(string(x.Message.TransactionUUID))
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"ContentType\"")
-			} else {
-				r.EncodeString(`ContentType`)
+			if yyq2[4] {
+				z.EncWriteMapElemKey()
+				r.EncodeString(`content_type`)
+				z.EncWriteMapElemValue()
+				r.EncodeString(string(x.Message.ContentType))
 			}
-			z.EncWriteMapElemValue()
-			r.EncodeString(string(x.Message.ContentType))
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"Accept\"")
-			} else {
-				r.EncodeString(`Accept`)
+			if yyq2[5] {
+				z.EncWriteMapElemKey()
+				if z.IsJSONHandle() {
+					z.WriteStr("\"accept\"")
+				} else {
+					r.EncodeString(`accept`)
+				}
+				z.EncWriteMapElemValue()
+				r.EncodeString(string(x.Message.Accept))
 			}
-			z.EncWriteMapElemValue()
-			r.EncodeString(string(x.Message.Accept))
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"Status\"")
-			} else {
-				r.EncodeString(`Status`)
+			if yyq2[6] {
+				z.EncWriteMapElemKey()
+				if z.IsJSONHandle() {
+					z.WriteStr("\"status\"")
+				} else {
+					r.EncodeString(`status`)
+				}
+				z.EncWriteMapElemValue()
+				if yyn9 {
+					r.EncodeNil()
+				} else {
+					yy50 := *x.Message.Status
+					r.EncodeInt(int64(yy50))
+				}
 			}
-			z.EncWriteMapElemValue()
-			if yyn9 {
-				r.EncodeNil()
-			} else {
-				yy50 := *x.Message.Status
-				r.EncodeInt(int64(yy50))
+			if yyq2[7] {
+				z.EncWriteMapElemKey()
+				if z.IsJSONHandle() {
+					z.WriteStr("\"rdr\"")
+				} else {
+					r.EncodeString(`rdr`)
+				}
+				z.EncWriteMapElemValue()
+				if yyn10 {
+					r.EncodeNil()
+				} else {
+					yy52 := *x.Message.RequestDeliveryResponse
+					r.EncodeInt(int64(yy52))
+				}
 			}
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"RequestDeliveryResponse\"")
-			} else {
-				r.EncodeString(`RequestDeliveryResponse`)
+			if yyq2[8] {
+				z.EncWriteMapElemKey()
+				if z.IsJSONHandle() {
+					z.WriteStr("\"headers\"")
+				} else {
+					r.EncodeString(`headers`)
+				}
+				z.EncWriteMapElemValue()
+				if x.Message.Headers == nil {
+					r.EncodeNil()
+				} else {
+					z.F.EncSliceStringV(x.Message.Headers, e)
+				} // end block: if x.Message.Headers slice == nil
 			}
-			z.EncWriteMapElemValue()
-			if yyn10 {
-				r.EncodeNil()
-			} else {
-				yy52 := *x.Message.RequestDeliveryResponse
-				r.EncodeInt(int64(yy52))
+			if yyq2[9] {
+				z.EncWriteMapElemKey()
+				if z.IsJSONHandle() {
+					z.WriteStr("\"metadata\"")
+				} else {
+					r.EncodeString(`metadata`)
+				}
+				z.EncWriteMapElemValue()
+				if x.Message.Metadata == nil {
+					r.EncodeNil()
+				} else {
+					z.F.EncMapStringStringV(x.Message.Metadata, e)
+				} // end block: if x.Message.Metadata map == nil
 			}
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"Headers\"")
-			} else {
-				r.EncodeString(`Headers`)
+			if yyq2[10] {
+				z.EncWriteMapElemKey()
+				if z.IsJSONHandle() {
+					z.WriteStr("\"spans\"")
+				} else {
+					r.EncodeString(`spans`)
+				}
+				z.EncWriteMapElemValue()
+				if x.Message.Spans == nil {
+					r.EncodeNil()
+				} else {
+					h.encSliceSlicestring(([][]string)(x.Message.Spans), e)
+				} // end block: if x.Message.Spans slice == nil
 			}
-			z.EncWriteMapElemValue()
-			if x.Message.Headers == nil {
-				r.EncodeNil()
-			} else {
-				z.F.EncSliceStringV(x.Message.Headers, e)
-			} // end block: if x.Message.Headers slice == nil
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"Metadata\"")
-			} else {
-				r.EncodeString(`Metadata`)
+			if yyq2[11] {
+				z.EncWriteMapElemKey()
+				r.EncodeString(`include_spans`)
+				z.EncWriteMapElemValue()
+				if yyn14 {
+					r.EncodeNil()
+				} else {
+					yy57 := *x.Message.IncludeSpans
+					r.EncodeBool(bool(yy57))
+				}
 			}
-			z.EncWriteMapElemValue()
-			if x.Message.Metadata == nil {
-				r.EncodeNil()
-			} else {
-				z.F.EncMapStringStringV(x.Message.Metadata, e)
-			} // end block: if x.Message.Metadata map == nil
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"Spans\"")
-			} else {
-				r.EncodeString(`Spans`)
+			if yyq2[12] {
+				z.EncWriteMapElemKey()
+				if z.IsJSONHandle() {
+					z.WriteStr("\"path\"")
+				} else {
+					r.EncodeString(`path`)
+				}
+				z.EncWriteMapElemValue()
+				r.EncodeString(string(x.Message.Path))
 			}
-			z.EncWriteMapElemValue()
-			if x.Message.Spans == nil {
-				r.EncodeNil()
-			} else {
-				h.encSliceSlicestring(([][]string)(x.Message.Spans), e)
-			} // end block: if x.Message.Spans slice == nil
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"IncludeSpans\"")
-			} else {
-				r.EncodeString(`IncludeSpans`)
+			if yyq2[13] {
+				z.EncWriteMapElemKey()
+				if z.IsJSONHandle() {
+					z.WriteStr("\"payload\"")
+				} else {
+					r.EncodeString(`payload`)
+				}
+				z.EncWriteMapElemValue()
+				if x.Message.Payload == nil {
+					r.EncodeNil()
+				} else {
+					r.EncodeStringBytesRaw([]byte(x.Message.Payload))
+				} // end block: if x.Message.Payload slice == nil
 			}
-			z.EncWriteMapElemValue()
-			if yyn14 {
-				r.EncodeNil()
-			} else {
-				yy57 := *x.Message.IncludeSpans
-				r.EncodeBool(bool(yy57))
+			if yyq2[14] {
+				z.EncWriteMapElemKey()
+				r.EncodeString(`service_name`)
+				z.EncWriteMapElemValue()
+				r.EncodeString(string(x.Message.ServiceName))
 			}
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"Path\"")
-			} else {
-				r.EncodeString(`Path`)
+			if yyq2[15] {
+				z.EncWriteMapElemKey()
+				if z.IsJSONHandle() {
+					z.WriteStr("\"url\"")
+				} else {
+					r.EncodeString(`url`)
+				}
+				z.EncWriteMapElemValue()
+				r.EncodeString(string(x.Message.URL))
 			}
-			z.EncWriteMapElemValue()
-			r.EncodeString(string(x.Message.Path))
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"Payload\"")
-			} else {
-				r.EncodeString(`Payload`)
+			if yyq2[16] {
+				z.EncWriteMapElemKey()
+				r.EncodeString(`partner_ids`)
+				z.EncWriteMapElemValue()
+				if x.Message.PartnerIDs == nil {
+					r.EncodeNil()
+				} else {
+					z.F.EncSliceStringV(x.Message.PartnerIDs, e)
+				} // end block: if x.Message.PartnerIDs slice == nil
 			}
-			z.EncWriteMapElemValue()
-			if x.Message.Payload == nil {
-				r.EncodeNil()
-			} else {
-				r.EncodeStringBytesRaw([]byte(x.Message.Payload))
-			} // end block: if x.Message.Payload slice == nil
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"ServiceName\"")
-			} else {
-				r.EncodeString(`ServiceName`)
+			if yyq2[17] {
+				z.EncWriteMapElemKey()
+				r.EncodeString(`session_id`)
+				z.EncWriteMapElemValue()
+				r.EncodeString(string(x.Message.SessionID))
 			}
-			z.EncWriteMapElemValue()
-			r.EncodeString(string(x.Message.ServiceName))
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"URL\"")
-			} else {
-				r.EncodeString(`URL`)
-			}
-			z.EncWriteMapElemValue()
-			r.EncodeString(string(x.Message.URL))
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"PartnerIDs\"")
-			} else {
-				r.EncodeString(`PartnerIDs`)
-			}
-			z.EncWriteMapElemValue()
-			if x.Message.PartnerIDs == nil {
-				r.EncodeNil()
-			} else {
-				z.F.EncSliceStringV(x.Message.PartnerIDs, e)
-			} // end block: if x.Message.PartnerIDs slice == nil
-			z.EncWriteMapElemKey()
-			if z.IsJSONHandle() {
-				z.WriteStr("\"SessionID\"")
-			} else {
-				r.EncodeString(`SessionID`)
-			}
-			z.EncWriteMapElemValue()
-			r.EncodeString(string(x.Message.SessionID))
 			if yyq2[18] {
 				z.EncWriteMapElemKey()
 				r.EncodeString(`birth_date`)
@@ -374,32 +448,32 @@ func (x *Event) CodecEncodeSelf(e *codec1978.Encoder) {
 }
 
 func (x *Event) CodecDecodeSelf(d *codec1978.Decoder) {
-	var h codecSelfer5191
+	var h codecSelfer4475
 	z, r := codec1978.GenHelperDecoder(d)
 	_, _, _ = h, z, r
 	yyct2 := r.ContainerType()
-	if yyct2 == codecSelferValueTypeNil5191 {
+	if yyct2 == codecSelferValueTypeNil4475 {
 		*(x) = Event{}
-	} else if yyct2 == codecSelferValueTypeMap5191 {
+	} else if yyct2 == codecSelferValueTypeMap4475 {
 		yyl2 := z.DecReadMapStart()
 		if yyl2 == 0 {
 		} else {
 			x.codecDecodeSelfFromMap(yyl2, d)
 		}
 		z.DecReadMapEnd()
-	} else if yyct2 == codecSelferValueTypeArray5191 {
+	} else if yyct2 == codecSelferValueTypeArray4475 {
 		yyl2 := z.DecReadArrayStart()
 		if yyl2 != 0 {
 			x.codecDecodeSelfFromArray(yyl2, d)
 		}
 		z.DecReadArrayEnd()
 	} else {
-		panic(errCodecSelferOnlyMapOrArrayEncodeToStruct5191)
+		panic(errCodecSelferOnlyMapOrArrayEncodeToStruct4475)
 	}
 }
 
 func (x *Event) codecDecodeSelfFromMap(l int, d *codec1978.Decoder) {
-	var h codecSelfer5191
+	var h codecSelfer4475
 	z, r := codec1978.GenHelperDecoder(d)
 	_, _, _ = h, z, r
 	var yyhl3 bool = l >= 0
@@ -417,23 +491,23 @@ func (x *Event) codecDecodeSelfFromMap(l int, d *codec1978.Decoder) {
 		yys3 := z.StringView(r.DecodeStringAsBytes())
 		z.DecReadMapElemValue()
 		switch yys3 {
-		case "Type":
+		case "msg_type":
 			if yyxt5 := z.Extension(z.I2Rtid(x.Message.Type)); yyxt5 != nil {
 				z.DecExtension(x.Message.Type, yyxt5)
 			} else {
 				x.Message.Type = (pkg1_v2.MessageType)(r.DecodeInt64())
 			}
-		case "Source":
+		case "source":
 			x.Message.Source = (string)(string(r.DecodeStringAsBytes()))
-		case "Destination":
+		case "dest":
 			x.Message.Destination = (string)(string(r.DecodeStringAsBytes()))
-		case "TransactionUUID":
+		case "transaction_uuid":
 			x.Message.TransactionUUID = (string)(string(r.DecodeStringAsBytes()))
-		case "ContentType":
+		case "content_type":
 			x.Message.ContentType = (string)(string(r.DecodeStringAsBytes()))
-		case "Accept":
+		case "accept":
 			x.Message.Accept = (string)(string(r.DecodeStringAsBytes()))
-		case "Status":
+		case "status":
 			if r.TryNil() {
 				if x.Message.Status != nil { // remove the if-true
 					x.Message.Status = nil
@@ -444,7 +518,7 @@ func (x *Event) codecDecodeSelfFromMap(l int, d *codec1978.Decoder) {
 				}
 				*x.Message.Status = (int64)(r.DecodeInt64())
 			}
-		case "RequestDeliveryResponse":
+		case "rdr":
 			if r.TryNil() {
 				if x.Message.RequestDeliveryResponse != nil { // remove the if-true
 					x.Message.RequestDeliveryResponse = nil
@@ -455,13 +529,13 @@ func (x *Event) codecDecodeSelfFromMap(l int, d *codec1978.Decoder) {
 				}
 				*x.Message.RequestDeliveryResponse = (int64)(r.DecodeInt64())
 			}
-		case "Headers":
+		case "headers":
 			z.F.DecSliceStringX(&x.Message.Headers, d)
-		case "Metadata":
+		case "metadata":
 			z.F.DecMapStringStringX(&x.Message.Metadata, d)
-		case "Spans":
+		case "spans":
 			h.decSliceSlicestring((*[][]string)(&x.Message.Spans), d)
-		case "IncludeSpans":
+		case "include_spans":
 			if r.TryNil() {
 				if x.Message.IncludeSpans != nil { // remove the if-true
 					x.Message.IncludeSpans = nil
@@ -472,17 +546,17 @@ func (x *Event) codecDecodeSelfFromMap(l int, d *codec1978.Decoder) {
 				}
 				*x.Message.IncludeSpans = (bool)(r.DecodeBool())
 			}
-		case "Path":
+		case "path":
 			x.Message.Path = (string)(string(r.DecodeStringAsBytes()))
-		case "Payload":
+		case "payload":
 			x.Message.Payload = r.DecodeBytes(([]byte)(x.Message.Payload), false)
-		case "ServiceName":
+		case "service_name":
 			x.Message.ServiceName = (string)(string(r.DecodeStringAsBytes()))
-		case "URL":
+		case "url":
 			x.Message.URL = (string)(string(r.DecodeStringAsBytes()))
-		case "PartnerIDs":
+		case "partner_ids":
 			z.F.DecSliceStringX(&x.Message.PartnerIDs, d)
-		case "SessionID":
+		case "session_id":
 			x.Message.SessionID = (string)(string(r.DecodeStringAsBytes()))
 		case "birth_date":
 			x.BirthDate = (int64)(r.DecodeInt64())
@@ -493,7 +567,7 @@ func (x *Event) codecDecodeSelfFromMap(l int, d *codec1978.Decoder) {
 }
 
 func (x *Event) codecDecodeSelfFromArray(l int, d *codec1978.Decoder) {
-	var h codecSelfer5191
+	var h codecSelfer4475
 	z, r := codec1978.GenHelperDecoder(d)
 	_, _, _ = h, z, r
 	var yyj32 int
@@ -773,8 +847,8 @@ func (x *Event) codecDecodeSelfFromArray(l int, d *codec1978.Decoder) {
 	}
 }
 
-func (x codecSelfer5191) encSliceSlicestring(v [][]string, e *codec1978.Encoder) {
-	var h codecSelfer5191
+func (x codecSelfer4475) encSliceSlicestring(v [][]string, e *codec1978.Encoder) {
+	var h codecSelfer4475
 	z, r := codec1978.GenHelperEncoder(e)
 	_, _, _ = h, z, r
 	if v == nil {
@@ -793,8 +867,8 @@ func (x codecSelfer5191) encSliceSlicestring(v [][]string, e *codec1978.Encoder)
 	z.EncWriteArrayEnd()
 }
 
-func (x codecSelfer5191) decSliceSlicestring(v *[][]string, d *codec1978.Decoder) {
-	var h codecSelfer5191
+func (x codecSelfer4475) decSliceSlicestring(v *[][]string, d *codec1978.Decoder) {
+	var h codecSelfer4475
 	z, r := codec1978.GenHelperDecoder(d)
 	_, _, _ = h, z, r
 
@@ -870,8 +944,8 @@ func (x codecSelfer5191) decSliceSlicestring(v *[][]string, d *codec1978.Decoder
 	}
 }
 
-func (x codecSelfer5191) encSlicestring(v []string, e *codec1978.Encoder) {
-	var h codecSelfer5191
+func (x codecSelfer4475) encSlicestring(v []string, e *codec1978.Encoder) {
+	var h codecSelfer4475
 	z, r := codec1978.GenHelperEncoder(e)
 	_, _, _ = h, z, r
 	if v == nil {
@@ -886,8 +960,8 @@ func (x codecSelfer5191) encSlicestring(v []string, e *codec1978.Encoder) {
 	z.EncWriteArrayEnd()
 }
 
-func (x codecSelfer5191) decSlicestring(v *[]string, d *codec1978.Decoder) {
-	var h codecSelfer5191
+func (x codecSelfer4475) decSlicestring(v *[]string, d *codec1978.Decoder) {
+	var h codecSelfer4475
 	z, r := codec1978.GenHelperDecoder(d)
 	_, _, _ = h, z, r
 

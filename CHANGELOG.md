@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - leverage sessionID for better judgement in offline vs online [#110](https://github.com/xmidt-org/gungnir/pull/110)
+- changed Event struct tag from wrp to json [#110](https://github.com/xmidt-org/gungnir/pull/110)
 - bumped codex-db to v0.6.0 [#110](https://github.com/xmidt-org/gungnir/pull/110)
 - bumped wrp-go to v2.0.1 [#110](https://github.com/xmidt-org/gungnir/pull/110)
 
