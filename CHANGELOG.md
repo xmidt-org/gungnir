@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - changed Event struct tag from wrp to json [#110](https://github.com/xmidt-org/gungnir/pull/110)
 - bumped codex-db to v0.6.0 [#110](https://github.com/xmidt-org/gungnir/pull/110)
 - bumped wrp-go to v2.0.1 [#110](https://github.com/xmidt-org/gungnir/pull/110)
+- bumped webpa-common to v1.9.0 to add configurable regexp for capability check metric labels [#111](https://github.com/xmidt-org/gungnir/pull/111)
 
 ## [v0.13.1]
  - fixed a capabilityCheck issue by correctly parsing out an additional `/` from the URL [#108](https://github.com/xmidt-org/gungnir/pull/108)
