@@ -1,12 +1,12 @@
 # gungnir
 (pronounced “GUNG-neer”)
 
-[![Build Status](https://travis-ci.com/xmidt-org/gungnir.svg?branch=master)](https://travis-ci.com/xmidt-org/gungnir)
-[![codecov.io](http://codecov.io/github/xmidt-org/gungnir/coverage.svg?branch=master)](http://codecov.io/github/xmidt-org/gungnir?branch=master)
+[![Build Status](https://travis-ci.com/xmidt-org/gungnir.svg?branch=main)](https://travis-ci.com/xmidt-org/gungnir)
+[![codecov.io](http://codecov.io/github/xmidt-org/gungnir/coverage.svg?branch=main)](http://codecov.io/github/xmidt-org/gungnir?branch=main)
 [![Code Climate](https://codeclimate.com/github/xmidt-org/gungnir/badges/gpa.svg)](https://codeclimate.com/github/xmidt-org/gungnir)
 [![Issue Count](https://codeclimate.com/github/xmidt-org/gungnir/badges/issue_count.svg)](https://codeclimate.com/github/xmidt-org/gungnir)
 [![Go Report Card](https://goreportcard.com/badge/github.com/xmidt-org/gungnir)](https://goreportcard.com/report/github.com/xmidt-org/gungnir)
-[![Apache V2 License](http://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/xmidt-org/gungnir/blob/master/LICENSE)
+[![Apache V2 License](http://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/xmidt-org/gungnir/blob/main/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/xmidt-org/gungnir.svg)](CHANGELOG.md)
 
 
@@ -129,7 +129,7 @@ WIP. TODO: add info
 
 ## Deploy
 
-For deploying on Docker or in Kubernetes, refer to the [deploy README](https://github.com/xmidt-org/codex-deploy/tree/master/deploy/README.md).
+For deploying on Docker or in Kubernetes, refer to the [deploy README](https://github.com/xmidt-org/codex-deploy/tree/main/deploy/README.md).
 
 For running locally, ensure you have the binary [built](#Source).  If it's in 
 your `GOPATH`, run:
