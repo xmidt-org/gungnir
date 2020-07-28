@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Updated references to the main branch [#114](https://github.com/xmidt-org/svalinn/pull/114)
 
 ## [v0.14.1]
 - add fix for empty sessionID [#112](https://github.com/xmidt-org/gungnir/pull/112)
