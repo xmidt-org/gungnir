@@ -67,8 +67,8 @@ style:
 
 .PHONY: test
 test: go-mod-vendor
-	GO111MODULE=on go test -v -race  -coverprofile=coverage.txt ./...
-	GO111MODULE=on go test -v -race  -json ./... > report.json
+	GO111MODULE=on $(GO) test -v -race  -coverprofile=coverage.txt ./...
+	GO111MODULE=on $(GO) test -v -race  -json ./... > report.json
 
 .PHONY: test-cover
 test-cover: test
