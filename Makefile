@@ -67,11 +67,12 @@ style:
 
 .PHONY: test
 test: go-mod-vendor
-	GO111MODULE=on $(GO) test -v -race  -coverprofile=cover.out ./...
+	GO111MODULE=on $(GO) test -v -race  -coverprofile=coverage.txt ./...
+	GO111MODULE=on $(GO) test -v -race  -json ./... > report.json
 
 .PHONY: test-cover
 test-cover: test
-	$(GO) tool cover -html=cover.out
+	$(GO) tool cover -html=coverage.txt
 
 .PHONY: codecov
 codecov: test
@@ -83,4 +84,4 @@ it:
 
 .PHONY: clean
 clean:
-	rm -rf ./$(APP) ./.ignore ./coverage.txt ./vendor
+	rm -rf ./$(APP) ./.ignore ./coverage.txt ./vendor report.json
