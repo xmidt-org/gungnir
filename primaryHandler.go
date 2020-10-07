@@ -30,7 +30,7 @@ import (
 
 	"github.com/ugorji/go/codec"
 	"github.com/xmidt-org/gungnir/model"
-	"github.com/xmidt-org/wrp-go/v2"
+	"github.com/xmidt-org/wrp-go/v3"
 
 	"github.com/justinas/alice"
 	"github.com/xmidt-org/bascule"
@@ -356,6 +356,10 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck Capabili
 	// only add capability check if the configuration is set
 	if capabilityCheck.Type == "enforce" || capabilityCheck.Type == "monitor" {
 		var endpoints []*regexp.Regexp
+		c, err := basculechecks.NewEndpointRegexCheck(capabilityCheck.Prefix, capabilityCheck.AcceptAllMethod)
+		if err != nil {
+			return alice.Chain{}, emperror.With(err, "failed to create capability check")
+		}
 		for _, e := range capabilityCheck.EndpointBuckets {
 			r, err := regexp.Compile(e)
 			if err != nil {
@@ -364,11 +368,12 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck Capabili
 			}
 			endpoints = append(endpoints, r)
 		}
-		checker, err := basculechecks.NewCapabilityChecker(capabilityCheckMeasures, capabilityCheck.Prefix, capabilityCheck.AcceptAllMethod, endpoints)
-		if err != nil {
-			return alice.Chain{}, emperror.With(err, "failed to create capability check")
+		m := basculechecks.MetricValidator{
+			C:         basculechecks.CapabilitiesValidator{Checker: c},
+			Measures:  capabilityCheckMeasures,
+			Endpoints: endpoints,
 		}
-		bearerRules = append(bearerRules, checker.CreateBasculeCheck(capabilityCheck.Type == "enforce"))
+		bearerRules = append(bearerRules, m.CreateValidator(capabilityCheck.Type == "enforce"))
 	}
 
 	authEnforcer := basculehttp.NewEnforcer(

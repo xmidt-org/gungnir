@@ -30,9 +30,9 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
-	"github.com/xmidt-org/codex-db"
+	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/logging"
-	"github.com/xmidt-org/wrp-go/v2"
+	"github.com/xmidt-org/wrp-go/v3"
 )
 
 const (
