@@ -7,34 +7,34 @@ package model
 import (
 	"errors"
 	codec1978 "github.com/ugorji/go/codec"
-	pkg1_v2 "github.com/xmidt-org/wrp-go/v2"
+	pkg1_v3 "github.com/xmidt-org/wrp-go/v3"
 	"runtime"
 	"strconv"
 )
 
 const (
 	// ----- content types ----
-	codecSelferCcUTF84475 = 1
-	codecSelferCcRAW4475  = 255
+	codecSelferCcUTF82365 = 1
+	codecSelferCcRAW2365  = 255
 	// ----- value types used ----
-	codecSelferValueTypeArray4475     = 10
-	codecSelferValueTypeMap4475       = 9
-	codecSelferValueTypeString4475    = 6
-	codecSelferValueTypeInt4475       = 2
-	codecSelferValueTypeUint4475      = 3
-	codecSelferValueTypeFloat4475     = 4
-	codecSelferValueTypeNil4475       = 1
-	codecSelferBitsize4475            = uint8(32 << (^uint(0) >> 63))
-	codecSelferDecContainerLenNil4475 = -2147483648
+	codecSelferValueTypeArray2365     = 10
+	codecSelferValueTypeMap2365       = 9
+	codecSelferValueTypeString2365    = 6
+	codecSelferValueTypeInt2365       = 2
+	codecSelferValueTypeUint2365      = 3
+	codecSelferValueTypeFloat2365     = 4
+	codecSelferValueTypeNil2365       = 1
+	codecSelferBitsize2365            = uint8(32 << (^uint(0) >> 63))
+	codecSelferDecContainerLenNil2365 = -2147483648
 )
 
 var (
-	errCodecSelferOnlyMapOrArrayEncodeToStruct4475 = errors.New(`only encoded map or array can be decoded into a struct`)
+	errCodecSelferOnlyMapOrArrayEncodeToStruct2365 = errors.New(`only encoded map or array can be decoded into a struct`)
 )
 
-type codecSelfer4475 struct{}
+type codecSelfer2365 struct{}
 
-func codecSelfer4475False() bool { return false }
+func codecSelfer2365False() bool { return false }
 
 func init() {
 	if codec1978.GenVersion != 16 {
@@ -43,12 +43,12 @@ func init() {
 		panic("codecgen version mismatch: current: 16, need " + ver + ". Re-generate file: " + file)
 	}
 	if false { // reference the types, but skip this branch at build/run time
-		var _ pkg1_v2.Message
+		var _ pkg1_v3.Message
 	}
 }
 
 func (x *Event) CodecEncodeSelf(e *codec1978.Encoder) {
-	var h codecSelfer4475
+	var h codecSelfer2365
 	z, r := codec1978.GenHelperEncoder(e)
 	_, _, _ = h, z, r
 	if x == nil {
@@ -448,32 +448,32 @@ func (x *Event) CodecEncodeSelf(e *codec1978.Encoder) {
 }
 
 func (x *Event) CodecDecodeSelf(d *codec1978.Decoder) {
-	var h codecSelfer4475
+	var h codecSelfer2365
 	z, r := codec1978.GenHelperDecoder(d)
 	_, _, _ = h, z, r
 	yyct2 := r.ContainerType()
-	if yyct2 == codecSelferValueTypeNil4475 {
+	if yyct2 == codecSelferValueTypeNil2365 {
 		*(x) = Event{}
-	} else if yyct2 == codecSelferValueTypeMap4475 {
+	} else if yyct2 == codecSelferValueTypeMap2365 {
 		yyl2 := z.DecReadMapStart()
 		if yyl2 == 0 {
 		} else {
 			x.codecDecodeSelfFromMap(yyl2, d)
 		}
 		z.DecReadMapEnd()
-	} else if yyct2 == codecSelferValueTypeArray4475 {
+	} else if yyct2 == codecSelferValueTypeArray2365 {
 		yyl2 := z.DecReadArrayStart()
 		if yyl2 != 0 {
 			x.codecDecodeSelfFromArray(yyl2, d)
 		}
 		z.DecReadArrayEnd()
 	} else {
-		panic(errCodecSelferOnlyMapOrArrayEncodeToStruct4475)
+		panic(errCodecSelferOnlyMapOrArrayEncodeToStruct2365)
 	}
 }
 
 func (x *Event) codecDecodeSelfFromMap(l int, d *codec1978.Decoder) {
-	var h codecSelfer4475
+	var h codecSelfer2365
 	z, r := codec1978.GenHelperDecoder(d)
 	_, _, _ = h, z, r
 	var yyhl3 bool = l >= 0
@@ -495,7 +495,7 @@ func (x *Event) codecDecodeSelfFromMap(l int, d *codec1978.Decoder) {
 			if yyxt5 := z.Extension(z.I2Rtid(x.Message.Type)); yyxt5 != nil {
 				z.DecExtension(x.Message.Type, yyxt5)
 			} else {
-				x.Message.Type = (pkg1_v2.MessageType)(r.DecodeInt64())
+				x.Message.Type = (pkg1_v3.MessageType)(r.DecodeInt64())
 			}
 		case "source":
 			x.Message.Source = (string)(string(r.DecodeStringAsBytes()))
@@ -567,7 +567,7 @@ func (x *Event) codecDecodeSelfFromMap(l int, d *codec1978.Decoder) {
 }
 
 func (x *Event) codecDecodeSelfFromArray(l int, d *codec1978.Decoder) {
-	var h codecSelfer4475
+	var h codecSelfer2365
 	z, r := codec1978.GenHelperDecoder(d)
 	_, _, _ = h, z, r
 	var yyj32 int
@@ -587,7 +587,7 @@ func (x *Event) codecDecodeSelfFromArray(l int, d *codec1978.Decoder) {
 	if yyxt34 := z.Extension(z.I2Rtid(x.Message.Type)); yyxt34 != nil {
 		z.DecExtension(x.Message.Type, yyxt34)
 	} else {
-		x.Message.Type = (pkg1_v2.MessageType)(r.DecodeInt64())
+		x.Message.Type = (pkg1_v3.MessageType)(r.DecodeInt64())
 	}
 	yyj32++
 	if yyhl32 {
@@ -847,8 +847,8 @@ func (x *Event) codecDecodeSelfFromArray(l int, d *codec1978.Decoder) {
 	}
 }
 
-func (x codecSelfer4475) encSliceSlicestring(v [][]string, e *codec1978.Encoder) {
-	var h codecSelfer4475
+func (x codecSelfer2365) encSliceSlicestring(v [][]string, e *codec1978.Encoder) {
+	var h codecSelfer2365
 	z, r := codec1978.GenHelperEncoder(e)
 	_, _, _ = h, z, r
 	if v == nil {
@@ -867,8 +867,8 @@ func (x codecSelfer4475) encSliceSlicestring(v [][]string, e *codec1978.Encoder)
 	z.EncWriteArrayEnd()
 }
 
-func (x codecSelfer4475) decSliceSlicestring(v *[][]string, d *codec1978.Decoder) {
-	var h codecSelfer4475
+func (x codecSelfer2365) decSliceSlicestring(v *[][]string, d *codec1978.Decoder) {
+	var h codecSelfer2365
 	z, r := codec1978.GenHelperDecoder(d)
 	_, _, _ = h, z, r
 
@@ -944,8 +944,8 @@ func (x codecSelfer4475) decSliceSlicestring(v *[][]string, d *codec1978.Decoder
 	}
 }
 
-func (x codecSelfer4475) encSlicestring(v []string, e *codec1978.Encoder) {
-	var h codecSelfer4475
+func (x codecSelfer2365) encSlicestring(v []string, e *codec1978.Encoder) {
+	var h codecSelfer2365
 	z, r := codec1978.GenHelperEncoder(e)
 	_, _, _ = h, z, r
 	if v == nil {
@@ -960,8 +960,8 @@ func (x codecSelfer4475) encSlicestring(v []string, e *codec1978.Encoder) {
 	z.EncWriteArrayEnd()
 }
 
-func (x codecSelfer4475) decSlicestring(v *[]string, d *codec1978.Decoder) {
-	var h codecSelfer4475
+func (x codecSelfer2365) decSlicestring(v *[]string, d *codec1978.Decoder) {
+	var h codecSelfer2365
 	z, r := codec1978.GenHelperDecoder(d)
 	_, _, _ = h, z, r
 

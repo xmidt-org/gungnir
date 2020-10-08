@@ -33,9 +33,9 @@ import (
 	"github.com/xmidt-org/voynicrypto"
 	"github.com/xmidt-org/webpa-common/logging"
 	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
-	"github.com/xmidt-org/wrp-go/v2"
+	"github.com/xmidt-org/wrp-go/v3"
 
-	"github.com/xmidt-org/codex-db"
+	db "github.com/xmidt-org/codex-db"
 )
 
 func TestGetStatusInfo(t *testing.T) {
