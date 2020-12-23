@@ -146,7 +146,9 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedFailureMetric: 1.0,
-			expectedEvents:        []model.Event{model.Event{wrp.Message{Type: 11}, 0}},
+			expectedEvents: []model.Event{
+				model.Event{Message: wrp.Message{Type: 11}, BirthDate: 0},
+			},
 		},
 		{
 			description: "Decrypt Error",
@@ -158,8 +160,10 @@ func TestGetDeviceInfo(t *testing.T) {
 					KID:       "none",
 				},
 			},
-			decryptErr:     errors.New("failed to decrypt"),
-			expectedEvents: []model.Event{model.Event{wrp.Message{Type: 11}, 0}},
+			decryptErr: errors.New("failed to decrypt"),
+			expectedEvents: []model.Event{
+				model.Event{Message: wrp.Message{Type: 11}, BirthDate: 0},
+			},
 		},
 		{
 			description: "No Decrypter",
@@ -173,7 +177,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedEvents: []model.Event{
-				model.Event{wrp.Message{Type: 11}, prevTime.UnixNano()},
+				model.Event{Message: wrp.Message{Type: 11}, BirthDate: prevTime.UnixNano()},
 			},
 		},
 		{
@@ -188,7 +192,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedEvents: []model.Event{
-				model.Event{goodOnlineEvent, prevTime.UnixNano()},
+				model.Event{Message: goodOnlineEvent, BirthDate: prevTime.UnixNano()},
 			},
 		},
 	}
@@ -363,7 +367,7 @@ func TestLongPoll(t *testing.T) {
 				},
 			},
 			expectedEvents: []model.Event{
-				model.Event{wrp.Message{Type: 11}, birthDate},
+				model.Event{Message: wrp.Message{Type: 11}, BirthDate: birthDate},
 			},
 			contextTimeout:  time.Minute,
 			longPollTimeout: time.Minute,
@@ -398,7 +402,7 @@ func TestLongPoll(t *testing.T) {
 				longPollTimeout: tc.longPollTimeout,
 			}
 
-			ctx, _ := context.WithTimeout(context.Background(), tc.contextTimeout)
+			ctx, cancel := context.WithTimeout(context.Background(), tc.contextTimeout)
 			events, hash, err := app.getDeviceInfoAfterHash("1234", "ee0ce9d6-3ee2-11ea-9dff-1c6fdc758512", ctx)
 			if err != nil {
 				var coder kithttp.StatusCoder
@@ -413,6 +417,7 @@ func TestLongPoll(t *testing.T) {
 				assert.NotEmpty(hash)
 			}
 			assert.Equal(tc.expectedEvents, events)
+			cancel()
 		})
 	}
 }
