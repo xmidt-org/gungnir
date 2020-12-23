@@ -151,7 +151,7 @@ func (app *App) parseRecords(records []db.Record) []model.Event {
 	for _, record := range records {
 		// if the record is expired, don't include it
 		if time.Unix(0, record.DeathDate).Before(time.Now()) {
-			logging.Debug(app.logger).Log(logging.MessageKey(), "the record is expired", "timesince", time.Now().Sub(time.Unix(0, record.DeathDate)))
+			logging.Debug(app.logger).Log(logging.MessageKey(), "the record is expired", "timesince", time.Since(time.Unix(0, record.DeathDate)))
 			continue
 		}
 
