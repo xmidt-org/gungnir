@@ -270,6 +270,7 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 	writer.Write(data)
 }
 
+//nolint:funlen // this will be fixed with uber fx
 func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck CapabilityConfig, logger log.Logger, registry xmetrics.Registry) (alice.Chain, error) {
 	if registry == nil {
 		return alice.Chain{}, errors.New("nil registry")
