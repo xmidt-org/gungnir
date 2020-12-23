@@ -65,7 +65,6 @@ func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string, ctx 
 		hash string
 		err  error
 	)
-	events := []model.Event{}
 
 	records, hErr := app.eventGetter.GetRecords(deviceID, app.getEventLimit, requestHash)
 	// if both have errors or are empty, return an error
@@ -78,7 +77,7 @@ func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string, ctx 
 	if err != nil {
 		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error())
 	}
-	events = app.parseRecords(records)
+	events := app.parseRecords(records)
 
 	after := time.After(app.longPollTimeout)
 	// TODO: improve long poll logic
