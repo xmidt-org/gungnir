@@ -114,6 +114,7 @@ func GetLogger(ctx context.Context) bascule.Logger {
 	return log.With(logging.GetLogger(ctx), "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 }
 
+//nolint:funlen // this will be fixed with uber fx
 func gungnir(arguments []string) {
 	start := time.Now()
 
@@ -135,12 +136,10 @@ func gungnir(arguments []string) {
 	serverHealth.Logger = healthlogger.NewHealthLogger(logger)
 
 	config := new(Config)
-
 	v.Unmarshal(config)
-	dbConfig := config.Db
 	validateConfig(config)
 
-	database, err := cassandra.CreateDbConnection(dbConfig, metricsRegistry, serverHealth)
+	database, err := cassandra.CreateDbConnection(config.Db, metricsRegistry, serverHealth)
 	exitIfError(logger, emperror.Wrap(err, "failed to initialize database connection"))
 
 	cipherOptions, err := voynicrypto.FromViper(v)

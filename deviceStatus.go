@@ -20,6 +20,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"path"
 	"strings"
@@ -156,72 +157,24 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 		lastOnlineEvent  eventTuple
 	)
 	for _, record := range stateInfo {
-		// if all is good, create our status record
-		var (
-			s Status
-		)
-		// if we have state and last offline reason, we don't need to search anymore
-		if s.State != "" && s.LastOfflineReason != "" {
-			break
-		}
+
 		// if the record is expired, don't include it
 		if time.Unix(0, record.DeathDate).Before(time.Now()) {
 			continue
 		}
 
-		var event wrp.Message
-		decrypter, ok := app.decrypters.Get(voynicrypto.ParseAlgorithmType(record.Alg), record.KID)
-		if !ok {
-			app.measures.GetDecryptFailure.Add(1.0)
-			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to find decrypter")
-			continue
-		}
-		data, err := decrypter.DecryptMessage(record.Data, record.Nonce)
+		item, err := app.parseState(deviceID, record)
 		if err != nil {
-			app.measures.DecryptFailure.Add(1.0)
-			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decrypt event", logging.ErrorKey(), err.Error())
-			continue
+			logging.Error(app.logger).Log(logging.MessageKey(), err)
 		}
 
-		decoder := wrp.NewDecoderBytes(data, wrp.Msgpack)
-		err = decoder.Decode(&event)
-		if err != nil {
-			app.measures.UnmarshalFailure.Add(1.0)
-			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to decode event", logging.ErrorKey(), err.Error())
-			continue
-		}
-		var payload map[string]interface{}
-		err = json.Unmarshal(event.Payload, &payload)
-		if err != nil {
-			logging.Error(app.logger).Log(logging.MessageKey(), "Failed to unmarshal payload",
-				logging.ErrorKey(), err.Error())
-			continue
-		}
-
-		if value, ok := payload[payloadKey]; ok && s.LastOfflineReason == "" {
-			s.LastOfflineReason = value.(string)
-		}
-
-		if s.State == "" {
-			s.DeviceID = deviceID
-			s.State = path.Base(event.Destination)
-			s.Since = time.Unix(0, record.BirthDate)
-			s.Now = time.Now()
-			s.PartnerIDs = event.PartnerIDs
-		}
-		item := eventTuple{
-			record:    record,
-			status:    s,
-			sessionID: event.SessionID,
-		}
-
-		if s.State == "offline" {
-			if s.Since.After(lastOfflineEvent.status.Since) {
+		if item.status.State == "offline" {
+			if item.status.Since.After(lastOfflineEvent.status.Since) {
 				lastOfflineEvent = item
 			}
 		}
-		if s.State == "online" {
-			if s.Since.After(lastOnlineEvent.status.Since) {
+		if item.status.State == "online" {
+			if item.status.Since.After(lastOnlineEvent.status.Since) {
 				lastOnlineEvent = item
 			}
 		}
@@ -233,6 +186,51 @@ func (app *App) getStatusInfo(deviceID string) (Status, error) {
 	}
 
 	return determineStatus(lastOnlineEvent, lastOfflineEvent), nil
+}
+
+func (app *App) parseState(deviceID string, record db.Record) (eventTuple, error) {
+	decrypter, ok := app.decrypters.Get(voynicrypto.ParseAlgorithmType(record.Alg), record.KID)
+	if !ok {
+		app.measures.GetDecryptFailure.Add(1.0)
+		return eventTuple{}, errors.New("failed to find decrypter")
+	}
+	data, err := decrypter.DecryptMessage(record.Data, record.Nonce)
+	if err != nil {
+		app.measures.DecryptFailure.Add(1.0)
+		return eventTuple{}, fmt.Errorf("failed to decrypt event: %v", err)
+	}
+
+	var event wrp.Message
+	decoder := wrp.NewDecoderBytes(data, wrp.Msgpack)
+	err = decoder.Decode(&event)
+	if err != nil {
+		app.measures.UnmarshalFailure.Add(1.0)
+		return eventTuple{}, fmt.Errorf("failed to decode event: %v", err)
+	}
+	var payload map[string]interface{}
+	err = json.Unmarshal(event.Payload, &payload)
+	if err != nil {
+		return eventTuple{}, fmt.Errorf("failed to unmarshal payload: %v", err)
+	}
+
+	s := Status{
+		DeviceID:   deviceID,
+		State:      path.Base(event.Destination),
+		Since:      time.Unix(0, record.BirthDate),
+		Now:        time.Now(),
+		PartnerIDs: event.PartnerIDs,
+	}
+
+	if value, ok := payload[payloadKey]; ok && s.LastOfflineReason == "" {
+		s.LastOfflineReason = value.(string)
+	}
+
+	item := eventTuple{
+		record:    record,
+		status:    s,
+		sessionID: event.SessionID,
+	}
+	return item, nil
 }
 
 func determineStatus(lastOnline, lastOffline eventTuple) Status {
