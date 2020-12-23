@@ -232,9 +232,10 @@ func TestGetDeviceInfo(t *testing.T) {
 				assert.Contains(err.Error(), tc.expectedErr.Error())
 			}
 			if tc.expectedStatus > 0 {
-				statusCodeErr, ok := err.(kithttp.StatusCoder)
+				var coder kithttp.StatusCoder
+				ok := errors.As(err, &coder)
 				require.True(ok, "expected error to have a status code")
-				assert.Equal(tc.expectedStatus, statusCodeErr.StatusCode())
+				assert.Equal(tc.expectedStatus, coder.StatusCode())
 			}
 		})
 	}
@@ -400,9 +401,10 @@ func TestLongPoll(t *testing.T) {
 			ctx, _ := context.WithTimeout(context.Background(), tc.contextTimeout)
 			events, hash, err := app.getDeviceInfoAfterHash("1234", "ee0ce9d6-3ee2-11ea-9dff-1c6fdc758512", ctx)
 			if err != nil {
-				if hErr, ok := err.(serverErr); ok {
-					assert.Equal(tc.statuCodeErr, hErr.StatusCode())
-					assert.Contains(hErr.Error(), tc.getRecordsErr.Error())
+				var coder kithttp.StatusCoder
+				if errors.As(err, &coder) {
+					assert.Equal(tc.statuCodeErr, coder.StatusCode())
+					assert.Contains(err.Error(), tc.getRecordsErr.Error())
 				} else {
 					assert.Fail("unknown type")
 				}

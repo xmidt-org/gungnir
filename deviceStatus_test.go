@@ -272,9 +272,10 @@ func TestGetStatusInfo(t *testing.T) {
 				assert.Contains(err.Error(), tc.expectedErr.Error())
 			}
 			if tc.expectedServerStatus > 0 {
-				statusCodeErr, ok := err.(kithttp.StatusCoder)
+				var coder kithttp.StatusCoder
+				ok := errors.As(err, &coder)
 				assert.True(ok, "expected error to have a status code")
-				assert.Equal(tc.expectedServerStatus, statusCodeErr.StatusCode())
+				assert.Equal(tc.expectedServerStatus, coder.StatusCode())
 			}
 		})
 	}

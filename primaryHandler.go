@@ -213,9 +213,10 @@ func (app *App) parseRecords(records []db.Record) []model.Event {
  */
 func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Request) {
 	var (
-		d    []model.Event
-		hash string
-		err  error
+		d     []model.Event
+		hash  string
+		err   error
+		coder kithttp.StatusCoder
 	)
 	vars := mux.Vars(request)
 	id := strings.ToLower(vars["deviceID"])
@@ -230,8 +231,8 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 				"Failed to get status info", logging.ErrorKey(), err.Error())
 			writer.Header().Add("X-Codex-Error", err.Error())
 
-			if val, ok := err.(kithttp.StatusCoder); ok {
-				writer.WriteHeader(val.StatusCode())
+			if errors.As(err, &coder) {
+				writer.WriteHeader(coder.StatusCode())
 				return
 			}
 			writer.WriteHeader(http.StatusInternalServerError)
@@ -242,8 +243,8 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 			"Failed to get status info", logging.ErrorKey(), err.Error())
 		writer.Header().Add("X-Codex-Error", err.Error())
 
-		if val, ok := err.(kithttp.StatusCoder); ok {
-			writer.WriteHeader(val.StatusCode())
+		if errors.As(err, &coder) {
+			writer.WriteHeader(coder.StatusCode())
 			return
 		}
 		writer.WriteHeader(http.StatusInternalServerError)

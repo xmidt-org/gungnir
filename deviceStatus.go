@@ -118,8 +118,9 @@ func (app *App) handleGetStatus(writer http.ResponseWriter, request *http.Reques
 		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(),
 			"Failed to get status info", logging.ErrorKey(), err.Error())
 		writer.Header().Add("X-Codex-Error", err.Error())
-		if val, ok := err.(kithttp.StatusCoder); ok {
-			writer.WriteHeader(val.StatusCode())
+		var coder kithttp.StatusCoder
+		if errors.As(err, &coder) {
+			writer.WriteHeader(coder.StatusCode())
 			return
 		}
 		writer.WriteHeader(http.StatusInternalServerError)
