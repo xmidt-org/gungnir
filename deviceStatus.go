@@ -41,18 +41,8 @@ const (
 
 // note: below may be separated later into a separate service
 
-// StatusResponse is what is returned for a successful getStatus call.
-//
-// swagger:response StatusResponse
-type StatusResponse struct {
-	// in:body
-	Body Status
-}
-
 // Status contains information on the current state of the device, how long it
-// has been like that, and the last reason for going offline
-//
-// swagger:model Status
+// has been like that, and the last reason for going offline.
 type Status struct {
 	// the device id
 	//

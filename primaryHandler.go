@@ -48,8 +48,6 @@ import (
 	"github.com/xmidt-org/webpa-common/xmetrics"
 )
 
-//go:generate swagger generate spec -m -o swagger.spec
-
 type App struct {
 	eventGetter     db.RecordGetter
 	logger          log.Logger
@@ -60,33 +58,6 @@ type App struct {
 	decrypters      voynicrypto.Ciphers
 
 	measures *Measures
-}
-
-// swagger:parameters getEvents getStatus
-type DeviceIdParam struct {
-	// device id passed by caller
-	//
-	// in: path
-	// required: true
-	DeviceID string `json:"deviceID"`
-}
-
-// EventResponse is what is returned on a successful response
-//
-// swagger:response EventResponse
-type EventResponse struct {
-	// in:body
-	Body []model.Event
-}
-
-// ErrResponse is the information passed to the client on an error
-//
-// swagger:response ErrResponse
-type ErrResponse struct {
-	// The http code of the response
-	//
-	// required: true
-	Code int `json:"code"`
 }
 
 func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string, ctx context.Context) ([]model.Event, string, error) {
