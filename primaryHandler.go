@@ -48,8 +48,6 @@ import (
 	"github.com/xmidt-org/webpa-common/xmetrics"
 )
 
-//go:generate swagger generate spec -m -o swagger.spec
-
 type App struct {
 	eventGetter     db.RecordGetter
 	logger          log.Logger
@@ -62,39 +60,11 @@ type App struct {
 	measures *Measures
 }
 
-// swagger:parameters getEvents getStatus
-type DeviceIdParam struct {
-	// device id passed by caller
-	//
-	// in: path
-	// required: true
-	DeviceID string `json:"deviceID"`
-}
-
-// EventResponse is what is returned on a successful response
-//
-// swagger:response EventResponse
-type EventResponse struct {
-	// in:body
-	Body []model.Event
-}
-
-// ErrResponse is the information passed to the client on an error
-//
-// swagger:response ErrResponse
-type ErrResponse struct {
-	// The http code of the response
-	//
-	// required: true
-	Code int `json:"code"`
-}
-
 func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string, ctx context.Context) ([]model.Event, string, error) {
 	var (
 		hash string
 		err  error
 	)
-	events := []model.Event{}
 
 	records, hErr := app.eventGetter.GetRecords(deviceID, app.getEventLimit, requestHash)
 	// if both have errors or are empty, return an error
@@ -107,7 +77,7 @@ func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string, ctx 
 	if err != nil {
 		logging.Error(app.logger, emperror.Context(err)...).Log(logging.MessageKey(), "Failed to get latest hash from records", logging.ErrorKey(), err.Error())
 	}
-	events = app.parseRecords(records)
+	events := app.parseRecords(records)
 
 	after := time.After(app.longPollTimeout)
 	// TODO: improve long poll logic
@@ -180,7 +150,7 @@ func (app *App) parseRecords(records []db.Record) []model.Event {
 	for _, record := range records {
 		// if the record is expired, don't include it
 		if time.Unix(0, record.DeathDate).Before(time.Now()) {
-			logging.Debug(app.logger).Log(logging.MessageKey(), "the record is expired", "timesince", time.Now().Sub(time.Unix(0, record.DeathDate)))
+			logging.Debug(app.logger).Log(logging.MessageKey(), "the record is expired", "timesince", time.Since(time.Unix(0, record.DeathDate)))
 			continue
 		}
 
@@ -242,9 +212,10 @@ func (app *App) parseRecords(records []db.Record) []model.Event {
  */
 func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Request) {
 	var (
-		d    []model.Event
-		hash string
-		err  error
+		d     []model.Event
+		hash  string
+		err   error
+		coder kithttp.StatusCoder
 	)
 	vars := mux.Vars(request)
 	id := strings.ToLower(vars["deviceID"])
@@ -259,8 +230,8 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 				"Failed to get status info", logging.ErrorKey(), err.Error())
 			writer.Header().Add("X-Codex-Error", err.Error())
 
-			if val, ok := err.(kithttp.StatusCoder); ok {
-				writer.WriteHeader(val.StatusCode())
+			if errors.As(err, &coder) {
+				writer.WriteHeader(coder.StatusCode())
 				return
 			}
 			writer.WriteHeader(http.StatusInternalServerError)
@@ -271,8 +242,8 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 			"Failed to get status info", logging.ErrorKey(), err.Error())
 		writer.Header().Add("X-Codex-Error", err.Error())
 
-		if val, ok := err.(kithttp.StatusCoder); ok {
-			writer.WriteHeader(val.StatusCode())
+		if errors.As(err, &coder) {
+			writer.WriteHeader(coder.StatusCode())
 			return
 		}
 		writer.WriteHeader(http.StatusInternalServerError)
@@ -299,6 +270,7 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 	writer.Write(data)
 }
 
+//nolint:funlen // this will be fixed with uber fx
 func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck CapabilityConfig, logger log.Logger, registry xmetrics.Registry) (alice.Chain, error) {
 	if registry == nil {
 		return alice.Chain{}, errors.New("nil registry")
