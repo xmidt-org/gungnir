@@ -110,7 +110,7 @@ func SetLogger(logger log.Logger) func(delegate http.Handler) http.Handler {
 	}
 }
 
-func GetLogger(ctx context.Context) bascule.Logger {
+func GetLogger(ctx context.Context) log.Logger {
 	return log.With(logging.GetLogger(ctx), "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 }
 

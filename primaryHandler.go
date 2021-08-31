@@ -41,6 +41,7 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
+	newchecks "github.com/xmidt-org/bascule/basculechecks"
 	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/basculechecks"
 	"github.com/xmidt-org/webpa-common/basculemetrics"
@@ -310,7 +311,7 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck Capabili
 		}
 
 		options = append(options, basculehttp.WithTokenFactory("Bearer", basculehttp.BearerTokenFactory{
-			DefaultKeyId: DEFAULT_KEY_ID,
+			DefaultKeyID: DEFAULT_KEY_ID,
 			Resolver:     resolver,
 			Parser:       bascule.DefaultJWTParser,
 			Leeway:       jwtVal.Leeway,
@@ -320,9 +321,9 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck Capabili
 	authConstructor := basculehttp.NewConstructor(options...)
 
 	bearerRules := bascule.Validators{
-		bascule.CreateNonEmptyPrincipalCheck(),
-		bascule.CreateNonEmptyTypeCheck(),
-		bascule.CreateValidTypeCheck([]string{"jwt"}),
+		newchecks.NonEmptyPrincipal(),
+		newchecks.NonEmptyType(),
+		newchecks.ValidType([]string{"jwt"}),
 	}
 
 	// only add capability check if the configuration is set
@@ -351,7 +352,7 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck Capabili
 	authEnforcer := basculehttp.NewEnforcer(
 		basculehttp.WithELogger(GetLogger),
 		basculehttp.WithRules("Basic", bascule.Validators{
-			bascule.CreateAllowAllCheck(),
+			newchecks.AllowAll(),
 		}),
 		basculehttp.WithRules("Bearer", bearerRules),
 		basculehttp.WithEErrorResponseFunc(listener.OnErrorResponse),
