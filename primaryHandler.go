@@ -28,6 +28,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/cast"
 	"github.com/ugorji/go/codec"
 	"github.com/xmidt-org/gungnir/model"
 	"github.com/xmidt-org/wrp-go/v3"
@@ -45,8 +46,8 @@ import (
 	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/basculechecks"
 	"github.com/xmidt-org/webpa-common/basculemetrics"
-	"github.com/xmidt-org/webpa-common/logging"
-	"github.com/xmidt-org/webpa-common/xmetrics"
+	"github.com/xmidt-org/webpa-common/v2/logging"
+	"github.com/xmidt-org/webpa-common/v2/xmetrics"
 )
 
 type App struct {
@@ -60,6 +61,10 @@ type App struct {
 
 	measures *Measures
 }
+
+var (
+	DefaultBasicPartnerIDsHeader = "X-Xmidt-Partner-Ids"
+)
 
 func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string, ctx context.Context) ([]model.Event, string, error) {
 	var (
@@ -213,15 +218,49 @@ func (app *App) parseRecords(records []db.Record) []model.Event {
  */
 func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Request) {
 	var (
-		d     []model.Event
-		hash  string
-		err   error
-		coder kithttp.StatusCoder
+		d        []model.Event
+		filtered []model.Event
+		hash     string
+		err      error
+		coder    kithttp.StatusCoder
 	)
 	vars := mux.Vars(request)
 	id := strings.ToLower(vars["deviceID"])
 	if id == "" {
 		writer.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	auth, present := bascule.FromContext(request.Context())
+	if !present || auth.Token == nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	var partners []string
+
+	switch auth.Token.Type() {
+	case "basic":
+		authHeader := request.Header[DefaultBasicPartnerIDsHeader]
+		for _, value := range authHeader {
+			fields := strings.Split(value, ",")
+			for i := 0; i < len(fields); i++ {
+				fields[i] = strings.TrimSpace(fields[i])
+			}
+			partners = append(partners, fields...)
+		}
+	case "jwt":
+		authToken := auth.Token
+		partnersInterface, attrExist := bascule.GetNestedAttribute(authToken.Attributes(), basculechecks.PartnerKeys()...)
+		if !attrExist {
+			return
+		}
+		vals, err := cast.ToStringSliceE(partnersInterface)
+		if err != nil {
+			return
+		}
+		partners = vals
+	}
+	if len(partners) == 0 {
 		return
 	}
 
@@ -251,13 +290,21 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 		return
 	}
 
+	//add partnerID filtering here
+	//if no partnerID just return
+	for _, event := range d {
+		if overlaps(event.PartnerIDs, partners) {
+			filtered = append(filtered, event)
+		}
+	}
+
 	var data []byte
 	// TODO: revert to json spec, aka encode integers > 2^53 as a json string
 	err = codec.NewEncoderBytes(&data, &codec.JsonHandle{
 		BasicHandle: codec.BasicHandle{
 			TypeInfos: codec.NewTypeInfos([]string{"wrp"}),
 		},
-	}).Encode(d)
+	}).Encode(filtered)
 	if err != nil {
 		writer.Header().Add("X-Codex-Error", err.Error())
 		writer.WriteHeader(http.StatusInternalServerError)
@@ -359,4 +406,15 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck Capabili
 	)
 
 	return alice.New(SetLogger(logger), authConstructor, authEnforcer, basculehttp.NewListenerDecorator(listener)), nil
+}
+
+func overlaps(sl1 []string, sl2 []string) bool {
+	for _, s1 := range sl1 {
+		for _, s2 := range sl2 {
+			if s1 == s2 {
+				return true
+			}
+		}
+	}
+	return false
 }
