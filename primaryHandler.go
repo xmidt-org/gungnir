@@ -46,8 +46,8 @@ import (
 	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/basculechecks"
 	"github.com/xmidt-org/webpa-common/basculemetrics"
-	"github.com/xmidt-org/webpa-common/v2/logging"
-	"github.com/xmidt-org/webpa-common/v2/xmetrics"
+	"github.com/xmidt-org/webpa-common/logging"
+	"github.com/xmidt-org/webpa-common/xmetrics"
 )
 
 type App struct {
@@ -293,41 +293,6 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 	writer.Write(data)
 }
 
-func extractPartnerIDs(r *http.Request) ([]string, error) {
-	auth, present := bascule.FromContext(r.Context())
-	if !present || auth.Token == nil {
-		return nil, errGettingPartnerIDs
-	}
-	var partners []string
-
-	switch auth.Token.Type() {
-	case "basic":
-		authHeader := r.Header[DefaultBasicPartnerIDsHeader]
-		for _, value := range authHeader {
-			fields := strings.Split(value, ",")
-			for i := 0; i < len(fields); i++ {
-				fields[i] = strings.TrimSpace(fields[i])
-			}
-			partners = append(partners, fields...)
-		}
-		return partners, nil
-	case "jwt":
-		authToken := auth.Token
-		partnersInterface, attrExist := bascule.GetNestedAttribute(authToken.Attributes(), basculechecks.PartnerKeys()...)
-		if !attrExist {
-			return nil, errGettingPartnerIDs
-		}
-		vals, err := cast.ToStringSliceE(partnersInterface)
-		if err != nil {
-			return nil, errGettingPartnerIDs
-		}
-		partners = vals
-		return partners, nil
-	}
-	return nil, errAuthIsNotOfTypeBasicOrJWT
-
-}
-
 //nolint:funlen // this will be fixed with uber fx
 func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck CapabilityConfig, logger log.Logger, registry xmetrics.Registry) (alice.Chain, error) {
 	if registry == nil {
@@ -427,4 +392,38 @@ func overlaps(sl1 []string, sl2 []string) bool {
 		}
 	}
 	return false
+}
+
+func extractPartnerIDs(r *http.Request) ([]string, error) {
+	auth, present := bascule.FromContext(r.Context())
+	if !present || auth.Token == nil {
+		return nil, errGettingPartnerIDs
+	}
+	var partners []string
+
+	switch auth.Token.Type() {
+	case "basic":
+		authHeader := r.Header[DefaultBasicPartnerIDsHeader]
+		for _, value := range authHeader {
+			fields := strings.Split(value, ",")
+			for i := 0; i < len(fields); i++ {
+				fields[i] = strings.TrimSpace(fields[i])
+			}
+			partners = append(partners, fields...)
+		}
+		return partners, nil
+	case "jwt":
+		authToken := auth.Token
+		partnersInterface, attrExist := bascule.GetNestedAttribute(authToken.Attributes(), basculechecks.PartnerKeys()...)
+		if !attrExist {
+			return nil, errGettingPartnerIDs
+		}
+		vals, err := cast.ToStringSliceE(partnersInterface)
+		if err != nil {
+			return nil, errGettingPartnerIDs
+		}
+		partners = vals
+		return partners, nil
+	}
+	return nil, errAuthIsNotOfTypeBasicOrJWT
 }
