@@ -273,6 +273,8 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 				filtered = append(filtered, event)
 			}
 		}
+	} else {
+		filtered = d
 	}
 
 	var data []byte
