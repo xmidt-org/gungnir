@@ -59,11 +59,11 @@ type App struct {
 	longPollTimeout time.Duration
 	decrypters      voynicrypto.Ciphers
 
-	measures *Measures
+	measures                    *Measures
+	basicAuthPartnerIDHeaderKey string
 }
 
 var (
-	DefaultBasicPartnerIDsHeader = "X-Xmidt-Partner-Ids"
 	errGettingPartnerIDs         = errors.New("unable to retrieve PartnerIDs")
 	errAuthIsNotOfTypeBasicOrJWT = errors.New("auth is not of type Basic of JWT")
 )
@@ -233,7 +233,7 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 		return
 	}
 
-	partners, err := extractPartnerIDs(request)
+	partners, err := extractPartnerIDs(request, app.basicAuthPartnerIDHeaderKey)
 	if err != nil {
 		return
 	}
@@ -394,7 +394,7 @@ func overlaps(sl1 []string, sl2 []string) bool {
 	return false
 }
 
-func extractPartnerIDs(r *http.Request) ([]string, error) {
+func extractPartnerIDs(r *http.Request, basicAuth string) ([]string, error) {
 	auth, present := bascule.FromContext(r.Context())
 	if !present || auth.Token == nil {
 		return nil, errGettingPartnerIDs
@@ -403,7 +403,7 @@ func extractPartnerIDs(r *http.Request) ([]string, error) {
 
 	switch auth.Token.Type() {
 	case "basic":
-		authHeader := r.Header[DefaultBasicPartnerIDsHeader]
+		authHeader := r.Header[basicAuth]
 		for _, value := range authHeader {
 			fields := strings.Split(value, ",")
 			for i := 0; i < len(fields); i++ {

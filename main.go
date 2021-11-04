@@ -67,15 +67,16 @@ var (
 )
 
 type Config struct {
-	Db              cassandra.Config
-	GetEventsLimit  int
-	GetStatusLimit  int
-	Health          HealthConfig
-	AuthHeader      []string
-	JwtValidator    JWTValidator
-	CapabilityCheck CapabilityConfig
-	LongPollSleep   time.Duration
-	LongPollTimeout time.Duration
+	Db                          cassandra.Config
+	GetEventsLimit              int
+	GetStatusLimit              int
+	Health                      HealthConfig
+	AuthHeader                  []string
+	JwtValidator                JWTValidator
+	CapabilityCheck             CapabilityConfig
+	LongPollSleep               time.Duration
+	LongPollTimeout             time.Duration
+	BasicAuthPartnerIDHeaderKey string
 }
 
 type HealthConfig struct {
@@ -153,14 +154,15 @@ func gungnir(arguments []string) {
 	measures := NewMeasures(metricsRegistry)
 	// MARK: Actual server logic
 	app := &App{
-		eventGetter:     database,
-		logger:          logger,
-		getEventLimit:   config.GetEventsLimit,
-		getStatusLimit:  config.GetStatusLimit,
-		longPollSleep:   config.LongPollSleep,
-		longPollTimeout: config.LongPollTimeout,
-		decrypters:      decrypters,
-		measures:        measures,
+		eventGetter:                 database,
+		logger:                      logger,
+		getEventLimit:               config.GetEventsLimit,
+		getStatusLimit:              config.GetStatusLimit,
+		longPollSleep:               config.LongPollSleep,
+		longPollTimeout:             config.LongPollTimeout,
+		decrypters:                  decrypters,
+		measures:                    measures,
+		basicAuthPartnerIDHeaderKey: config.BasicAuthPartnerIDHeaderKey,
 	}
 
 	router.Handle(apiBase+"/device/{deviceID}/events", gungnirHandler.ThenFunc(app.handleGetEvents))
