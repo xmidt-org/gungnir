@@ -154,7 +154,7 @@ log:
 authHeader: ["xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=","dXNlcjpwYXNzCg=="]
 
 # basicAuthPartnerIDHeaderKey provides the string that will be used to
-# pull the partnerIDs from the request header.
+# pull the partnerIDs from the request header when using Basic Authorization.
 basicAuthPartnerIDHeaderKey: "X-Codex-Partner-Ids"
 
 # jwtValidator provides the details about where to get the keys for JWT

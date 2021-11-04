@@ -234,10 +234,8 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 	}
 
 	requestPartnerIDs, err := extractPartnerIDs(request, app.basicAuthPartnerIDHeaderKey)
-	if err != nil {
-		return
-	}
-	if len(requestPartnerIDs) == 0 {
+	if err != nil || len(requestPartnerIDs) == 0 {
+		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -266,15 +264,16 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// if partners contains wildcard, do no filtering and just send all events
+
+	// if partners contains wildcard, do not filter and send all events
 	if contains(requestPartnerIDs, "*") {
+		filtered = d
+	} else {
 		for _, event := range d {
 			if overlaps(event.PartnerIDs, requestPartnerIDs) {
 				filtered = append(filtered, event)
 			}
 		}
-	} else {
-		filtered = d
 	}
 
 	var data []byte
