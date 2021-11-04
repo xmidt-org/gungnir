@@ -233,11 +233,11 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 		return
 	}
 
-	partners, err := extractPartnerIDs(request, app.basicAuthPartnerIDHeaderKey)
+	requestPartnerIDs, err := extractPartnerIDs(request, app.basicAuthPartnerIDHeaderKey)
 	if err != nil {
 		return
 	}
-	if len(partners) == 0 {
+	if len(requestPartnerIDs) == 0 {
 		return
 	}
 
@@ -266,10 +266,12 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	for _, event := range d {
-		if overlaps(event.PartnerIDs, partners) {
-			filtered = append(filtered, event)
+	// if partners contains wildcard, do no filtering and just send all events
+	if contains(requestPartnerIDs, "*") {
+		for _, event := range d {
+			if overlaps(event.PartnerIDs, requestPartnerIDs) {
+				filtered = append(filtered, event)
+			}
 		}
 	}
 
@@ -383,17 +385,6 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck Capabili
 	return alice.New(SetLogger(logger), authConstructor, authEnforcer, basculehttp.NewListenerDecorator(listener)), nil
 }
 
-func overlaps(sl1 []string, sl2 []string) bool {
-	for _, s1 := range sl1 {
-		for _, s2 := range sl2 {
-			if s1 == s2 {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 func extractPartnerIDs(r *http.Request, basicAuth string) ([]string, error) {
 	auth, present := bascule.FromContext(r.Context())
 	if !present || auth.Token == nil {
@@ -426,4 +417,24 @@ func extractPartnerIDs(r *http.Request, basicAuth string) ([]string, error) {
 		return partners, nil
 	}
 	return nil, errAuthIsNotOfTypeBasicOrJWT
+}
+
+func overlaps(sl1 []string, sl2 []string) bool {
+	for _, s1 := range sl1 {
+		for _, s2 := range sl2 {
+			if s1 == s2 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
