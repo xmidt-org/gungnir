@@ -27,6 +27,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gorilla/mux"
+	"github.com/xmidt-org/bascule"
 	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/gungnir/model"
 	"github.com/xmidt-org/wrp-go/v3"
@@ -36,7 +38,6 @@ import (
 	"github.com/xmidt-org/voynicrypto"
 
 	kithttp "github.com/go-kit/kit/transport/http"
-	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/xmidt-org/webpa-common/logging"
 	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
@@ -259,6 +260,7 @@ func TestHandleGetEvents(t *testing.T) {
 		recordsToReturn    []db.Record
 		expectedStatusCode int
 		expectedBody       []byte
+		auth               string
 	}{
 		{
 			description:        "Empty Device ID Error",
@@ -269,6 +271,12 @@ func TestHandleGetEvents(t *testing.T) {
 			description:        "Get Device Info Error",
 			deviceID:           "1234",
 			expectedStatusCode: http.StatusNotFound,
+			auth:               "jwt",
+		},
+		{
+			description:        "No Auth Error",
+			deviceID:           "1234",
+			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
 			description: "Success",
@@ -283,12 +291,14 @@ func TestHandleGetEvents(t *testing.T) {
 			},
 			expectedStatusCode: http.StatusOK,
 			expectedBody:       goodData,
+			auth:               "jwt",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
+			require := require.New(t)
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecords", tc.deviceID, 5, "").Return(tc.recordsToReturn, nil).Once()
 			mockGetter.On("GetStateHash", mock.Anything).Return("123", nil).Once()
@@ -310,9 +320,42 @@ func TestHandleGetEvents(t *testing.T) {
 				decrypters:    ciphers,
 				measures:      m,
 			}
+
+			var auth bascule.Authentication
+
+			switch tc.auth {
+			case "basic":
+				auth = bascule.Authentication{
+					Token: bascule.NewToken("basic", "owner-from-auth", bascule.NewAttributes(
+						map[string]interface{}{})),
+				}
+			case "jwt":
+				auth = bascule.Authentication{
+					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "comcast"}})),
+				}
+			case "jwtnopartners":
+				auth = bascule.Authentication{
+					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+						map[string]interface{}{})),
+				}
+			case "jwtpartnersdonotcast":
+				auth = bascule.Authentication{
+					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": nil}})),
+				}
+			case "authnotbasicorjwt":
+				auth = bascule.Authentication{
+					Token: bascule.NewToken("spongebob", "owner-from-auth", bascule.NewAttributes(
+						map[string]interface{}{})),
+				}
+			}
+			request, err := http.NewRequestWithContext(bascule.WithAuthentication(context.Background(), auth),
+				http.MethodGet, "http://localhost:8080", nil)
+			require.Nil(err)
 			rr := httptest.NewRecorder()
-			request := mux.SetURLVars(
-				httptest.NewRequest("GET", "/1234/status", nil),
+			request = mux.SetURLVars(
+				request,
 				map[string]string{"deviceID": tc.deviceID},
 			)
 			app.handleGetEvents(rr, request)
