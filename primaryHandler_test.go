@@ -279,7 +279,7 @@ func TestHandleGetEvents(t *testing.T) {
 			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
-			description: "Success",
+			description: "Jwt Auth Success",
 			deviceID:    "1234",
 			recordsToReturn: []db.Record{
 				{
@@ -292,6 +292,21 @@ func TestHandleGetEvents(t *testing.T) {
 			expectedStatusCode: http.StatusOK,
 			expectedBody:       goodData,
 			auth:               "jwt",
+		},
+		{
+			description: "Basic Auth Success",
+			deviceID:    "1234",
+			recordsToReturn: []db.Record{
+				{
+					DeathDate: futureTime,
+					Data:      goodData,
+					Alg:       string(voynicrypto.None),
+					KID:       "none",
+				},
+			},
+			expectedStatusCode: http.StatusOK,
+			expectedBody:       goodData,
+			auth:               "basic",
 		},
 	}
 
@@ -314,11 +329,12 @@ func TestHandleGetEvents(t *testing.T) {
 			m := NewMeasures(p)
 
 			app := App{
-				eventGetter:   mockGetter,
-				getEventLimit: 5,
-				logger:        logging.DefaultLogger(),
-				decrypters:    ciphers,
-				measures:      m,
+				eventGetter:                 mockGetter,
+				getEventLimit:               5,
+				logger:                      logging.DefaultLogger(),
+				decrypters:                  ciphers,
+				measures:                    m,
+				basicAuthPartnerIDHeaderKey: "X-Codex-Partner-Ids",
 			}
 
 			var auth bascule.Authentication
@@ -334,25 +350,14 @@ func TestHandleGetEvents(t *testing.T) {
 					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
 						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "comcast"}})),
 				}
-			case "jwtnopartners":
-				auth = bascule.Authentication{
-					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
-						map[string]interface{}{})),
-				}
-			case "jwtpartnersdonotcast":
-				auth = bascule.Authentication{
-					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
-						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": nil}})),
-				}
-			case "authnotbasicorjwt":
-				auth = bascule.Authentication{
-					Token: bascule.NewToken("spongebob", "owner-from-auth", bascule.NewAttributes(
-						map[string]interface{}{})),
-				}
 			}
+
 			request, err := http.NewRequestWithContext(bascule.WithAuthentication(context.Background(), auth),
 				http.MethodGet, "http://localhost:8080", nil)
 			require.Nil(err)
+			if tc.auth == "basic" {
+				request.Header["X-Codex-Partner-Ids"] = []string{"*"}
+			}
 			rr := httptest.NewRecorder()
 			request = mux.SetURLVars(
 				request,
