@@ -274,6 +274,24 @@ func TestHandleGetEvents(t *testing.T) {
 			auth:               "jwt",
 		},
 		{
+			description:        "Auth is not basic or auth Error",
+			deviceID:           "1234",
+			expectedStatusCode: http.StatusBadRequest,
+			auth:               "authnotbasicorjwt",
+		},
+		{
+			description:        "Jwt Partners do not cast Error",
+			deviceID:           "1234",
+			expectedStatusCode: http.StatusBadRequest,
+			auth:               "jwtpartnersdonotcast",
+		},
+		{
+			description:        "Jw auth no partners Error",
+			deviceID:           "1234",
+			expectedStatusCode: http.StatusBadRequest,
+			auth:               "jwtnopartners",
+		},
+		{
 			description:        "No Auth Error",
 			deviceID:           "1234",
 			expectedStatusCode: http.StatusBadRequest,
@@ -349,6 +367,21 @@ func TestHandleGetEvents(t *testing.T) {
 				auth = bascule.Authentication{
 					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
 						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "comcast"}})),
+				}
+			case "jwtnopartners":
+				auth = bascule.Authentication{
+					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+						map[string]interface{}{})),
+				}
+			case "jwtpartnersdonotcast":
+				auth = bascule.Authentication{
+					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": nil}})),
+				}
+			case "authnotbasicorjwt":
+				auth = bascule.Authentication{
+					Token: bascule.NewToken("spongebob", "owner-from-auth", bascule.NewAttributes(
+						map[string]interface{}{})),
 				}
 			}
 
