@@ -66,6 +66,7 @@ type App struct {
 var (
 	errGettingPartnerIDs         = errors.New("unable to retrieve PartnerIDs")
 	errAuthIsNotOfTypeBasicOrJWT = errors.New("auth is not of type Basic of JWT")
+	basicstr                     = "basic"
 )
 
 func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string, ctx context.Context) ([]model.Event, string, error) {
@@ -394,7 +395,7 @@ func extractPartnerIDs(r *http.Request, basicAuth string) ([]string, error) {
 	var partners []string
 
 	switch auth.Token.Type() {
-	case "basic":
+	case basicstr:
 		authHeader := r.Header[basicAuth]
 		for _, value := range authHeader {
 			fields := strings.Split(value, ",")
