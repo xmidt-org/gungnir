@@ -215,7 +215,7 @@ func (app *App) parseRecords(records []db.Record) []model.Event {
  *
  * Responses:
  *    200: EventResponse
- * 	  400: ErrResponse
+ *	  400: ErrResponse
  *    404: ErrResponse
  *    500: ErrResponse
  *
