@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 - Migrate to github actions, normalize analysis tools, Dockerfiles and Makefiles. [#118](https://github.com/xmidt-org/gungnir/pull/118)
 - bumped bascule to remove security vulnerability. [#125](https://github.com/xmidt-org/gungnir/pull/125)
+- Added the ability to filter events by the partnerID from the request. [#126](https://github.com/xmidt-org/gungnir/pull/126)
 
 ## [v0.14.2]
 - Updated references to the main branch [#114](https://github.com/xmidt-org/gungnir/pull/114)

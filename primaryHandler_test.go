@@ -27,6 +27,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gorilla/mux"
+	"github.com/xmidt-org/bascule"
 	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/gungnir/model"
 	"github.com/xmidt-org/wrp-go/v3"
@@ -36,7 +38,6 @@ import (
 	"github.com/xmidt-org/voynicrypto"
 
 	kithttp "github.com/go-kit/kit/transport/http"
-	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/xmidt-org/webpa-common/logging"
 	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
@@ -253,12 +254,19 @@ func TestHandleGetEvents(t *testing.T) {
 	err := encoder.Encode(&goodOnlineEvent)
 	testassert.Nil(err)
 
+	jwtwithpartners := bascule.Authentication{
+		Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+			map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "test1"}})),
+	}
+
 	tests := []struct {
 		description        string
 		deviceID           string
 		recordsToReturn    []db.Record
 		expectedStatusCode int
 		expectedBody       []byte
+		authType           string
+		auth               bascule.Authentication
 	}{
 		{
 			description:        "Empty Device ID Error",
@@ -269,9 +277,37 @@ func TestHandleGetEvents(t *testing.T) {
 			description:        "Get Device Info Error",
 			deviceID:           "1234",
 			expectedStatusCode: http.StatusNotFound,
+			auth:               jwtwithpartners,
 		},
 		{
-			description: "Success",
+			description:        "Auth is not basic or jwt Error",
+			deviceID:           "1234",
+			expectedStatusCode: http.StatusBadRequest,
+			auth: bascule.Authentication{
+				Token: bascule.NewToken("spongebob", "owner-from-auth", bascule.NewAttributes(
+					map[string]interface{}{})),
+			},
+		},
+		{
+			description:        "Jwt Partners do not cast Error",
+			deviceID:           "1234",
+			expectedStatusCode: http.StatusBadRequest,
+			auth: bascule.Authentication{
+				Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+					map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": nil}})),
+			},
+		},
+		{
+			description:        "Jwt auth no partners Error",
+			deviceID:           "1234",
+			expectedStatusCode: http.StatusBadRequest,
+			auth: bascule.Authentication{
+				Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+					map[string]interface{}{})),
+			},
+		},
+		{
+			description: "Jwt Auth Success",
 			deviceID:    "1234",
 			recordsToReturn: []db.Record{
 				{
@@ -283,12 +319,51 @@ func TestHandleGetEvents(t *testing.T) {
 			},
 			expectedStatusCode: http.StatusOK,
 			expectedBody:       goodData,
+			auth:               jwtwithpartners,
+		},
+		{
+			description: "Jwt Auth No Matching Partners Success",
+			deviceID:    "1234",
+			recordsToReturn: []db.Record{
+				{
+					DeathDate: futureTime,
+					Data:      goodData,
+					Alg:       string(voynicrypto.None),
+					KID:       "none",
+				},
+			},
+			expectedStatusCode: http.StatusOK,
+			expectedBody:       goodData,
+			auth: bascule.Authentication{
+				Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+					map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "comcast"}})),
+			},
+		},
+		{
+			description: "Basic Auth Success",
+			deviceID:    "1234",
+			recordsToReturn: []db.Record{
+				{
+					DeathDate: futureTime,
+					Data:      goodData,
+					Alg:       string(voynicrypto.None),
+					KID:       "none",
+				},
+			},
+			expectedStatusCode: http.StatusOK,
+			expectedBody:       goodData,
+			auth: bascule.Authentication{
+				Token: bascule.NewToken("basic", "owner-from-auth", bascule.NewAttributes(
+					map[string]interface{}{})),
+			},
+			authType: "basic",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
+			require := require.New(t)
 			mockGetter := new(mockRecordGetter)
 			mockGetter.On("GetRecords", tc.deviceID, 5, "").Return(tc.recordsToReturn, nil).Once()
 			mockGetter.On("GetStateHash", mock.Anything).Return("123", nil).Once()
@@ -304,15 +379,23 @@ func TestHandleGetEvents(t *testing.T) {
 			m := NewMeasures(p)
 
 			app := App{
-				eventGetter:   mockGetter,
-				getEventLimit: 5,
-				logger:        logging.DefaultLogger(),
-				decrypters:    ciphers,
-				measures:      m,
+				eventGetter:                 mockGetter,
+				getEventLimit:               5,
+				logger:                      logging.DefaultLogger(),
+				decrypters:                  ciphers,
+				measures:                    m,
+				basicAuthPartnerIDHeaderKey: "X-Codex-Partner-Ids",
+			}
+
+			request, err := http.NewRequestWithContext(bascule.WithAuthentication(context.Background(), tc.auth),
+				http.MethodGet, "http://localhost:8080", nil)
+			require.Nil(err)
+			if tc.authType == "basic" {
+				request.Header["X-Codex-Partner-Ids"] = []string{"*"}
 			}
 			rr := httptest.NewRecorder()
-			request := mux.SetURLVars(
-				httptest.NewRequest("GET", "/1234/status", nil),
+			request = mux.SetURLVars(
+				request,
 				map[string]string{"deviceID": tc.deviceID},
 			)
 			app.handleGetEvents(rr, request)

@@ -28,6 +28,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/cast"
 	"github.com/ugorji/go/codec"
 	"github.com/xmidt-org/gungnir/model"
 	"github.com/xmidt-org/wrp-go/v3"
@@ -58,8 +59,15 @@ type App struct {
 	longPollTimeout time.Duration
 	decrypters      voynicrypto.Ciphers
 
-	measures *Measures
+	measures                    *Measures
+	basicAuthPartnerIDHeaderKey string
 }
+
+var (
+	errGettingPartnerIDs         = errors.New("unable to retrieve PartnerIDs")
+	errAuthIsNotOfTypeBasicOrJWT = errors.New("auth is not of type Basic of JWT")
+	basicType                    = "basic"
+)
 
 func (app *App) getDeviceInfoAfterHash(deviceID string, requestHash string, ctx context.Context) ([]model.Event, string, error) {
 	var (
@@ -207,21 +215,29 @@ func (app *App) parseRecords(records []db.Record) []model.Event {
  *
  * Responses:
  *    200: EventResponse
+ *	  400: ErrResponse
  *    404: ErrResponse
  *    500: ErrResponse
  *
  */
 func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Request) {
 	var (
-		d     []model.Event
-		hash  string
-		err   error
-		coder kithttp.StatusCoder
+		d        []model.Event
+		filtered []model.Event
+		hash     string
+		err      error
+		coder    kithttp.StatusCoder
 	)
 	vars := mux.Vars(request)
 	id := strings.ToLower(vars["deviceID"])
 	if id == "" {
 		writer.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	requestPartnerIDs, err := extractPartnerIDs(request, app.basicAuthPartnerIDHeaderKey)
+	if err != nil || len(requestPartnerIDs) == 0 {
+		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -251,13 +267,24 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 		return
 	}
 
+	// if partners contains wildcard, do not filter and send all events
+	if contains(requestPartnerIDs, "*") {
+		filtered = d
+	} else {
+		for _, event := range d {
+			if overlaps(event.PartnerIDs, requestPartnerIDs) {
+				filtered = append(filtered, event)
+			}
+		}
+	}
+
 	var data []byte
 	// TODO: revert to json spec, aka encode integers > 2^53 as a json string
 	err = codec.NewEncoderBytes(&data, &codec.JsonHandle{
 		BasicHandle: codec.BasicHandle{
 			TypeInfos: codec.NewTypeInfos([]string{"wrp"}),
 		},
-	}).Encode(d)
+	}).Encode(filtered)
 	if err != nil {
 		writer.Header().Add("X-Codex-Error", err.Error())
 		writer.WriteHeader(http.StatusInternalServerError)
@@ -359,4 +386,58 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck Capabili
 	)
 
 	return alice.New(SetLogger(logger), authConstructor, authEnforcer, basculehttp.NewListenerDecorator(listener)), nil
+}
+
+func extractPartnerIDs(r *http.Request, basicAuth string) ([]string, error) {
+	auth, present := bascule.FromContext(r.Context())
+	if !present || auth.Token == nil {
+		return nil, errGettingPartnerIDs
+	}
+	var partners []string
+
+	switch auth.Token.Type() {
+	case basicType:
+		authHeader := r.Header[basicAuth]
+		for _, value := range authHeader {
+			fields := strings.Split(value, ",")
+			for i := 0; i < len(fields); i++ {
+				fields[i] = strings.TrimSpace(fields[i])
+			}
+			partners = append(partners, fields...)
+		}
+		return partners, nil
+	case "jwt":
+		authToken := auth.Token
+		partnersInterface, attrExist := bascule.GetNestedAttribute(authToken.Attributes(), basculechecks.PartnerKeys()...)
+		if !attrExist {
+			return nil, errGettingPartnerIDs
+		}
+		vals, err := cast.ToStringSliceE(partnersInterface)
+		if err != nil {
+			return nil, errGettingPartnerIDs
+		}
+		partners = vals
+		return partners, nil
+	}
+	return nil, errAuthIsNotOfTypeBasicOrJWT
+}
+
+func overlaps(sl1 []string, sl2 []string) bool {
+	for _, s1 := range sl1 {
+		for _, s2 := range sl2 {
+			if s1 == s2 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
