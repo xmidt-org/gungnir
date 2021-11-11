@@ -271,7 +271,7 @@ func TestHandleGetEvents(t *testing.T) {
 			description:        "Get Device Info Error",
 			deviceID:           "1234",
 			expectedStatusCode: http.StatusNotFound,
-			auth:               "jwt",
+			auth:               "jwtwithpartners",
 		},
 		{
 			description:        "Auth is not basic or auth Error",
@@ -286,7 +286,7 @@ func TestHandleGetEvents(t *testing.T) {
 			auth:               "jwtpartnersdonotcast",
 		},
 		{
-			description:        "Jw auth no partners Error",
+			description:        "Jwt auth no partners Error",
 			deviceID:           "1234",
 			expectedStatusCode: http.StatusBadRequest,
 			auth:               "jwtnopartners",
@@ -309,8 +309,9 @@ func TestHandleGetEvents(t *testing.T) {
 			},
 			expectedStatusCode: http.StatusOK,
 			expectedBody:       goodData,
-			auth:               "jwt",
+			auth:               "jwtwithpartners",
 		},
+
 		{
 			description: "Basic Auth Success",
 			deviceID:    "1234",
@@ -363,10 +364,10 @@ func TestHandleGetEvents(t *testing.T) {
 					Token: bascule.NewToken("basic", "owner-from-auth", bascule.NewAttributes(
 						map[string]interface{}{})),
 				}
-			case "jwt":
+			case "jwtwithpartners":
 				auth = bascule.Authentication{
 					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
-						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "comcast"}})),
+						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "test1"}})),
 				}
 			case "jwtnopartners":
 				auth = bascule.Authentication{
