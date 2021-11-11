@@ -254,13 +254,19 @@ func TestHandleGetEvents(t *testing.T) {
 	err := encoder.Encode(&goodOnlineEvent)
 	testassert.Nil(err)
 
+	jwtwithpartners := bascule.Authentication{
+		Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+			map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "test1"}})),
+	}
+
 	tests := []struct {
 		description        string
 		deviceID           string
 		recordsToReturn    []db.Record
 		expectedStatusCode int
 		expectedBody       []byte
-		auth               string
+		authType           string
+		auth               bascule.Authentication
 	}{
 		{
 			description:        "Empty Device ID Error",
@@ -271,25 +277,34 @@ func TestHandleGetEvents(t *testing.T) {
 			description:        "Get Device Info Error",
 			deviceID:           "1234",
 			expectedStatusCode: http.StatusNotFound,
-			auth:               "jwtwithpartners",
+			auth:               jwtwithpartners,
 		},
 		{
-			description:        "Auth is not basic or auth Error",
+			description:        "Auth is not basic or jwt Error",
 			deviceID:           "1234",
 			expectedStatusCode: http.StatusBadRequest,
-			auth:               "authnotbasicorjwt",
+			auth: bascule.Authentication{
+				Token: bascule.NewToken("spongebob", "owner-from-auth", bascule.NewAttributes(
+					map[string]interface{}{})),
+			},
 		},
 		{
 			description:        "Jwt Partners do not cast Error",
 			deviceID:           "1234",
 			expectedStatusCode: http.StatusBadRequest,
-			auth:               "jwtpartnersdonotcast",
+			auth: bascule.Authentication{
+				Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+					map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": nil}})),
+			},
 		},
 		{
 			description:        "Jwt auth no partners Error",
 			deviceID:           "1234",
 			expectedStatusCode: http.StatusBadRequest,
-			auth:               "jwtnopartners",
+			auth: bascule.Authentication{
+				Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+					map[string]interface{}{})),
+			},
 		},
 		{
 			description: "Jwt Auth Success",
@@ -304,7 +319,7 @@ func TestHandleGetEvents(t *testing.T) {
 			},
 			expectedStatusCode: http.StatusOK,
 			expectedBody:       goodData,
-			auth:               "jwtwithpartners",
+			auth:               jwtwithpartners,
 		},
 		{
 			description: "Jwt Auth No Matching Partners Success",
@@ -319,7 +334,10 @@ func TestHandleGetEvents(t *testing.T) {
 			},
 			expectedStatusCode: http.StatusOK,
 			expectedBody:       goodData,
-			auth:               "jwtnomatchpartners",
+			auth: bascule.Authentication{
+				Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+					map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "comcast"}})),
+			},
 		},
 		{
 			description: "Basic Auth Success",
@@ -334,7 +352,11 @@ func TestHandleGetEvents(t *testing.T) {
 			},
 			expectedStatusCode: http.StatusOK,
 			expectedBody:       goodData,
-			auth:               "basic",
+			auth: bascule.Authentication{
+				Token: bascule.NewToken("basic", "owner-from-auth", bascule.NewAttributes(
+					map[string]interface{}{})),
+			},
+			authType: "basic",
 		},
 	}
 
@@ -365,45 +387,10 @@ func TestHandleGetEvents(t *testing.T) {
 				basicAuthPartnerIDHeaderKey: "X-Codex-Partner-Ids",
 			}
 
-			var auth bascule.Authentication
-
-			switch tc.auth {
-			case "basic":
-				auth = bascule.Authentication{
-					Token: bascule.NewToken("basic", "owner-from-auth", bascule.NewAttributes(
-						map[string]interface{}{})),
-				}
-			case "jwtwithpartners":
-				auth = bascule.Authentication{
-					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
-						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "test1"}})),
-				}
-			case "jwtnomatchpartners":
-				auth = bascule.Authentication{
-					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
-						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "comcast"}})),
-				}
-			case "jwtnopartners":
-				auth = bascule.Authentication{
-					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
-						map[string]interface{}{})),
-				}
-			case "jwtpartnersdonotcast":
-				auth = bascule.Authentication{
-					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
-						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": nil}})),
-				}
-			case "authnotbasicorjwt":
-				auth = bascule.Authentication{
-					Token: bascule.NewToken("spongebob", "owner-from-auth", bascule.NewAttributes(
-						map[string]interface{}{})),
-				}
-			}
-
-			request, err := http.NewRequestWithContext(bascule.WithAuthentication(context.Background(), auth),
+			request, err := http.NewRequestWithContext(bascule.WithAuthentication(context.Background(), tc.auth),
 				http.MethodGet, "http://localhost:8080", nil)
 			require.Nil(err)
-			if tc.auth == "basic" {
+			if tc.authType == "basic" {
 				request.Header["X-Codex-Partner-Ids"] = []string{"*"}
 			}
 			rr := httptest.NewRecorder()
