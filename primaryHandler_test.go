@@ -292,11 +292,6 @@ func TestHandleGetEvents(t *testing.T) {
 			auth:               "jwtnopartners",
 		},
 		{
-			description:        "No Auth Error",
-			deviceID:           "1234",
-			expectedStatusCode: http.StatusBadRequest,
-		},
-		{
 			description: "Jwt Auth Success",
 			deviceID:    "1234",
 			recordsToReturn: []db.Record{
@@ -311,7 +306,21 @@ func TestHandleGetEvents(t *testing.T) {
 			expectedBody:       goodData,
 			auth:               "jwtwithpartners",
 		},
-
+		{
+			description: "Jwt Auth No Matching Partners Success",
+			deviceID:    "1234",
+			recordsToReturn: []db.Record{
+				{
+					DeathDate: futureTime,
+					Data:      goodData,
+					Alg:       string(voynicrypto.None),
+					KID:       "none",
+				},
+			},
+			expectedStatusCode: http.StatusOK,
+			expectedBody:       goodData,
+			auth:               "jwtnomatchpartners",
+		},
 		{
 			description: "Basic Auth Success",
 			deviceID:    "1234",
@@ -368,6 +377,11 @@ func TestHandleGetEvents(t *testing.T) {
 				auth = bascule.Authentication{
 					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
 						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "test1"}})),
+				}
+			case "jwtnomatchpartners":
+				auth = bascule.Authentication{
+					Token: bascule.NewToken("jwt", "owner-from-auth", bascule.NewAttributes(
+						map[string]interface{}{"allowedResources": map[string]interface{}{"allowedPartners": "comcast"}})),
 				}
 			case "jwtnopartners":
 				auth = bascule.Authentication{
