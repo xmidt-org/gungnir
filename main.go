@@ -45,11 +45,11 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/xmidt-org/codex-db/healthlogger"
-	"github.com/xmidt-org/webpa-common/basculechecks"
-	"github.com/xmidt-org/webpa-common/basculemetrics"
-	"github.com/xmidt-org/webpa-common/concurrent"
-	"github.com/xmidt-org/webpa-common/logging"
-	"github.com/xmidt-org/webpa-common/server"
+	"github.com/xmidt-org/webpa-common/v2/basculechecks"
+	"github.com/xmidt-org/webpa-common/v2/basculemetrics"
+	"github.com/xmidt-org/webpa-common/v2/concurrent"
+	"github.com/xmidt-org/webpa-common/v2/logging"
+	"github.com/xmidt-org/webpa-common/v2/server"
 
 	"github.com/InVisionApp/go-health/v2"
 	"github.com/InVisionApp/go-health/v2/handlers"

@@ -44,10 +44,10 @@ import (
 	"github.com/gorilla/mux"
 	newchecks "github.com/xmidt-org/bascule/basculechecks"
 	db "github.com/xmidt-org/codex-db"
-	"github.com/xmidt-org/webpa-common/basculechecks"
-	"github.com/xmidt-org/webpa-common/basculemetrics"
-	"github.com/xmidt-org/webpa-common/logging"
-	"github.com/xmidt-org/webpa-common/xmetrics"
+	"github.com/xmidt-org/webpa-common/v2/basculechecks"
+	"github.com/xmidt-org/webpa-common/v2/basculemetrics"
+	"github.com/xmidt-org/webpa-common/v2/logging"
+	"github.com/xmidt-org/webpa-common/v2/xmetrics"
 )
 
 type App struct {
