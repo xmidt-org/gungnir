@@ -19,11 +19,12 @@ require (
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.12.0
-	github.com/stretchr/testify v1.7.5
+	github.com/stretchr/testify v1.8.0
 	github.com/subosito/gotenv v1.4.0 // indirect
 	github.com/ugorji/go/codec v1.2.7
 	github.com/xmidt-org/bascule v0.10.2
 	github.com/xmidt-org/codex-db v0.7.1
+	github.com/xmidt-org/themis v0.4.8 // indirect
 	github.com/xmidt-org/touchstone v0.1.1 // indirect
 	github.com/xmidt-org/voynicrypto v0.1.1
 	github.com/xmidt-org/webpa-common v1.11.9 // indirect
@@ -31,7 +32,7 @@ require (
 	github.com/xmidt-org/wrp-go/v3 v3.1.3
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220330205332-605edab4323b // indirect
-	golang.org/x/sys v0.0.0-20220624220833-87e55d714810 // indirect
+	golang.org/x/sys v0.0.0-20220627191245-f75cf1eec38b // indirect
 	golang.org/x/tools v0.1.10 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 )
