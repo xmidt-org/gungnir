@@ -14,7 +14,8 @@ require (
 	github.com/justinas/alice v1.2.0
 	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
 	github.com/prometheus/client_golang v1.12.2 // indirect
-	github.com/prometheus/common v0.35.0 // indirect
+	github.com/prometheus/common v0.37.0 // indirect
+	github.com/spf13/afero v1.9.0 // indirect
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.12.0
@@ -32,7 +33,7 @@ require (
 	github.com/xmidt-org/wrp-go/v3 v3.1.3
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220330205332-605edab4323b // indirect
-	golang.org/x/sys v0.0.0-20220708085239-5a0f0661e09d // indirect
+	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 	golang.org/x/tools v0.1.10 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 )
