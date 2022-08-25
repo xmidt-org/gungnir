@@ -27,9 +27,8 @@ require (
 	github.com/xmidt-org/themis v0.4.8 // indirect
 	github.com/xmidt-org/touchstone v0.1.1 // indirect
 	github.com/xmidt-org/voynicrypto v0.1.1
-	github.com/xmidt-org/webpa-common v1.11.9 // indirect
 	github.com/xmidt-org/webpa-common/v2 v2.0.6
-	github.com/xmidt-org/wrp-go/v3 v3.1.3
+	github.com/xmidt-org/wrp-go/v3 v3.1.4
 	go.uber.org/dig v1.15.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220330205332-605edab4323b // indirect
