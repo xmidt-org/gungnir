@@ -2,13 +2,15 @@
 linters-settings:
   misspell:
     locale: US
+  errorlint:
+    # Report non-wrapping error creation using fmt.Errorf
+    errorf: false
 
 linters:
   enable:
     - bodyclose
     - dupl
     - errorlint
-    - funlen
     - goconst
     - gosec
     - misspell
@@ -28,8 +30,3 @@ issues:
     - path: main\.go
       # Accept pprof is automatically exposed
       text: "G108:"
-
-linters-settings:
-  errorlint:
-    # Report non-wrapping error creation using fmt.Errorf
-    errorf: false
