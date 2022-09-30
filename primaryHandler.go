@@ -38,16 +38,16 @@ import (
 	"github.com/xmidt-org/bascule/basculehttp"
 	"github.com/xmidt-org/voynicrypto"
 
-	"github.com/go-kit/kit/log"
 	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/go-kit/log"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
 	newchecks "github.com/xmidt-org/bascule/basculechecks"
 	db "github.com/xmidt-org/codex-db"
-	"github.com/xmidt-org/webpa-common/v2/basculechecks"
-	"github.com/xmidt-org/webpa-common/v2/basculemetrics"
-	"github.com/xmidt-org/webpa-common/v2/logging"
-	"github.com/xmidt-org/webpa-common/v2/xmetrics"
+	"github.com/xmidt-org/webpa-common/v2/basculechecks"  //nolint: staticcheck
+	"github.com/xmidt-org/webpa-common/v2/basculemetrics" //nolint: staticcheck
+	"github.com/xmidt-org/webpa-common/v2/logging"        //nolint: staticcheck
+	"github.com/xmidt-org/webpa-common/v2/xmetrics"       //nolint: staticcheck
 )
 
 type App struct {
@@ -281,7 +281,7 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 	var data []byte
 	// TODO: revert to json spec, aka encode integers > 2^53 as a json string
 	err = codec.NewEncoderBytes(&data, &codec.JsonHandle{
-		BasicHandle: codec.BasicHandle{
+		BasicHandle: codec.BasicHandle{ //nolint: staticcheck
 			TypeInfos: codec.NewTypeInfos([]string{"wrp"}),
 		},
 	}).Encode(filtered)

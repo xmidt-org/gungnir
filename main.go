@@ -38,18 +38,18 @@ import (
 	"github.com/xmidt-org/bascule"
 	"github.com/xmidt-org/bascule/key"
 
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 	"github.com/goph/emperror"
 	"github.com/gorilla/mux"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/xmidt-org/codex-db/healthlogger"
-	"github.com/xmidt-org/webpa-common/v2/basculechecks"
-	"github.com/xmidt-org/webpa-common/v2/basculemetrics"
-	"github.com/xmidt-org/webpa-common/v2/concurrent"
-	"github.com/xmidt-org/webpa-common/v2/logging"
-	"github.com/xmidt-org/webpa-common/v2/server"
+	"github.com/xmidt-org/webpa-common/v2/basculechecks"  //nolint: staticcheck
+	"github.com/xmidt-org/webpa-common/v2/basculemetrics" //nolint: staticcheck
+	"github.com/xmidt-org/webpa-common/v2/concurrent"     //nolint: staticcheck
+	"github.com/xmidt-org/webpa-common/v2/logging"        //nolint: staticcheck
+	"github.com/xmidt-org/webpa-common/v2/server"         //nolint: staticcheck
 
 	"github.com/InVisionApp/go-health/v2"
 	"github.com/InVisionApp/go-health/v2/handlers"
@@ -174,8 +174,13 @@ func gungnir(arguments []string) {
 			logging.Error(logger).Log(logging.MessageKey(), "failed to start health", logging.ErrorKey(), err)
 		}
 		http.HandleFunc(config.Health.Endpoint, handlers.NewJSONHandlerFunc(serverHealth, nil))
+		server := &http.Server{
+			Addr:              config.Health.Port,
+			ReadHeaderTimeout: 3 * time.Second,
+		}
 		go func() {
-			olog.Fatal(http.ListenAndServe(config.Health.Port, nil))
+
+			olog.Fatal(server.ListenAndServe())
 		}()
 	}
 
