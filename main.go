@@ -29,6 +29,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/xmidt-org/clortho"
 	dbretry "github.com/xmidt-org/codex-db/retry"
 
 	"github.com/xmidt-org/codex-db/cassandra"
@@ -36,7 +37,6 @@ import (
 	"github.com/xmidt-org/voynicrypto"
 
 	"github.com/xmidt-org/bascule"
-	"github.com/xmidt-org/bascule/key"
 
 	"github.com/go-kit/log"
 	"github.com/goph/emperror"
@@ -92,8 +92,8 @@ type CapabilityConfig struct {
 }
 
 type JWTValidator struct {
-	// JWTKeys is used to create the key.Resolver for JWT verification keys
-	Keys key.ResolverFactory
+	// Config is used to create the clortho Resolver & Refresher for JWT verification keys
+	Config clortho.Config
 
 	// Leeway is used to set the amount of time buffer should be given to JWT
 	// time values, such as nbf
@@ -147,7 +147,7 @@ func gungnir(arguments []string) {
 	exitIfError(logger, emperror.Wrap(err, "failed to initialize cipher config"))
 	decrypters := voynicrypto.PopulateCiphers(cipherOptions, logger)
 
-	gungnirHandler, err := authChain(config.AuthHeader, config.JwtValidator, config.CapabilityCheck, logger, metricsRegistry)
+	gungnirHandler, err := authChain(v, config.AuthHeader, config.CapabilityCheck, logger, metricsRegistry)
 	exitIfError(logger, emperror.Wrap(err, "failed to setup auth chain"))
 
 	router := mux.NewRouter()
