@@ -31,6 +31,8 @@ import (
 
 	"github.com/xmidt-org/clortho"
 	dbretry "github.com/xmidt-org/codex-db/retry"
+	"github.com/xmidt-org/sallust"
+	"github.com/xmidt-org/touchstone"
 
 	"github.com/xmidt-org/codex-db/cassandra"
 
@@ -73,6 +75,8 @@ type Config struct {
 	Health                      HealthConfig
 	AuthHeader                  []string
 	JwtValidator                JWTValidator
+	TouchStone                  touchstone.Config
+	Zap                         sallust.Config
 	CapabilityCheck             CapabilityConfig
 	LongPollSleep               time.Duration
 	LongPollTimeout             time.Duration
@@ -147,7 +151,7 @@ func gungnir(arguments []string) {
 	exitIfError(logger, emperror.Wrap(err, "failed to initialize cipher config"))
 	decrypters := voynicrypto.PopulateCiphers(cipherOptions, logger)
 
-	gungnirHandler, err := authChain(v, config.AuthHeader, config.CapabilityCheck, logger, metricsRegistry)
+	gungnirHandler, err := authChain(config.AuthHeader, config.JwtValidator, config.TouchStone, config.Zap, config.CapabilityCheck, logger, metricsRegistry)
 	exitIfError(logger, emperror.Wrap(err, "failed to setup auth chain"))
 
 	router := mux.NewRouter()

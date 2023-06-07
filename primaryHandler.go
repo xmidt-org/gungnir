@@ -33,7 +33,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cast"
-	"github.com/spf13/viper"
 	"github.com/ugorji/go/codec"
 	"github.com/xmidt-org/clortho"
 	"github.com/xmidt-org/clortho/clorthometrics"
@@ -310,7 +309,7 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 }
 
 //nolint:funlen // this will be fixed with uber fx
-func authChain(v *viper.Viper, basicAuth []string, capabilityCheck CapabilityConfig, logger log.Logger, registry xmetrics.Registry) (alice.Chain, error) {
+func authChain(basicAuth []string, jwtConfig JWTValidator, tsConfig touchstone.Config, zConfig sallust.Config, capabilityCheck CapabilityConfig, logger log.Logger, registry xmetrics.Registry) (alice.Chain, error) {
 	if registry == nil {
 		return alice.Chain{}, errors.New("nil registry")
 	}
@@ -342,9 +341,6 @@ func authChain(v *viper.Viper, basicAuth []string, capabilityCheck CapabilityCon
 		options = append(options, basculehttp.WithTokenFactory("Basic", basculehttp.BasicTokenFactory(basicAllowed)))
 	}
 
-	var jwtVal JWTValidator
-	// Get jwt configuration, including clortho's configuration
-	v.UnmarshalKey("jwtValidator", &jwtVal)
 	// Instantiate a keyring for refresher and resolver to share
 	kr := clortho.NewKeyRing()
 
@@ -355,7 +351,7 @@ func authChain(v *viper.Viper, basicAuth []string, capabilityCheck CapabilityCon
 	}
 
 	ref, err := clortho.NewRefresher(
-		clortho.WithConfig(jwtVal.Config),
+		clortho.WithConfig(jwtConfig.Config),
 		clortho.WithFetcher(f),
 	)
 	if err != nil {
@@ -363,7 +359,7 @@ func authChain(v *viper.Viper, basicAuth []string, capabilityCheck CapabilityCon
 	}
 
 	resolver, err := clortho.NewResolver(
-		clortho.WithConfig(jwtVal.Config),
+		clortho.WithConfig(jwtConfig.Config),
 		clortho.WithKeyRing(kr),
 		clortho.WithFetcher(f),
 	)
@@ -376,13 +372,6 @@ func authChain(v *viper.Viper, basicAuth []string, capabilityCheck CapabilityCon
 		return alice.Chain{}, errors.New("failed to get prometheus registerer")
 	}
 
-	var (
-		tsConfig touchstone.Config
-		zConfig  sallust.Config
-	)
-	// Get touchstone & zap configurations
-	v.UnmarshalKey("touchstone", &tsConfig)
-	v.UnmarshalKey("zap", &zConfig)
 	zlogger := zap.Must(zConfig.Build())
 	tf := touchstone.NewFactory(tsConfig, zlogger, promReg)
 	// Instantiate a metric listener for refresher and resolver to share
@@ -419,7 +408,7 @@ func authChain(v *viper.Viper, basicAuth []string, capabilityCheck CapabilityCon
 		DefaultKeyID: DEFAULT_KEY_ID,
 		Resolver:     resolver,
 		Parser:       bascule.DefaultJWTParser,
-		Leeway:       jwtVal.Leeway,
+		Leeway:       jwtConfig.Leeway,
 	}))
 
 	authConstructor := basculehttp.NewConstructor(options...)
