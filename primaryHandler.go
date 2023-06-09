@@ -24,14 +24,24 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
 	"regexp"
 	"strings"
+	"syscall"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cast"
 	"github.com/ugorji/go/codec"
+	"github.com/xmidt-org/clortho"
+	"github.com/xmidt-org/clortho/clorthometrics"
+	"github.com/xmidt-org/clortho/clorthozap"
 	"github.com/xmidt-org/gungnir/model"
+	"github.com/xmidt-org/sallust"
+	"github.com/xmidt-org/touchstone"
 	"github.com/xmidt-org/wrp-go/v3"
+	"go.uber.org/zap"
 
 	"github.com/justinas/alice"
 	"github.com/xmidt-org/bascule"
@@ -299,7 +309,7 @@ func (app *App) handleGetEvents(writer http.ResponseWriter, request *http.Reques
 }
 
 //nolint:funlen // this will be fixed with uber fx
-func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck CapabilityConfig, logger log.Logger, registry xmetrics.Registry) (alice.Chain, error) {
+func authChain(basicAuth []string, jwtConfig JWTValidator, tsConfig touchstone.Config, zConfig sallust.Config, capabilityCheck CapabilityConfig, logger log.Logger, registry xmetrics.Registry) (alice.Chain, error) {
 	if registry == nil {
 		return alice.Chain{}, errors.New("nil registry")
 	}
@@ -331,19 +341,75 @@ func authChain(basicAuth []string, jwtVal JWTValidator, capabilityCheck Capabili
 		options = append(options, basculehttp.WithTokenFactory("Basic", basculehttp.BasicTokenFactory(basicAllowed)))
 	}
 
-	if jwtVal.Keys.URI != "" {
-		resolver, err := jwtVal.Keys.NewResolver()
-		if err != nil {
-			return alice.Chain{}, emperror.With(err, "failed to create resolver")
-		}
+	// Instantiate a keyring for refresher and resolver to share
+	kr := clortho.NewKeyRing()
 
-		options = append(options, basculehttp.WithTokenFactory("Bearer", basculehttp.BearerTokenFactory{
-			DefaultKeyID: DEFAULT_KEY_ID,
-			Resolver:     resolver,
-			Parser:       bascule.DefaultJWTParser,
-			Leeway:       jwtVal.Leeway,
-		}))
+	// Instantiate a fetcher for refresher and resolver to share
+	f, err := clortho.NewFetcher()
+	if err != nil {
+		return alice.Chain{}, emperror.With(err, "failed to create clortho fetcher")
 	}
+
+	ref, err := clortho.NewRefresher(
+		clortho.WithConfig(jwtConfig.Config),
+		clortho.WithFetcher(f),
+	)
+	if err != nil {
+		return alice.Chain{}, emperror.With(err, "failed to create clortho refresher")
+	}
+
+	resolver, err := clortho.NewResolver(
+		clortho.WithConfig(jwtConfig.Config),
+		clortho.WithKeyRing(kr),
+		clortho.WithFetcher(f),
+	)
+	if err != nil {
+		return alice.Chain{}, emperror.With(err, "failed to create clortho resolver")
+	}
+
+	promReg, ok := registry.(prometheus.Registerer)
+	if !ok {
+		return alice.Chain{}, errors.New("failed to get prometheus registerer")
+	}
+
+	zlogger := zap.Must(zConfig.Build())
+	tf := touchstone.NewFactory(tsConfig, zlogger, promReg)
+	// Instantiate a metric listener for refresher and resolver to share
+	cml, err := clorthometrics.NewListener(clorthometrics.WithFactory(tf))
+	if err != nil {
+		return alice.Chain{}, emperror.With(err, "failed to create clortho metrics listener")
+	}
+
+	// Instantiate a logging listener for refresher and resolver to share
+	czl, err := clorthozap.NewListener(
+		clorthozap.WithLogger(zlogger),
+	)
+	if err != nil {
+		return alice.Chain{}, emperror.With(err, "failed to create clortho zap logger listener")
+	}
+
+	resolver.AddListener(cml)
+	resolver.AddListener(czl)
+	ref.AddListener(cml)
+	ref.AddListener(czl)
+	ref.AddListener(kr)
+	// context.Background() is for the unused `context.Context` argument in refresher.Start
+	ref.Start(context.Background())
+	// Shutdown refresher's goroutines when SIGTERM
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGTERM)
+	go func() {
+		<-sigs
+		// context.Background() is for the unused `context.Context` argument in refresher.Stop
+		ref.Stop(context.Background())
+	}()
+
+	options = append(options, basculehttp.WithTokenFactory("Bearer", basculehttp.BearerTokenFactory{
+		DefaultKeyID: DEFAULT_KEY_ID,
+		Resolver:     resolver,
+		Parser:       bascule.DefaultJWTParser,
+		Leeway:       jwtConfig.Leeway,
+	}))
 
 	authConstructor := basculehttp.NewConstructor(options...)
 
