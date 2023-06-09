@@ -19,3 +19,8 @@ report.json
 
 #Goland
 .idea/
+
+# VSCode
+*.code-workspace
+.vscode/*
+.dev/*
