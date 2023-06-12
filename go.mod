@@ -13,7 +13,7 @@ require (
 	github.com/spf13/cast v1.5.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.8.4
 	github.com/ugorji/go/codec v1.2.7
 	github.com/xmidt-org/bascule v0.11.0
 	github.com/xmidt-org/clortho v0.0.4
