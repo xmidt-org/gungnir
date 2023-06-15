@@ -14,7 +14,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
-	github.com/ugorji/go/codec v1.2.7
+	github.com/ugorji/go/codec v1.2.11
 	github.com/xmidt-org/bascule v0.11.0
 	github.com/xmidt-org/clortho v0.0.4
 	github.com/xmidt-org/codex-db v0.7.2
