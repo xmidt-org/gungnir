@@ -3,7 +3,7 @@ module github.com/xmidt-org/gungnir
 go 1.19
 
 require (
-	github.com/InVisionApp/go-health/v2 v2.1.3
+	github.com/InVisionApp/go-health/v2 v2.1.4
 	github.com/go-kit/kit v0.12.0
 	github.com/go-kit/log v0.2.1
 	github.com/goph/emperror v0.17.3-0.20190703203600-60a8d9faa17b
