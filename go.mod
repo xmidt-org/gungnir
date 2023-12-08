@@ -14,7 +14,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.18.1
 	github.com/stretchr/testify v1.8.4
-	github.com/ugorji/go/codec v1.2.7
+	github.com/ugorji/go/codec v1.2.11
 	github.com/xmidt-org/bascule v0.11.0
 	github.com/xmidt-org/clortho v0.0.4
 	github.com/xmidt-org/codex-db v0.7.2
@@ -22,7 +22,7 @@ require (
 	github.com/xmidt-org/touchstone v0.1.3
 	github.com/xmidt-org/voynicrypto v0.1.1
 	github.com/xmidt-org/webpa-common/v2 v2.0.7
-	github.com/xmidt-org/wrp-go/v3 v3.1.4
+	github.com/xmidt-org/wrp-go/v3 v3.2.3
 	go.uber.org/zap v1.26.0
 )
 
@@ -86,7 +86,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.9.0 // indirect
 	go.uber.org/dig v1.16.1 // indirect
 	go.uber.org/fx v1.19.2 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/sys v0.15.0 // indirect
