@@ -1,7 +1,7 @@
 ---
 
-# The unique fully-qualified-domain-name of the server.  It is provided to 
-# the X-Gungnir-Server header for showing what server fulfilled the request 
+# The unique fully-qualified-domain-name of the server.  It is provided to
+# the X-Gungnir-Server header for showing what server fulfilled the request
 # sent.
 # (Optional)
 server: "gungnir-instance-123.example.com"
@@ -39,7 +39,7 @@ primary:
   # ":443" is ideal, but may require some special handling due to it being
   # a reserved (by the kernel) port.
   address: ":7000"
-  # HTTPS/TLS 
+  # HTTPS/TLS
   #
   # certificateFile provides the public key and CA chain in PEM format if
   # TLS is used.  Note: the certificate needs to match the fqdn for clients
@@ -62,7 +62,7 @@ health:
   # ":80" is ideal, but may require some special handling due to it being
   # a reserved (by the kernel) port.
   port: ":7001"
-  # endpoint provides the endpoint that will provide the health check 
+  # endpoint provides the endpoint that will provide the health check
   # information.
   endpoint: "/health"
 
@@ -180,7 +180,7 @@ zap:
 ########################################
 
 # Any combination of these configurations may be used for authorization.
-# If ANY match, the request goes onwards.  If none are provided, no requests 
+# If ANY match, the request goes onwards.  If none are provided, no requests
 # will be accepted.
 
 # authHeader provides the list of basic auth headers that gungnir will accept
@@ -200,7 +200,7 @@ jwtValidator:
   Config:
     Resolve:
       # Template is a URI template used to fetch keys.  This template may
-	    # use a single parameter named keyID, e.g. http://keys.com/{keyID}.
+      # use a single parameter named keyID, e.g. http://keys.com/{keyID}.
       # This field is required and has no default.
       Template: "http://localhost/{keyID}"
     Refresh:
@@ -213,28 +213,28 @@ jwtValidator:
         - URI: "http://localhost"
 
 # capabilityCheck provides the details needed for checking an incoming JWT's
-# capabilities.  If the type of check isn't provided, no checking is done.  The 
-# type can be "monitor" or "enforce".  If it is empty or a different value, no 
-# checking is done.  If "monitor" is provided, the capabilities are checked but 
-# the request isn't rejected when there isn't a valid capability for the 
-# request. Instead, a message is logged.  When "enforce" is provided, a request 
+# capabilities.  If the type of check isn't provided, no checking is done.  The
+# type can be "monitor" or "enforce".  If it is empty or a different value, no
+# checking is done.  If "monitor" is provided, the capabilities are checked but
+# the request isn't rejected when there isn't a valid capability for the
+# request. Instead, a message is logged.  When "enforce" is provided, a request
 # that doesn't have the needed capability is rejected.
 #
 # The capability is expected to have the format:
 #
 # {prefix}{endpoint}:{method}
 #
-# The prefix can be a regular expression.  If it's empty, no capability check 
+# The prefix can be a regular expression.  If it's empty, no capability check
 # is done.  The endpoint is a regular expression that should match the endpoint
-# the request was sent to. The method is usually the method of the request, such as 
-# GET.  The accept all method is a catchall string that indicates the capability 
+# the request was sent to. The method is usually the method of the request, such as
+# GET.  The accept all method is a catchall string that indicates the capability
 # is approved for all methods.
 # (Optional)
 # capabilityCheck:
 #   type: "enforce"
 #   prefix: "prefix Here"
 #   acceptAllMethod: "all"
-#   # endpointBuckets provides regular expressions to use against the request 
+#   # endpointBuckets provides regular expressions to use against the request
 #   # endpoint in order to group requests for a metric label.
 #   endpointBuckets:
 #     - "device/.*/events\\b"
@@ -244,7 +244,7 @@ jwtValidator:
 #   Database Related Configuration
 ########################################
 
-# db provides the configuration for connecting to the database and database 
+# db provides the configuration for connecting to the database and database
 # calls.
 db:
   # hosts is and array of address and port used to connect to the cluster.
@@ -295,7 +295,7 @@ getLimit: 50
 # (Optional)
 getRetries: 3
 
-# retryInterval is the amount of time to wait in between attempts to query the 
+# retryInterval is the amount of time to wait in between attempts to query the
 # database.  Has no effect if the number of retries is 0.
 # (Optional)
 retryInterval: 10s
@@ -314,10 +314,10 @@ longPollTimeout: 10s
 #   Encryption Related Configuration
 ########################################
 
-# cipher tells gungnir what types of encryption it should be prepared to 
+# cipher tells gungnir what types of encryption it should be prepared to
 # decrypt.  This list is used if the events in the database are encrypted.
-# Gungnir will only decrypt events with types and kids matching something in 
-# this list.  At least one is required.  If there is no decryption, use the 
+# Gungnir will only decrypt events with types and kids matching something in
+# this list.  At least one is required.  If there is no decryption, use the
 # "none" configuration below.
 cipher:
   - # type is the type of decryption.

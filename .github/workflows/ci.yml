@@ -26,4 +26,5 @@ jobs:
       style-skip:     true
       copyright-skip: true
       release-type:   program
+      yaml-lint-skip: false
     secrets: inherit
