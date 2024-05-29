@@ -26,7 +26,7 @@ issues:
       linters:
         - dupl
         - funlen
-        
+
     - path: main\.go
       # Accept pprof is automatically exposed
       text: "G108:"
