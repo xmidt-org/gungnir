@@ -17,7 +17,7 @@ require (
 	github.com/ugorji/go/codec v1.2.7
 	github.com/xmidt-org/bascule v0.11.0
 	github.com/xmidt-org/clortho v0.0.4
-	github.com/xmidt-org/codex-db v0.7.2
+	github.com/xmidt-org/codex-db v0.7.3
 	github.com/xmidt-org/sallust v0.1.6
 	github.com/xmidt-org/touchstone v0.1.3
 	github.com/xmidt-org/voynicrypto v0.1.1
@@ -75,7 +75,7 @@ require (
 	github.com/xmidt-org/chronon v0.1.1 // indirect
 	github.com/xmidt-org/themis v0.4.8 // indirect
 	github.com/xmidt-org/webpa-common v1.11.9 // indirect
-	github.com/yugabyte/gocql v0.0.0-20220204171058-0bd8e6cb12d0 // indirect
+	github.com/yugabyte/gocql v1.6.0-yb-1 // indirect
 	go.opentelemetry.io/otel v1.9.0 // indirect
 	go.opentelemetry.io/otel/exporters/jaeger v1.9.0 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.9.0 // indirect
