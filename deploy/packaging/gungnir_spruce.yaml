@@ -1,0 +1,300 @@
+---
+# The unique fully-qualified-domain-name of the server.
+# (Optional)
+fqdn: (( grab $HOSTNAME || "gungnir" ))
+
+# Unsure where server is used.
+# (Optional)
+server: (( grab $HOSTNAME || "gungnir" ))
+
+########################################
+#   Labeling/Tracing via HTTP Headers Configuration
+########################################
+
+# Provides this build number to the X-Gungnir-Build header for
+# showing machine version information.  The build number SHOULD
+# match the scheme `version-build` but there is not a strict requirement.
+# (Optional)
+build: (( grab $BUILD || "unknown" ))
+
+# Provides the region information to the X-Gungnir-Region header
+# for showing what region this machine is located in.  The region
+# is arbitrary and optional.
+# (Optional)
+region: "east"
+
+# Provides the flavor information to the X-Gungnir-Flavor header
+# for showing what flavor this machine is associated with.  The flavor
+# is arbitrary and optional.
+# (Optional)
+flavor: (( grab $FLAVOR || "mint" ))
+
+# stage is used for doing complex spruce manipulation
+# change this will only effect spruce and the vars referencing it
+stage: (( grab $STAGE || "dev" ))
+
+########################################
+#   Primary Endpoint Configuration
+########################################
+
+# primary defines the details needed for the primary endpoint.  The
+# primary endpoint accepts requests for events for a specific device id.
+primary:
+  # address provides the port number for the endpoint to bind to.
+  # ":443" is ideal, but may require some special handling due to it being
+  # a reserved (by the kernel) port.
+  address: ":7000"
+  # HTTPS/TLS
+  #
+  # certificateFile provides the public key and CA chain in PEM format if
+  # TLS is used.  Note: the certificate needs to match the fqdn for clients
+  # to accept without issue.
+  #
+  # keyFile provides the private key that matches the certificateFile
+  # (Optional)
+  # certificateFile: "/etc/gungnir/public.pem"
+  # keyFile: "/etc/gungnir/private.pem"
+
+########################################
+#   Health Endpoint Configuration
+########################################
+
+# health defines the details needed for the health check endpoint.  The
+# health check endpoint is generally used by services (like AWS Route53
+# or consul) to determine if this particular machine is healthy or not.
+health:
+  # port provides the port number for the endpoint to bind to.
+  # ":80" is ideal, but may require some special handling due to it being
+  # a reserved (by the kernel) port.
+  port: ":7001"
+  # endpoint provides the endpoint that will provide the health check
+  # information.
+  endpoint: "/health"
+
+########################################
+#   Debugging/Pprof Configuration
+########################################
+
+# pprof defines the details needed for the pprof debug endpoint.
+# (Optional)
+pprof:
+  # address provides the port number for the endpoint to bind to.
+  address: ":7002"
+
+########################################
+#   Metrics Configuration
+########################################
+
+# metric defines the details needed for the prometheus metrics endpoint
+# (Optional)
+metric:
+  # address provides the port number for the endpoint to bind to.  Port 9389
+  # was chosen because it does not conflict with any of the other prometheus
+  # metrics or other machines in the xmidt cluster.  You may use any port you
+  # wish.
+  address: ":7003"
+
+  # metricsOptions provides the details needed to configure the prometheus
+  # metric data.  Metrics generally have the form:
+  #
+  # {namespace}_{subsystem}_{metric}
+  #
+  # so if you use the suggested value below, your metrics are prefixed like
+  # this:
+  #
+  # codex_gungnir_{metric}
+  #
+  # (Optional)
+  metricsOptions:
+    # namespace is the namespace of the metrics provided
+    # (Optional)
+    namespace: "codex"
+    # subsystem is the subsystem of the metrics provided
+    # (Optional)
+    subsystem: "gungnir"
+
+########################################
+#   Logging Related Configuration
+########################################
+
+# log configures the logging subsystem details
+log:
+  # file is the name of the most recent log file.  If set to "stdout" this
+  # will log to os.Stdout.
+  # (Optional) defaults to os.TempDir()
+  #file: "/var/log/gungnir/gungnir.log"
+  file: "stdout"
+
+  # level is the logging level to use - INFO, DEBUG, WARN, ERROR
+  # (Optional) defaults to ERROR
+  level: "ERROR"
+
+  # maxsize is the maximum file size in MB
+  # (Optional) defaults to max 100MB
+  maxsize: 50
+
+  # maxage is the maximum number of days to retain old log files
+  # (Optional) defaults to ignore age limit (0)
+  maxage: 30
+
+  # maxbackups is the maximum number of old log files to retain
+  # (Optional) defaults to retain all (0)
+  maxbackups: 10
+
+  # json is a flag indicating whether JSON logging output should be used.
+  # (Optional) defaults to false
+  json: true
+
+########################################
+#   Authorization Related Configuration
+########################################
+
+# Any combination of these configurations may be used for authorization.
+# If ANY match, the request goes onwards.  If none are provided, no requests
+# will be accepted.
+
+# authHeader provides the list of basic auth headers that gungnir will accept
+# as authorization
+# (Optional)
+authHeader: ["xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=", "dXNlcjpwYXNzCg=="]
+
+# jwtValidator provides the details about where to get the keys for JWT
+# kid values and their associated information (expiration, etc) for JWTs
+# used as authorization
+# (Optional)
+jwtValidator:
+  keys:
+    factory:
+      uri: "https://jwt.example.com/keys/{keyId}"
+    purpose: 0
+    updateInterval: 604800000000000
+
+# capabilityCheck provides the details needed for checking an incoming JWT's
+# capabilities.  If the type of check isn't provided, no checking is done.  The
+# type can be "monitor" or "enforce".  If it is empty or a different value, no
+# checking is done.  If "monitor" is provided, the capabilities are checked but
+# the request isn't rejected when there isn't a valid capability for the
+# request. Instead, a message is logged.  When "enforce" is provided, a request
+# that doesn't have the needed capability is rejected.
+#
+# The capability is expected to have the format:
+#
+# {prefix}{endpoint}:{method}
+#
+# The prefix can be a regular expression.  If it's empty, no capability check
+# is done.  The endpoint is a regular expression that should match the endpoint
+# the request was sent to. The method is usually the method of the request, such as
+# GET.  The accept all method is a catchall string that indicates the capability
+# is approved for all methods.
+# (Optional)
+# capabilityCheck:
+#   type: "enforce"
+#   prefix: "prefix Here"
+#   acceptAllMethod: "all"
+#   # endpointBuckets provides regular expressions to use against the request
+#   # endpoint in order to group requests for a metric label.
+#   endpointBuckets:
+#     - "device/.*/events\\b"
+#     - "device/.*/status\\b"
+
+########################################
+#   Database Related Configuration
+########################################
+
+# db provides the configuration for connecting to the database and database
+# calls.
+db:
+  # hosts is and array of address and port used to connect to the cluster.
+  hosts:
+    - "db"
+  # database is the name of the database being connected to.
+  database: "devices"
+  # opTimeout is the timeout for database calls after svalinn is connected.
+  # If the opTimeout is set to 0, it defaults to 10s.
+  # (Optional) defaults to 10s
+  opTimeout: 100ms
+
+#  # username is the username to use when connecting to the database.
+#  # (Optional)
+#  username: "cassandra"
+#
+#  # password is the password to use when connecting to the database.
+#  # (Optional)
+#  password: "cassandra"
+#
+#  # SSLRootCert is the root cert to use when connecting to the database.
+#  # The SSLKey and SSLCert must also be provided in order to connect securely.
+#  # (Optional)
+#  #sslRootCert: "/etc/svalinn/ca.crt"
+#
+#  # SSLKey is the SSL key to use when connecting to the database.  The
+#  # SSLRootCert and SSLCert must also be provided in order to connect securely.
+#  # (Optional)
+#  #sslKey: "/etc/svalinn/node.0.0.0.0.key"
+#
+#  # SSLCert is the SSL cert to use when connecting to the database.  The SSLKey
+#  # and SSLRootCert must also be provided in order to connect securely.
+#  # (Optional)
+#  #sslCert: "/etc/svalinn/node.0.0.0.0.crt"
+#
+#  # If you want to verify the hostname and server cert (like a wildcard for cass cluster) then you should turn this on
+#  # This option is basically the inverse of InSecureSkipVerify
+#  # See InSecureSkipVerify in http://golang.org/pkg/crypto/tls/ for more info
+#  # (Optional) defaults to false
+#  #enableHostVerification: false
+
+# getLimit is the maximum number of records one database get call will return.
+# (Optional)
+getLimit: 50
+
+# getRetries is the number of times to retry if a database request fails.
+# If getRetries is set to a value below 0, it is set to 1.
+# (Optional)
+getRetries: 3
+
+# retryInterval is the amount of time to wait in between attempts to query the
+# database.  Has no effect if the number of retries is 0.
+# (Optional)
+retryInterval: 10s
+
+# longPollSleep is the amount of time to sleep before checking the database for any new events.
+# refer to https://golang.org/pkg/time/#ParseDuration for which values are allowed.
+# (Optional) defaults to 1s
+longPollSleep: 1s
+
+# longPollTimeout is the amount of time to wait before canceling the longpoll request
+# refer to https://golang.org/pkg/time/#ParseDuration for which values are allowed.
+# (Optional) defaults to 60s
+longPollTimeout: 10s
+
+########################################
+#   Encryption Related Configuration
+########################################
+
+# cipher tells gungnir what types of encryption it should be prepared to
+# decrypt.  This list is used if the events in the database are encrypted.
+# Gungnir will only decrypt events with types and kids matching something in
+# this list.  At least one is required.  If there is no decryption, use the
+# "none" configuration below.
+cipher:
+  - # type is the type of decryption.
+    type: none
+
+    # kid is the a further identifier for what kind of decryption should be used.
+    kid: none
+
+  - # type is the type of decryption.
+    type: rsa-sym
+
+    # kid is a further identifier for what kind of decryption should be used.
+    kid: "basic-sha"
+
+    # params are further information for a type of decryption.
+    # (Optional)
+    params:
+      hash: SHA512
+
+    # keys are the keys to use for this form of decryption.
+    # (Optional)
+    keys:
+      privateKey: "/etc/gungnir/private.pem"
