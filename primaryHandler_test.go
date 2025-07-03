@@ -112,7 +112,7 @@ func TestGetDeviceInfo(t *testing.T) {
 		{
 			description: "Expired Records Error",
 			recordsToReturn: []db.Record{
-				db.Record{
+				{
 					DeathDate: previousTime,
 					Alg:       string(voynicrypto.None),
 					KID:       "none",
@@ -134,7 +134,7 @@ func TestGetDeviceInfo(t *testing.T) {
 			},
 			expectedFailureMetric: 1.0,
 			expectedEvents: []model.Event{
-				model.Event{Message: wrp.Message{Type: 11}, BirthDate: 0},
+				{Message: wrp.Message{Type: 11}, BirthDate: 0},
 			},
 		},
 		{
@@ -149,7 +149,7 @@ func TestGetDeviceInfo(t *testing.T) {
 			},
 			decryptErr: errors.New("failed to decrypt"),
 			expectedEvents: []model.Event{
-				model.Event{Message: wrp.Message{Type: 11}, BirthDate: 0},
+				{Message: wrp.Message{Type: 11}, BirthDate: 0},
 			},
 		},
 		{
@@ -164,7 +164,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedEvents: []model.Event{
-				model.Event{Message: wrp.Message{Type: 11}, BirthDate: prevTime.UnixNano()},
+				{Message: wrp.Message{Type: 11}, BirthDate: prevTime.UnixNano()},
 			},
 		},
 		{
@@ -179,7 +179,7 @@ func TestGetDeviceInfo(t *testing.T) {
 				},
 			},
 			expectedEvents: []model.Event{
-				model.Event{Message: goodOnlineEvent, BirthDate: prevTime.UnixNano()},
+				{Message: goodOnlineEvent, BirthDate: prevTime.UnixNano()},
 			},
 		},
 	}
@@ -197,7 +197,7 @@ func TestGetDeviceInfo(t *testing.T) {
 
 			ciphers := voynicrypto.Ciphers{
 				Options: map[voynicrypto.AlgorithmType]map[string]voynicrypto.Decrypt{
-					voynicrypto.None: map[string]voynicrypto.Decrypt{
+					voynicrypto.None: {
 						"none": mockDecrypter,
 					},
 				},
@@ -356,7 +356,7 @@ func TestHandleGetEvents(t *testing.T) {
 
 			ciphers := voynicrypto.Ciphers{
 				Options: map[voynicrypto.AlgorithmType]map[string]voynicrypto.Decrypt{
-					voynicrypto.None: map[string]voynicrypto.Decrypt{
+					voynicrypto.None: {
 						"none": new(voynicrypto.NOOP),
 					},
 				},
@@ -436,7 +436,7 @@ func TestLongPoll(t *testing.T) {
 				},
 			},
 			expectedEvents: []model.Event{
-				model.Event{Message: wrp.Message{Type: 11}, BirthDate: birthDate},
+				{Message: wrp.Message{Type: 11}, BirthDate: birthDate},
 			},
 			contextTimeout:  time.Minute,
 			longPollTimeout: time.Minute,
@@ -453,7 +453,7 @@ func TestLongPoll(t *testing.T) {
 
 			ciphers := voynicrypto.Ciphers{
 				Options: map[voynicrypto.AlgorithmType]map[string]voynicrypto.Decrypt{
-					voynicrypto.None: map[string]voynicrypto.Decrypt{
+					voynicrypto.None: {
 						"none": new(voynicrypto.NOOP),
 					},
 				},

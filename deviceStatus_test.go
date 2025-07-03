@@ -77,7 +77,7 @@ func TestGetStatusInfo(t *testing.T) {
 		{
 			description: "Expired Records Error",
 			recordsToReturn: []db.Record{
-				db.Record{
+				{
 					DeathDate: previousTime,
 					Alg:       string(voynicrypto.None),
 					KID:       "none",
@@ -231,7 +231,7 @@ func TestGetStatusInfo(t *testing.T) {
 
 			ciphers := voynicrypto.Ciphers{
 				Options: map[voynicrypto.AlgorithmType]map[string]voynicrypto.Decrypt{
-					voynicrypto.None: map[string]voynicrypto.Decrypt{
+					voynicrypto.None: {
 						"none": mockDecrypter,
 					},
 				},
@@ -335,7 +335,7 @@ func TestHandleGetStatus(t *testing.T) {
 
 			ciphers := voynicrypto.Ciphers{
 				Options: map[voynicrypto.AlgorithmType]map[string]voynicrypto.Decrypt{
-					voynicrypto.None: map[string]voynicrypto.Decrypt{
+					voynicrypto.None: {
 						"none": mockDecrypter,
 					},
 				},
